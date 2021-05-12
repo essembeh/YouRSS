@@ -1,0 +1,34 @@
+[tool.poetry]
+name = "youtube-rss-viewer"
+version = "0.1.0"
+description = "Simple youtube browser based on RSS feeds"
+homepage = "https://github.com/essembeh/youtube-rss-viewer"
+authors = ["Sébastien MB <seb@essembeh.org>"]
+license = "Apache-2.0"
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "License :: OSI Approved :: Apache Software License",
+    "Topic :: Utilities"
+]
+readme = "README.md"
+
+
+[tool.poetry.dependencies]
+python = "^3.7"
+importlib_metadata = { version = "", python = "< 3.8" }
+Flask = ""
+requests = ""
+lxml = ""
+
+
+[tool.poetry.dev-dependencies]
+black = ""
+pylint = ""
+pytest = ""
+pytest-dotenv = ""
+pytest-cov = ""
+
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
