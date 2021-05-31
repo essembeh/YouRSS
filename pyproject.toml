@@ -14,12 +14,13 @@ readme = "README.md"
 
 
 [tool.poetry.dependencies]
-python = "^3.7"
+python = "3.8.10"
 importlib_metadata = { version = "", python = "< 3.8" }
 Flask = ""
 requests = ""
 lxml = ""
 arrow = ""
+gunicorn = "^20.1.0"
 
 
 [tool.poetry.dev-dependencies]
