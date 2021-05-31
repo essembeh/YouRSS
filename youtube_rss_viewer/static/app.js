@@ -1,34 +1,12 @@
 function video_to_div(video) {
     time_label = moment(video.video_updated).fromNow();
     return `
-    <div class="accordion-item">
-        <div class="accordion-header" 
-            id="video-infos-${video.video_id}">
-            <button class="accordion-button collapsed" 
-                    type="button" 
-                    data-bs-toggle="collapse" 
-                    data-bs-target="#video-player-${video.video_id}" 
-                    aria-expanded="false" 
-                    aria-controls="video-player-${video.video_id}">
-                <span><b>${video.channel_name}</b>: ${video.video_title}</span><span class="badge rounded-pill bg-secondary" style="font-size: .70em;">${time_label}</span> 
-            </button>
-        </div>
-        <div class="accordion-collapse collapse" 
-            id="video-player-${video.video_id}"
-            aria-labelledby="video-infos-${video.video_id}"
-            data-bs-parent="#channel-content">
-            <div class="accordion-body">
-                <iframe class="youtube-plugin-video" 
-                        style=""
-                        width="100%"
-                        height="50%"
-                        data-src="https://www.youtube-nocookie.com/embed/${video.video_id}" 
-                        allowfullscreen="" 
-                        frameborder="0">
-                </iframe>
-                <div>
-                    <p>${video.video_description.replace(/\n/g, "<br />")}</p>
-                </div>
+    <div class="col-xl-2 col-lg-3 col-md-4 col-sm-6 mb-3">
+        <div class="card h-100" data-bs-toggle="modal" data-bs-target="#video_player" data-title="${video.channel_name}: ${video.video_title}" data-video="${video.video_id}" data-description="${video.video_description}">
+            <img src="${video.video_thumbnail}" class="card-img-top" alt="${video.video_title}">
+            <div class="card-body">
+                <h5 class="card-title">${video.channel_name}: <span class="fw-normal">${video.video_title}</span></h5>
+                <p class="card-text"><small class="text-muted">${time_label}</small></p>
             </div>
         </div>
     </div>
@@ -63,16 +41,23 @@ $(document).ready(function () {
         load_feed("UCa_Dlwrwv3ktrhCy91HpVRw")
     }
 
-    // lazy loading for videos
-    $('body').on('shown.bs.collapse', '.accordion-collapse', function () {
-        $(this).find("iframe").prop("src", function () {
-            return $(this).data("src");
-        });
+    // Loading for videos
+    var $player = document.getElementById('video_player');
+    $player.addEventListener('show.bs.modal', function (event) {
+        var triggerElement = $(event.relatedTarget);
+
+        $(this).find('.modal-title').html(triggerElement.data('title'));
+
+        $(this).find('.modal-body').html(
+            `
+            <iframe width="100%" height="400px" src="https://www.youtube-nocookie.com/embed/${triggerElement.data('video')}" allowfullscreen="" frameborder="0"></iframe>
+            <p>${triggerElement.data('description')}</p>
+            `
+        );
     })
-    $('body').on('hidden.bs.collapse', '.accordion-collapse', function () {
-        $(this).find("iframe").prop("src", function () {
-            return "";
-        });
+    $player.addEventListener('hide.bs.modal', function (event) {
+        $(this).find('.modal-title').html('');
+        $(this).find('.modal-body').html('');
     })
 
 })
