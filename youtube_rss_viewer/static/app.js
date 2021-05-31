@@ -2,8 +2,8 @@ function video_to_div(video) {
     time_label = moment(video.video_updated).fromNow();
     return `
     <div class="col-xl-2 col-lg-3 col-md-4 col-sm-6 mb-3">
-        <div class="card h-100" data-bs-toggle="modal" data-bs-target="#video_player" data-title="${video.channel_name}: ${video.video_title}" data-video="${video.video_id}" data-description="${video.video_description}">
-            <img src="${video.video_thumbnail}" class="card-img-top" alt="${video.video_title}">
+        <div class="card h-100" data-thumbnail="${video.video_thumbnail}" data-video="${video.video_id}">
+            <img src="${video.video_thumbnail}" class="card-img-top" alt="${video.video_title}"/>
             <div class="card-body">
                 <h5 class="card-title">${video.channel_name}: <span class="fw-normal">${video.video_title}</span></h5>
                 <p class="card-text"><small class="text-muted">${time_label}</small></p>
@@ -42,22 +42,23 @@ $(document).ready(function () {
     }
 
     // Loading for videos
-    var $player = document.getElementById('video_player');
-    $player.addEventListener('show.bs.modal', function (event) {
-        var triggerElement = $(event.relatedTarget);
+    $('body').on('click', '.card', function()
+    {
+        $('#channel-content .card').each(function() {
+            $img = $(this).find('.card-img-top');
+            if(!$img.length) {
+                $(this).find('iframe').remove();
+                $(this).prepend(`<img src="${$(this).data('thumbnail')}" class="card-img-top" alt="video"/>`);
+            }
+        });
 
-        $(this).find('.modal-title').html(triggerElement.data('title'));
+        var $img = $(this).find('.card-img-top');
+        var height = $img.height();
 
-        $(this).find('.modal-body').html(
-            `
-            <iframe width="100%" height="400px" src="https://www.youtube-nocookie.com/embed/${triggerElement.data('video')}" allowfullscreen="" frameborder="0"></iframe>
-            <p>${triggerElement.data('description')}</p>
-            `
-        );
-    })
-    $player.addEventListener('hide.bs.modal', function (event) {
-        $(this).find('.modal-title').html('');
-        $(this).find('.modal-body').html('');
+        $img.remove();
+        $(this).prepend(`
+            <iframe width="100%" height="${height}" src="https://www.youtube-nocookie.com/embed/${$(this).data('video')}" allowfullscreen="" frameborder="0"></iframe>
+        `);
     })
 
 })
