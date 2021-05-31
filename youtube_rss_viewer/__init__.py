@@ -5,7 +5,7 @@ project metadata
 import json
 from re import split
 
-from flask import Flask, jsonify, request, current_app
+from flask import Flask, current_app, jsonify, render_template, request
 from flask.helpers import url_for
 from werkzeug.utils import redirect
 
@@ -20,11 +20,8 @@ __version__ = importlib_metadata.version(__name__)
 
 
 def create_app():
-    app = Flask(
-        __name__,
-        static_folder="static",
-        static_url_path="/",
-    )
+    app = Flask(__name__)
+    app.config["TEMPLATES_AUTO_RELOAD"] = True
 
     @app.route("/fetch/<string:channels>")
     def fetch(channels):
@@ -58,6 +55,52 @@ def create_app():
 
     @app.route("/", methods=["GET"])
     def redirect_to_index():
-        return current_app.send_static_file("index.html")
+        return redirect("/view?q=UCa_Dlwrwv3ktrhCy91HpVRw%2CJonnyswitzerland")
+
+    @app.route("/view", methods=["GET"])
+    def view():
+
+        channels = {}
+        query = request.args.get("q").split(",")
+        if query is not None:
+            for channel_id in request.args.get("q").split(","):
+                channel = (
+                    get_channel_feed(channel_id)
+                    if len(channel_id) == 24
+                    else get_user_feed(channel_id)
+                )
+                if channel:
+                    channels[channel.channel_id] = channel
+        return render_template(
+            "grid.html",
+            channels=channels,
+            sorted_videos=sorted(
+                (v for channel in channels.values() for v in channel.entries),
+                reverse=True,
+            ),
+        )
+
+    @app.route("/list", methods=["GET"])
+    def view_list():
+
+        channels = {}
+        query = request.args.get("q").split(",")
+        if query is not None:
+            for channel_id in request.args.get("q").split(","):
+                channel = (
+                    get_channel_feed(channel_id)
+                    if len(channel_id) == 24
+                    else get_user_feed(channel_id)
+                )
+                if channel:
+                    channels[channel.channel_id] = channel
+        return render_template(
+            "list.html",
+            channels=channels,
+            sorted_videos=sorted(
+                (v for channel in channels.values() for v in channel.entries),
+                reverse=True,
+            ),
+        )
 
     return app

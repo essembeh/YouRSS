@@ -19,6 +19,7 @@ importlib_metadata = { version = "", python = "< 3.8" }
 Flask = ""
 requests = ""
 lxml = ""
+arrow = ""
 
 
 [tool.poetry.dev-dependencies]

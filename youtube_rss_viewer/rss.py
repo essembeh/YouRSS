@@ -1,5 +1,8 @@
 from dataclasses import dataclass
 from datetime import datetime
+from functools import total_ordering
+
+import arrow
 import requests
 from lxml import etree
 
@@ -11,6 +14,7 @@ NAMESPACES = {
 
 
 @dataclass
+@total_ordering
 class RssEntry:
     _root: etree.Element
 
@@ -53,6 +57,15 @@ class RssEntry:
         return out[0] if len(out) else None
 
     @property
+    def channel_id(self):
+        out = self._root.xpath("./yt:channelId/text()", namespaces=NAMESPACES)
+        return out[0] if len(out) else None
+
+    @property
+    def updated_label(self):
+        return arrow.get(self.updated).humanize()
+
+    @property
     def thumbnail_url(self):
         out = self._root.xpath(
             "./media:group/media:thumbnail/@url", namespaces=NAMESPACES
@@ -61,6 +74,12 @@ class RssEntry:
 
     def __hash__(self):
         return hash(self._root)
+
+    def __eq__(self, other):
+        return isinstance(other, RssEntry) and self.updated_date == other.updated_date
+
+    def __lt__(self, other):
+        return isinstance(other, RssEntry) and self.updated_date < other.updated_date
 
 
 @dataclass

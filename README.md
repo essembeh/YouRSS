@@ -77,5 +77,5 @@ Using Docker you can run the latest image build on the latest commit
 ```sh
 $ docker run --name youtube -p 8000:8000 essembeh/youtube-rss-viewer
 # then open the page in your browser
-$ xdg-open http://127.0.0.1:5000
+$ xdg-open http://127.0.0.1:8000
 ```
