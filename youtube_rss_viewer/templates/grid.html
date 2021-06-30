@@ -16,11 +16,11 @@
                 <div class="text-white card h-100" data-thumbnail="{{video.thumbnail_url}}"
                     data-video="{{video.video_id}}">
                     <img src="{{video.thumbnail_url}}" class="card-img-top" alt="{{video.title}}" />
-                    <div class="bg-dark card-body">
-                        <h5 class="card-title">{{channels[video.channel_id].title}}:
-                            <span class="fw-normal">{{video.title}}</span>
-                        </h5>
-                        <p class="card-text"><small class="text-muted">{{video.updated_label}}</small>
+                    <div class="bg-dark card-body d-flex flex-column">
+                        <h5 class="card-title" onclick="window.open('{{channels[video.channel_id].link}}')">
+                            {{channels[video.channel_id].title}}</h5>
+                        <p class="card-text" onclick="window.open('{{video.link}}')">{{video.title}}</p>
+                        <p class="card-text mt-auto"><small class="text-muted">{{video.updated_label}}</small>
                         </p>
                     </div>
                 </div>
