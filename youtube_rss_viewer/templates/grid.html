@@ -8,14 +8,15 @@
         crossorigin="anonymous">
 </head>
 
-<body class="">
+<body class="bg-dark">
     <div class="container-fluid">
         <div id="channel-content" class="row">
             {% for video in sorted_videos %}
             <div class="col-xl-2 col-lg-3 col-md-4 col-sm-6 mb-3">
-                <div class="card h-100" data-thumbnail="{{video.thumbnail_url}}" data-video="{{video.video_id}}">
+                <div class="text-white card h-100" data-thumbnail="{{video.thumbnail_url}}"
+                    data-video="{{video.video_id}}">
                     <img src="{{video.thumbnail_url}}" class="card-img-top" alt="{{video.title}}" />
-                    <div class="card-body">
+                    <div class="bg-dark card-body">
                         <h5 class="card-title">{{channels[video.channel_id].title}}:
                             <span class="fw-normal">{{video.title}}</span>
                         </h5>

@@ -55,7 +55,9 @@ def create_app():
 
     @app.route("/", methods=["GET"])
     def redirect_to_index():
-        return redirect("/view?q=UCa_Dlwrwv3ktrhCy91HpVRw%2CJonnyswitzerland")
+        if len(request.args) > 0:
+            return redirect(url_for("view", **request.args))
+        return redirect(url_for("view", q="UCa_Dlwrwv3ktrhCy91HpVRw,Jonnyswitzerland"))
 
     @app.route("/view", methods=["GET"])
     def view():
