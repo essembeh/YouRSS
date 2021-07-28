@@ -1,0 +1,101 @@
+@url = http://127.0.0.1:5000
+@login = demo@demo
+@password = demo
+@channel_jeremy = UCa_Dlwrwv3ktrhCy91HpVRw
+@channel_jonny = UCVooVnzQxPSTXTMzSi1s6uw
+@channel_daniel = UCB99aK4f2WaH96joccxLvSQ
+
+
+#####################################################################
+## AUTHENTICATION
+#####################################################################
+
+### Auth: 
+# @name authentification
+POST {{url}}/api/auth
+Content-Type: application/json
+
+{
+  "login": "{{login}}",
+  "password": "{{password}}"
+}
+
+### Token
+@token = {{authentification.response.body.access_token}}
+
+
+#####################################################################
+## USER
+#####################################################################
+
+### Config
+GET {{url}}/api/config
+Authorization: Bearer {{token}}
+
+### Update config
+POST  {{url}}/api/config
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "email": "demo@demo",
+  "name": "Demo",
+  "avatar": "https://avatars.githubusercontent.com/u/669337?v=4"
+}
+
+
+### List all subscription
+GET {{url}}/api/subscription
+Authorization: Bearer {{token}}
+
+### Get a single subscription
+GET {{url}}/api/subscription/{{channel_jonny}}
+Authorization: Bearer {{token}}
+
+### Add a subscription to a channel
+POST {{url}}/api/subscription
+Authorization: Bearer {{token}}
+Content-Type:  application/json
+
+{
+  "channel_id": "{{channel_jonny}}",
+  "label": "Skate",
+  "enabled": true
+}
+
+### Update a subscription to a channel
+PUT {{url}}/api/subscription/{{channel_jonny}}
+Authorization: Bearer {{token}}
+Content-Type:  application/json
+
+{
+  "label": "Skate",
+  "enabled": true
+}
+
+### Remove a subscription to a channel
+DELETE {{url}}/api/subscription/{{channel_jonny}}
+Authorization: Bearer {{token}}
+
+#####################################################################
+## CHANNELS
+#####################################################################
+
+### Get channel details
+GET {{url}}/api/channel/{{channel_jeremy}}
+Authorization: Bearer {{token}}
+
+### Get channel content
+GET {{url}}/api/channel/{{channel_jeremy}}/fetch
+Authorization: Bearer {{token}}
+
+
+#####################################################################
+## YOUTUBE API
+#####################################################################
+
+### Youtube channel
+GET https://www.youtube.com/feeds/videos.xml?channel_id=UCVooVnzQxPSTXTMzSi1s6uw
+
+### Youtube user
+GET https://www.youtube.com/feeds/videos.xml?user=Jonnyswitzerland

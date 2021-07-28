@@ -1,6 +1,6 @@
 import unittest
 
-from youtube_rss_viewer.youtube import get_channel_feed
+from yourss.youtube import get_channel_feed
 
 
 class TestRss(unittest.TestCase):
@@ -21,5 +21,5 @@ class TestRss(unittest.TestCase):
             self.assertTrue(entry.thumbnail_url.endswith(".jpg"))
 
     def test_no_channel(self):
-        feed = get_channel_feed("IdontExist")
+        feed = get_channel_feed("I_do_not_exist")
         self.assertIsNone(feed)

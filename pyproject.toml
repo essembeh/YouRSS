@@ -1,8 +1,8 @@
 [tool.poetry]
-name = "youtube-rss-viewer"
-version = "0.1.1"
+name = "yourss"
+version = "0.2.0"
 description = "Simple youtube browser based on RSS feeds"
-homepage = "https://github.com/essembeh/youtube-rss-viewer"
+homepage = "https://github.com/essembeh/yourss"
 authors = ["Sébastien MB <seb@essembeh.org>"]
 license = "Apache-2.0"
 classifiers = [
@@ -16,10 +16,16 @@ readme = "README.md"
 [tool.poetry.dependencies]
 python = "^3.7"
 importlib_metadata = { version = "", python = "< 3.8" }
-Flask = ""
 requests = ""
 lxml = ""
-arrow = ""
+cached-property = ""
+SQLAlchemy = ""
+Flask = ""
+Flask-SQLAlchemy = ""
+Flask-RESTful = ""
+Flask-JWT-Extended = ""
+Flask-Login = "^0.5.0"
+beautifulsoup4 = "^4.9.3"
 
 
 [tool.poetry.dev-dependencies]

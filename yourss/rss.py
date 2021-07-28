@@ -2,7 +2,6 @@ from dataclasses import dataclass
 from datetime import datetime
 from functools import total_ordering
 
-import arrow
 import requests
 from lxml import etree
 
@@ -11,6 +10,10 @@ NAMESPACES = {
     "yt": "http://www.youtube.com/xml/schemas/2015",
     "media": "http://search.yahoo.com/mrss/",
 }
+
+
+def https(url):
+    return url.replace("http:", "https:") if isinstance(url, str) else url
 
 
 @dataclass
@@ -43,6 +46,10 @@ class RssEntry:
         return out[0] if len(out) else None
 
     @property
+    def published_date(self):
+        return datetime.fromisoformat(self.published)
+
+    @property
     def updated(self):
         out = self._root.xpath("./atom:updated/text()", namespaces=NAMESPACES)
         return out[0] if len(out) else None
@@ -60,10 +67,6 @@ class RssEntry:
     def channel_id(self):
         out = self._root.xpath("./yt:channelId/text()", namespaces=NAMESPACES)
         return out[0] if len(out) else None
-
-    @property
-    def updated_label(self):
-        return arrow.get(self.updated).humanize()
 
     @property
     def thumbnail_url(self):
@@ -105,6 +108,11 @@ class RssFeed:
     def channel_id(self):
         out = self._root.xpath("./yt:channelId/text()", namespaces=NAMESPACES)
         return out[0] if len(out) else None
+
+    @property
+    def url(self):
+        out = self._root.xpath("./atom:link[@rel='self']/@href", namespaces=NAMESPACES)
+        return https(out[0]) if len(out) else None
 
     @property
     def link(self):

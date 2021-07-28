@@ -1,6 +1,6 @@
-![Github](https://img.shields.io/github/tag/essembeh/youtube-rss-viewer.svg)
-![PyPi](https://img.shields.io/pypi/v/youtube-rss-viewer.svg)
-![Python](https://img.shields.io/pypi/pyversions/youtube-rss-viewer.svg)
+![Github](https://img.shields.io/github/tag/essembeh/yourss.svg)
+![PyPi](https://img.shields.io/pypi/v/yourss.svg)
+![Python](https://img.shields.io/pypi/pyversions/yourss.svg)
 
 
 # Youtube RSS viewer
@@ -19,11 +19,11 @@ I simply wrote a minimal RSS client for web browsers.
 
 ## From Pypi
 
-Install the latest release from [PyPI](https://pypi.org/project/youtube-rss-viewer/)
+Install the latest release from [PyPI](https://pypi.org/project/yourss/)
 ```sh
-$ pip3 install --user -U youtube-rss-viewer
+$ pip3 install --user -U yourss
 # run the webserver
-$ FLASK_APP=youtube_rss_viewer flask run
+$ FLASK_APP=yourss flask run
 # then open the page in your browser
 $ xdg-open http://127.0.0.1:5000
 ```
@@ -36,9 +36,9 @@ Install the latest version from the sources:
 
 ```sh
 $ pip3 install --user -U poetry
-$ pip3 install --user git+https://github.com/essembeh/youtube-rss-viewer
+$ pip3 install --user git+https://github.com/essembeh/yourss
 # run the webserver
-$ FLASK_APP=youtube_rss_viewer flask run
+$ FLASK_APP=yourss flask run
 # then open the page in your browser
 $ xdg-open http://127.0.0.1:5000
 ```
@@ -52,8 +52,8 @@ Clone the project
 $ pip3 install --user -U poetry
 
 # clone the repository
-$ git clone https://github.com/essembeh/youtube-rss-viewer
-$ cd youtube-rss-viewer
+$ git clone https://github.com/essembeh/yourss
+$ cd yourss
 
 # create the virtualenv
 $ poetry install
@@ -63,7 +63,7 @@ $ poetry shell
 (.venv) $ helloworld --help
 
 # run the webserver
-$ FLASK_APP=youtube_rss_viewer flask run
+$ FLASK_APP=yourss flask run
 # then open the page in your browser
 $ xdg-open http://127.0.0.1:5000
 
@@ -75,7 +75,7 @@ $ poetry run pytest tests
 
 Using Docker you can run the latest image build on the latest commit
 ```sh
-$ docker run --name youtube -p 8000:8000 essembeh/youtube-rss-viewer
+$ docker run --name youtube -p 8000:8000 essembeh/yourss
 # then open the page in your browser
 $ xdg-open http://127.0.0.1:8000
 ```
