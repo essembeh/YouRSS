@@ -1,7 +1,7 @@
 FROM debian:stable-slim
 
 RUN apt update && apt install -q -y python3 python3-pip && apt clean
-RUN pip3 install poetry gunicorn
+RUN pip3 install poetry gunicorn PyMySQL
 
 ADD . /app
 WORKDIR /app

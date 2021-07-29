@@ -4,6 +4,7 @@ represent a user in database
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import Boolean, Column, ForeignKey, Integer, String
 from sqlalchemy.orm import relationship
+
 from werkzeug.security import check_password_hash, generate_password_hash
 
 db = SQLAlchemy()
@@ -15,10 +16,10 @@ class User(db.Model):
     __tablename__ = "user"
 
     id = Column(Integer, primary_key=True)
-    name = Column(String)
-    email = Column(String, unique=True, nullable=False)
-    password = Column(String)
-    avatar = Column(String)
+    name = Column(String(64))
+    email = Column(String(256), unique=True, nullable=False)
+    password = Column(String(256))
+    avatar = Column(String(256))
     enabled = Column(Boolean, default=True)
 
     subscriptions = relationship(
@@ -67,7 +68,7 @@ class Subscription(db.Model):
 
     user_id = Column(ForeignKey("user.id", ondelete="CASCADE"), primary_key=True)
     channel_id = Column(ForeignKey("channel.id", ondelete="CASCADE"), primary_key=True)
-    label = Column(String)
+    label = Column(String(64))
     enabled = Column(Boolean, default=True)
 
     user = relationship(
@@ -83,10 +84,10 @@ class Subscription(db.Model):
 class Channel(db.Model):
     __tablename__ = "channel"
 
-    id = Column(String, primary_key=True)
-    name = Column(String)
-    avatar = Column(String)
-    rss_url = Column(String)
+    id = Column(String(64), primary_key=True)
+    name = Column(String(64))
+    avatar = Column(String(256))
+    rss_url = Column(String(256))
 
     subscribers = relationship(
         "Subscription",
