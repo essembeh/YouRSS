@@ -7,6 +7,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5/dist/css/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.5.0/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="app.css" rel="stylesheet" />
 </head>
 
 <body class="">
@@ -37,11 +38,10 @@
                 </ul>
             </div>
 
-            {% if user is defined %}
-            <div class="nav-item dropdown">
+            <div id="myUserMenu" class="nav-item dropdown" style="display: none;">
                 <a class="nav-link dropdown-toggle text-white" id="myProfileMenuLink" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                    <img src="{{user.avatar}}" alt="{{user.name}}" width="30" height="30" class="rounded-circle">
-                    {{user.name}}
+                    <img id="myAvatar" alt="" width="40" height="40" class="rounded-circle">
+                    <span id="myName"></span>
                 </a>
                 <ul class="dropdown-menu" aria-labelledby="myProfileMenuLink">
                     <li><a class="dropdown-item" href="/view">Home</a></li>
@@ -53,6 +53,6 @@
                     <li><a class="dropdown-item" href="/logout">Sign out</a></li>
                 </ul>
             </div>
-            {% endif %}
         </div>
     </nav>
+    <a id="back2Top" title="Back to top" href="#">&#10148;</a>

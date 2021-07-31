@@ -75,11 +75,16 @@ def initialize_app(name: str, secretkey: str, db_uri=str, **kwargs):
     @app.route("/view", methods=["GET"])
     @login_required
     def route_view():
-        return render_template("view.html", user=current_user.user)
+        return render_template("view.html")
 
     @app.route("/subscriptions", methods=["GET"])
     @login_required
-    def route_channels():
-        return render_template("subscriptions.html", user=current_user.user)
+    def route_subscriptions():
+        return render_template("subscriptions.html")
+
+    @app.route("/config", methods=["GET"])
+    @login_required
+    def route_config():
+        return render_template("config.html")
 
     return app

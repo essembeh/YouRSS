@@ -11,3 +11,5 @@ __pycache__
 /.vscode/*
 !/.vscode/settings.json
 
+# Temp DB
+/yourss/yourss.sqlite

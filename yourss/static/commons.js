@@ -1,10 +1,10 @@
 /**
  * Sort a list of elements given natural order using given getter
- * @param {*} id 
+ * @param {*} container 
  * @param {*} mygetter 
  */
-function sort_list(id, mygetter) {
-    result = $(id).children().sort(function (a, b) {
+function sort_list(container, mygetter) {
+    result = $(container).children().sort(function (a, b) {
         aa = mygetter(a)
         bb = mygetter(b)
         if (aa < bb)
@@ -13,7 +13,7 @@ function sort_list(id, mygetter) {
             return 1
         return 0
     })
-    $(id).html(result)
+    $(container).html(result)
 }
 
 /**
@@ -31,4 +31,13 @@ function filter_items(selector, data_key, expected) {
         }
     })
 
+}
+
+/**
+ * Fix sentence case, youtubers love CAPS :)
+ * @param {*} str 
+ * @returns 
+ */
+function string_sentence_case(str) {
+    return str.toLowerCase().replace(/\.\s+([a-z])[^\.]|^(\s*[a-z])[^\.]/g, s => s.replace(/([a-z])/, s => s.toUpperCase()))
 }

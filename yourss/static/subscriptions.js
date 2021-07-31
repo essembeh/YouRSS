@@ -89,12 +89,10 @@ function load_channels() {
             $("#myNavbarFilterByChannelContent").html("")
             $("#myNavbarFilterByChannelContent").append(`<li><a class="dropdown-item" href="#" onclick="filter_items('.filterable', 'channel', null);">-- All --</a></li>`)
 
-
-            container = $('#mySubscriptions')
-            container.html("")
-            container.append(`
+            $("#mySubscriptions").html("")
+            $("#mySubscriptions").append(`
                 <div class="col-lg-3 col-md-6 mb-3">
-                    <div class="card">
+                    <div class="card h-100">
                         <div class="card-body">
                             <h5 class="card-title">Suscribe to a new channel</h5>
                             <div class="form-floating mb-3">
@@ -116,14 +114,19 @@ function load_channels() {
                     </div>
                 </div>
             `)
+            data.sort(function (a, b) {
+                return a.name.toLowerCase().localeCompare(b.name.toLowerCase())
+            })
             $.each(data, function (i, channel) {
                 $("#myNavbarFilterByChannelContent").append(`<li><a class="dropdown-item" href="#" onclick="filter_items('.filterable', 'channel', '${channel.channel_id}');">${channel.name}</a></li>`)
-                container.append(`
+                sort_list("#myNavbarFilterByChannelContent", function (x) { return $(x).text().toLowerCase() })
+
+                $("#mySubscriptions").append(`
                     <div class="col-lg-3 col-md-6 mb-3 filterable" data-channel="${channel.channel_id}" data-label="${channel.label}">
-                        <div class="card">
+                        <div class="card h-100">
                             <div class="card-body">
                                 <h5 class="card-title h5" style="cursor: pointer;font-weight:bold;">
-                                    <img src="${channel.avatar}" width="50" height="50" class="rounded-circle">
+                                    <img src="${channel.avatar}" width="60" height="60" class="rounded-circle">
                                     ${channel.name}
                                 </h5>
                                 <div class="form-floating mb-3">
@@ -139,14 +142,15 @@ function load_channels() {
                                     <label class="form-check-label" for="channelEnabled-${channel.channel_id}">Enabled</label>
                                 </div>
                                 <div class="form-group float-end">
-                                    <button class="btn btn-primary bi bi-save" onclick="update_channel('${channel.channel_id}')"> Update</button>
-                                    <button class="btn btn-danger bi bi-eraser" onclick="unsuscribe('${channel.channel_id}')"> Unsuscribe</button>
+                                    <button class="btn btn-outline-primary bi bi-save" onclick="update_channel('${channel.channel_id}')"> Update</button>
+                                    <button class="btn btn-outline-danger bi bi-eraser" onclick="unsuscribe('${channel.channel_id}')"> Unsuscribe</button>
                                 </div>
                             </div>
                         </div>
                     </div>
                 `)
             })
+
         })
     })
 }
