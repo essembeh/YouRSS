@@ -6,6 +6,7 @@ from ..database import User
 from dataclasses import dataclass
 
 login_manager = LoginManager()
+login_manager.login_view = "route_login"
 
 
 @dataclass

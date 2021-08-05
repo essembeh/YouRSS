@@ -1,12 +1,12 @@
 import unittest
 
-from yourss.youtube import get_channel_feed
+from yourss.youtube import yt_feed_url
 
 
 class TestRss(unittest.TestCase):
     def test_channel(self):
         channel_id = "UCa_Dlwrwv3ktrhCy91HpVRw"
-        feed = get_channel_feed(channel_id)
+        feed = yt_feed_url(channel_id)
         self.assertIsNotNone(feed)
         self.assertEqual(feed.title, "Jeremy Griffith")
         self.assertEqual(feed.channel_id, channel_id)
@@ -21,5 +21,5 @@ class TestRss(unittest.TestCase):
             self.assertTrue(entry.thumbnail_url.endswith(".jpg"))
 
     def test_no_channel(self):
-        feed = get_channel_feed("I_do_not_exist")
+        feed = yt_feed_url("I_do_not_exist")
         self.assertIsNone(feed)

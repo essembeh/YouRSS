@@ -41,3 +41,21 @@ function filter_items(selector, data_key, expected) {
 function string_sentence_case(str) {
     return str.toLowerCase().replace(/\.\s+([a-z])[^\.]|^(\s*[a-z])[^\.]/g, s => s.replace(/([a-z])/, s => s.toUpperCase()))
 }
+
+/**
+ * Helper to build input checked when boolean value is True
+ * @param {*} value 
+ * @returns 
+ */
+function boolean_to_checked(value) {
+    return value ? "checked" : ""
+}
+
+/**
+ * Default string when None
+ * @param {*} value 
+ * @returns 
+ */
+function default_str(value) {
+    return value ? value : ""
+}

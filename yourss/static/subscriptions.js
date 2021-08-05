@@ -1,11 +1,3 @@
-function boolean_to_checked(value) {
-    return value ? "checked" : ""
-}
-
-function default_str(value) {
-    return value ? value : ""
-}
-
 function update_channel(channelId) {
     $.get("/api/auth", function (data) {
         label = $('#channelLabel-' + channelId).val()

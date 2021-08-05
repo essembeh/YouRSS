@@ -1,10 +1,10 @@
 from re import fullmatch
 from yourss.youtube import (
-    YOUTUBE_URL_PATTERN,
     youtube_find_channel_infos,
-    yt_scrap_metadata,
-    yt_get_page,
     yt_feed_url,
+    yt_get_page,
+    yt_scrap_metadata,
+    YOUTUBE_URL_PATTERN,
 )
 
 
@@ -43,7 +43,7 @@ def test_scrap():
 
 
 def test_metadata():
-    channel_id = "UCa_Dlwrwv3ktrhCy91HpVRw"
+    channel_id = "UCn-eRu2K4LlRKGRXLJaAwJg"
     url = f"https://www.youtube.com/channel/{channel_id}"
 
     infos = youtube_find_channel_infos(url)

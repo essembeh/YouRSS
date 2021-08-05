@@ -1,6 +1,6 @@
 
 
-$(document).ready(function () {
+function load_usermenu() {
     $.get("/api/auth", function (data) {
         $.get("/api/config", function (config) {
             $("#myUserMenu").css("display", "block")
@@ -10,6 +10,10 @@ $(document).ready(function () {
             }
         })
     })
+}
+
+$(document).ready(function () {
+    load_usermenu()
 })
 
 /*Scroll to top when arrow up clicked BEGIN*/

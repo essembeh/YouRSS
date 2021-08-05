@@ -36,21 +36,28 @@ class ConfigApi(Resource):
 
     @jwt_required()
     @marshal_with(CONFIG_FIELDS)
-    def post(self):
+    def put(self):
         user = User.find_by_email(get_jwt_identity()) or abort(404)
 
-        if not request.json:
-            abort(500, "invalid json content")
-
-        if validate_email(request.json.get("email")):
-            user.email = request.json.get("email")
-        if validate_password(request.json.get("password")):
-            user.set_password(request.json.get("password"))
-        if isinstance(request.json.get("name"), str):
-            user.name = request.json.get("name")
-        if isinstance(request.json.get("avatar"), str):
+        parser = RequestParser()
+        parser.add_argument("name", location="json")
+        parser.add_argument("email", type=validate_email, location="json")
+        parser.add_argument("avatar", location="json")
+        parser.add_argument("password", type=validate_password, location="json")
+        parser.add_argument("old_password", location="json")
+        args = parser.parse_args()
+        print(">>>", args)
+        if args.name:
+            user.name = args.name
+        if args.email:
+            user.email = args.email
+        if args.avatar is not None:
             # TODO check mimetype
-            user.avatar = request.json.get("avatar")
+            user.avatar = args.avatar
+        if args.password:
+            if args.old_password and not user.check_password(args.old_password):
+                abort(500, "Invalid current password")
+            user.set_password(args.password)
 
         db.session.commit()
         return user
@@ -99,7 +106,7 @@ class SubscriptionApi(Resource):
             channel_infos = youtube_find_channel_infos(args.url)
             channel = Channel.query.get(channel_infos["id"])
             if not channel:
-                channel_infos = youtube_find_channel_infos(args.channel_id)
+                channel_infos = youtube_find_channel_infos(channel_infos["id"])
                 channel = Channel(**channel_infos)
                 db.session.add(channel)
 

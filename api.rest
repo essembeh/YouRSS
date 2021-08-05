@@ -33,13 +33,13 @@ GET {{url}}/api/config
 Authorization: Bearer {{token}}
 
 ### Update config
-POST  {{url}}/api/config
+PUT  {{url}}/api/config
 Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {
-  "email": "demo@demo",
   "name": "Demo",
+  "email": "demo@demo.org",
   "avatar": "https://avatars.githubusercontent.com/u/669337?v=4"
 }
 
