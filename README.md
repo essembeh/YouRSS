@@ -23,3 +23,32 @@ $ docker run -d --name youtube -p 8000:8000 ghcr.io/essembeh/yourss:main
 # then open the page in your browser
 $ xdg-open http://127.0.0.1:8000
 ```
+
+# Configuration
+
+*YouRSS* can be configured using environment variables.
+
+- `YOURSS_DEFAULT_CHANNELS`: defines the default channels to display
+- `YOURSS_EMBED_URL`: the embedded player used to play video, default is *https://www.youtube-nocookie.com/embed/*
+- `YOURSS_USER_foo`: create a custom page available at *https://yourss.tld/u/foo*, the value of the environment variable is the list of the channels
+
+
+> Note: channels can be Youtube username (like `@JonnyGiger`) or directly a *channel_id* (24 alnum chars) like `UCa_Dlwrwv3ktrhCy91HpVRw`, to provide a list, use a coma between channels
+
+Example:
+```sh
+YOURSS_DEFAULT_CHANNELS=@jonnygiger,UCa_Dlwrwv3ktrhCy91HpVRw
+YOURSS_EMBED_URL=https://www.youtube.com/embed/
+YOURSS_USER_foo=@jonnygiger
+YOURSS_USER_bar=@lostangelus52,UCB99aK4f2WaH96joccxLvSQ
+```
+
+
+# Usage
+
+- you can browse a single channel with: `https://your.yourss.instance/@jonnygiger`
+- you can browse multiple channels in a single page: `https://your.yourss.instance/@jonnygiger,@lostangelus52`
+- the original *RSS* feed can be access at `https://your.yourss.instance/api/rss/@jonnygiger`
+- a *json* rss-like can be accessed at `https://your.yourss.instance/api/json/@jonnygiger`
+- you will be redirected to the channel avatar with `https://your.yourss.instance/api/avatar/@jonnygiger`
+- all your custom pages can be accessed to `https://your.yourss.instance/u/<user>`
