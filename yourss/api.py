@@ -5,8 +5,7 @@ from . import __name__ as app_name
 from . import __version__ as app_version
 from .model import RssFeed
 from .schema import Feed
-from .youtube import (YoutubeScrapper, youtube_fetch_rss_feed, yt_home_url,
-                      yt_html_get)
+from .youtube import YoutubeScrapper, youtube_fetch_rss_feed, yt_home_url, yt_html_get
 
 router = APIRouter()
 
@@ -34,4 +33,4 @@ async def json_feed(name: str) -> Feed:
 async def avatar(name: str) -> RedirectResponse:
     metadata = YoutubeScrapper.fromresponse(yt_html_get(yt_home_url(magic=name)))
     assert metadata.avatar_url is not None
-    return RedirectResponse(metadata.avatar_url)
+    return RedirectResponse(metadata.avatar_url, status_code=301)
