@@ -39,7 +39,12 @@ async def view_channels(request: Request, channels: str):
     feeds = parallel_fetch(set(channels.split(",")))
     return TemplateResponse(
         "view.html",
-        {"request": request, "feeds": feeds, "config": config},
+        {
+            "request": request,
+            "feeds": feeds,
+            "config": config,
+            "title": ", ".join(sorted((f.title for f in feeds))),
+        },
     )
 
 
@@ -51,5 +56,5 @@ async def get_user(request: Request, user: str):
     feeds = parallel_fetch(set(YOURSS_USERS[user]))
     return TemplateResponse(
         "view.html",
-        {"request": request, "feeds": feeds, "config": config},
+        {"request": request, "feeds": feeds, "config": config, "title": f"/u/{user}"},
     )
