@@ -3,13 +3,11 @@ __pycache__
 *.pyc
 
 # Generated
-/poetry.lock
 /.coverage
 /dist/
 
 # IDE
 /.vscode/*
 !/.vscode/settings.json
+/.env
 
-# Temp DB
-/yourss/yourss.sqlite

@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "yourss"
-version = "0.2.0"
+version = "0.3.0"
 description = "Simple youtube browser based on RSS feeds"
 homepage = "https://github.com/essembeh/yourss"
 authors = ["Sébastien MB <seb@essembeh.org>"]
@@ -14,26 +14,23 @@ readme = "README.md"
 
 
 [tool.poetry.dependencies]
-python = "^3.7"
-importlib_metadata = { version = "", python = "< 3.8" }
-requests = ""
-lxml = ""
-cached-property = ""
-SQLAlchemy = ""
-Flask = ""
-Flask-SQLAlchemy = ""
-Flask-RESTful = ""
-Flask-JWT-Extended = ""
-Flask-Login = "^0.5.0"
-beautifulsoup4 = "^4.9.3"
+python = "^3.10"
+fastapi = "^0.103.1"
+beautifulsoup4 = "^4.12.2"
+requests = "^2.31.0"
+jinja2 = "^3.1.2"
+arrow = "^1.2.3"
+loguru = "^0.7.2"
 
 
-[tool.poetry.dev-dependencies]
-black = ""
-pylint = ""
-pytest = ""
-pytest-dotenv = ""
-pytest-cov = ""
+[tool.poetry.group.dev.dependencies]
+black = "^23.7.0"
+pylint = "^2.17.5"
+pytest = "^7.4.1"
+pytest-cov = "^4.1.0"
+pytest-dotenv = "^0.5.2"
+uvicorn = "^0.23.2"
+isort = "^5.12.0"
 
 
 [build-system]

@@ -1,4 +1,4 @@
-#back2Top {
+#scroll-to-top {
     width: 40px;
     line-height: 40px;
     overflow: hidden;
@@ -19,7 +19,8 @@
     font-size: 30px;
     text-decoration: none;
 }
-#back2Top:hover {
+
+#scroll-to-top:hover {
     background-color: #DEF;
     color: #000;
 }

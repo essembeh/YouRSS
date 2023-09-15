@@ -1,84 +1,172 @@
-from re import fullmatch
+from __future__ import annotations
+
+import re
+from dataclasses import dataclass
+from functools import cached_property
 from urllib.parse import urlparse
 
+import requests
 from bs4 import BeautifulSoup
-from requests import get, post
+from loguru import logger
 
-from .rss import RssFeed
+YT_HOSTS = ["consent.youtube.com", "www.youtube.com", "youtube.com", "youtu.be"]
 
-YOUTUBE_URL_PATTERN = "https://www\\.youtube\\.com/(channel|user|c)/(?P<name>[^/]+)"
 OG_URL = "og:url"
 OG_IMAGE = "og:image"
 OG_TITLE = "og:title"
+OG_TYPE = "og:type"
+
+MOZILLA_USER_AGENT = (
+    "Mozilla/5.0 (X11; Linux x86_64; rv:109.0) Gecko/20100101 Firefox/117.0"
+)
+
+CHANNEL_PATTERN = r"[a-zA-Z0-9_-]{24}"
 
 
-def yt_feed_url(yt_identifier: str):
-    if len(yt_identifier) == 24:
-        return f"https://www.youtube.com/feeds/videos.xml?channel_id={yt_identifier}"
-    return f"https://www.youtube.com/feeds/videos.xml?user={yt_identifier}"
+@dataclass
+class YoutubeScrapper:
+    soup: BeautifulSoup
+
+    @classmethod
+    def fromresponse(cls, resp: requests.Response) -> YoutubeScrapper:
+        resp.raise_for_status()
+        assert resp.headers.get("content-type", "").startswith("text/html")
+        return cls(BeautifulSoup(resp.text, features="html.parser"))
+
+    @cached_property
+    def metadata(self) -> dict[str, str]:
+        return {
+            m["property"]: m.get("content")
+            for m in self.soup.find_all("meta")
+            if "property" in m.attrs
+        }
+
+    @property
+    def title(self) -> str | None:
+        return self.metadata.get(OG_TITLE)
+
+    @property
+    def avatar_url(self) -> str | None:
+        return self.metadata.get(OG_IMAGE)
+
+    @property
+    def homepage_url(self) -> str | None:
+        return self.metadata.get(OG_URL)
+
+    def find_channel_id(self) -> str | None:
+        if (url := self.homepage_url) is not None:
+            if (channel_id := yt_parse_channel_id(url)) is not None:
+                return channel_id
+        # results = re.findall(r'@id":\s"(\S+)"', str(self.soup.select("script")))
+        # if len(results) > 0:
+        #     return yt_magic_find_channel_id(results[0].replace("\\", ""))
 
 
-def yt_scrap_metadata(page_content: str):
-    soup = BeautifulSoup(page_content, features="lxml")
-    return {
-        meta["property"]: meta.get("content")
-        for meta in soup.find_all("meta")
-        if "property" in meta.attrs
-        if "property" in meta.attrs
-    }
+def yt_parse_channel_id(channel_url: str) -> str | None:
+    parsed_url = urlparse(channel_url)
+    assert parsed_url.hostname in YT_HOSTS, f"Invalid host: {parsed_url.hostname}"
+    last_segment = parsed_url.path.split("/")[-1]
+    if re.fullmatch(CHANNEL_PATTERN, last_segment):
+        return last_segment
 
 
-def yt_get_page(youtube_url: str):
+def yt_rss_url(channel_id: str | None = None, user: str | None = None) -> str:
+    if channel_id is not None:
+        return f"https://www.youtube.com/feeds/videos.xml?channel_id={channel_id}"
+    if user is not None:
+        return f"https://www.youtube.com/feeds/videos.xml?user={user}"
+    raise ValueError()
+
+
+def yt_home_url(
+    slug: str | None = None,
+    channel_id: str | None = None,
+    user: str | None = None,
+    magic: str | None = None,
+) -> str:
+    if magic is not None:
+        if magic.startswith("@"):
+            return yt_home_url(slug=magic)
+        elif re.fullmatch(CHANNEL_PATTERN, magic):
+            return yt_home_url(channel_id=magic)
+        else:
+            return yt_home_url(user=magic)
+    if slug is not None:
+        assert slug.startswith("@")
+        return f"https://www.youtube.com/{slug}"
+    if channel_id is not None:
+        assert re.fullmatch(CHANNEL_PATTERN, channel_id)
+        return f"https://www.youtube.com/channel/{channel_id}"
+    if user is not None:
+        return f"https://www.youtube.com/user/{user}"
+    raise ValueError()
+
+
+def yt_request(
+    youtube_url: str,
+    method: str = "get",
+    check_ok: bool = True,
+    timeout: int = 10,
+    user_agent: str = MOZILLA_USER_AGENT,
+    **kwargs,
+) -> requests.Response:
+    parsed_url = urlparse(youtube_url)
+    assert parsed_url.hostname in YT_HOSTS, f"Invalid host: {parsed_url.hostname}"
+
+    headers = kwargs.pop("headers", {})
+    headers["user-agent"] = user_agent
+    response = requests.request(
+        method, youtube_url, headers=headers, timeout=timeout, **kwargs
+    )
+    logger.debug("Youtube {} {}: {}", method, youtube_url, response.status_code)
+    if check_ok:
+        response.raise_for_status()
+    return response
+
+
+def yt_html_get(youtube_url: str) -> requests.Response:
     """
     get a youtube page content with cookie accept if needed
     """
-    assert fullmatch(YOUTUBE_URL_PATTERN, youtube_url)
-    response = get(youtube_url, timeout=5)
-    assert response.ok
-    soup = BeautifulSoup((get(youtube_url).text), features="lxml")
-    for form in soup.find_all("form", attrs={"method": "POST"}):
-        response = post(
-            (form.attrs["action"]),
-            data={
-                element.attrs["name"]: element.attrs["value"]
-                for element in form.find_all("input")
-                if "name" in element.attrs and "value" in element.attrs
-            },
-            timeout=5,
+    response = yt_request(youtube_url)
+    # check response is an html page
+    if response.headers.get("content-type", "").startswith("text/html"):
+        # check for the cookie accep form
+        soup = BeautifulSoup(response.text, features="html.parser")
+        forms = soup.find_all(
+            "form",
+            attrs={"method": "POST", "action": "https://consent.youtube.com/save"},
         )
-        assert response.ok
-        break
+        if len(forms) > 0:
+            response = yt_request(
+                (forms[0].attrs["action"]),
+                method="post",
+                data={
+                    element.attrs["name"]: element.attrs["value"]
+                    for element in forms[0].find_all("input")
+                    if "name" in element.attrs and "value" in element.attrs
+                },
+            )
 
-    return response.text
+    return response
 
 
-def youtube_find_channel_infos(value: str):
-    identifier = None
-    rssfeed = None
-    metadata = None
-    if value.startswith("http"):
-        metadata = yt_scrap_metadata(yt_get_page(value))
-        assert OG_URL in metadata
-        og_url = urlparse(metadata[OG_URL])
-        identifier = og_url.path.split("/")[(-1)]
-        rssfeed = RssFeed.fromurl(yt_feed_url(identifier))
-        if not rssfeed:
-            raise AssertionError
+def youtube_fetch_rss_feed(name: str) -> requests.Response:
+    feed_url = None
+    if name.startswith("@"):
+        # parse homepage metadata
+        metadata = YoutubeScrapper.fromresponse(yt_html_get(yt_home_url(slug=name)))
+        # find channelid
+        channel_id = metadata.find_channel_id()
+        # fetch rss feed
+        feed_url = yt_rss_url(channel_id=channel_id)
+    elif re.fullmatch(CHANNEL_PATTERN, name):
+        # fetch rss feed
+        feed_url = yt_rss_url(channel_id=name)
     else:
-        rssfeed = RssFeed.fromurl(yt_feed_url(value))
-        assert rssfeed
-        identifier = rssfeed.channel_id
-        metadata = yt_scrap_metadata(yt_get_page(rssfeed.link))
-        assert OG_URL in metadata
-    if identifier:
-        if not (rssfeed and metadata):
-            raise AssertionError
-        return {
-            "id": identifier,
-            "name": metadata[OG_TITLE],
-            "rss_url": rssfeed.url,
-            "avatar": metadata[OG_IMAGE],
-        }
+        # fetch rss feed
+        feed_url = yt_rss_url(user=name)
 
-
-# okay decompiling __pycache__/youtube.cpython-37.pyc
+    resp = yt_request(feed_url)
+    resp.raise_for_status()
+    return resp

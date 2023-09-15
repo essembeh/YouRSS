@@ -1,6 +1,4 @@
 ![Github](https://img.shields.io/github/tag/essembeh/yourss.svg)
-![PyPi](https://img.shields.io/pypi/v/yourss.svg)
-![Python](https://img.shields.io/pypi/pyversions/yourss.svg)
 
 
 # Youtube RSS viewer
@@ -17,65 +15,11 @@ I simply wrote a minimal RSS client for web browsers.
 
 # Install
 
-## From Pypi
-
-Install the latest release from [PyPI](https://pypi.org/project/yourss/)
-```sh
-$ pip3 install --user -U yourss
-# run the webserver
-$ FLASK_APP=yourss flask run
-# then open the page in your browser
-$ xdg-open http://127.0.0.1:5000
-```
-
-## From Github
-
-Install the latest version from the sources:
-
-> This project uses [Poetry](https://python-poetry.org), ensure you have *Poetry* installed
-
-```sh
-$ pip3 install --user -U poetry
-$ pip3 install --user git+https://github.com/essembeh/yourss
-# run the webserver
-$ FLASK_APP=yourss flask run
-# then open the page in your browser
-$ xdg-open http://127.0.0.1:5000
-```
-
-## From the sources
-
-Install from the source
-Clone the project
-```sh
-# ensure you have poetry installed
-$ pip3 install --user -U poetry
-
-# clone the repository
-$ git clone https://github.com/essembeh/yourss
-$ cd yourss
-
-# create the virtualenv
-$ poetry install
-
-# run the app
-$ poetry shell
-(.venv) $ helloworld --help
-
-# run the webserver
-$ FLASK_APP=yourss flask run
-# then open the page in your browser
-$ xdg-open http://127.0.0.1:5000
-
-# to run the tests:
-$ poetry run pytest tests
-```
-
 ## From docker
 
 Using Docker you can run the latest image build on the latest commit
 ```sh
-$ docker run --name youtube -p 8000:8000 essembeh/yourss
+$ docker run -d --name youtube -p 8000:8000 ghcr.io/essembeh/yourss
 # then open the page in your browser
 $ xdg-open http://127.0.0.1:8000
 ```

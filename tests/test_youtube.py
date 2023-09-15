@@ -1,54 +1,59 @@
-from re import fullmatch
-from yourss.youtube import (
-    youtube_find_channel_infos,
-    yt_feed_url,
-    yt_get_page,
-    yt_scrap_metadata,
-    YOUTUBE_URL_PATTERN,
-)
+from yourss.model import RssFeed
+from yourss.youtube import (YoutubeScrapper, youtube_fetch_rss_feed,
+                            yt_home_url, yt_html_get, yt_rss_url)
+
+USER = "DAN1ELmadison"
+USER_HOME = yt_home_url(user=USER)
+USER_RSS = yt_rss_url(user=USER)
+
+CHANNEL_ID = "UCa_Dlwrwv3ktrhCy91HpVRw"
+CHANNEL_ID_HOME = yt_home_url(channel_id=CHANNEL_ID)
+CHANNEL_ID_RSS = yt_rss_url(channel_id=CHANNEL_ID)
+
+SLUG = "@LostAngelus52"
+SLUG_HOME = yt_home_url(slug=SLUG)
 
 
-def test_url():
+def test_channel_rssfeed():
+    feed = RssFeed.fromresponse(youtube_fetch_rss_feed(CHANNEL_ID))
+    assert feed is not None
+    assert feed.title == "Jeremy Griffith"
+
+
+def test_channel_metadata():
+    response = yt_html_get(CHANNEL_ID_HOME)
+    metadata = YoutubeScrapper.fromresponse(response)
+    assert metadata.title == "Jeremy Griffith"
     assert (
-        fullmatch(YOUTUBE_URL_PATTERN, "https://www.youtube.com/user/DAN1ELmadison")
-        is not None
+        metadata.homepage_url
+        == "https://www.youtube.com/channel/UCa_Dlwrwv3ktrhCy91HpVRw"
     )
+    assert metadata.avatar_url is not None
+
+
+def test_user_rssfeed():
+    feed = RssFeed.fromresponse(youtube_fetch_rss_feed(USER))
+    assert feed is not None
+    assert feed.title == "Daniel Madison"
+
+
+def test_user_metadata():
+    response = yt_html_get(USER_HOME)
+    metadata = YoutubeScrapper.fromresponse(response)
+    assert metadata.title == "Daniel Madison"
     assert (
-        fullmatch(
-            YOUTUBE_URL_PATTERN,
-            "https://www.youtube.com/channel/UCa_Dlwrwv3ktrhCy91HpVRw",
-        )
-        is not None
+        metadata.homepage_url
+        == "https://www.youtube.com/channel/UCB99aK4f2WaH96joccxLvSQ"
     )
+    assert metadata.avatar_url is not None
+
+
+def test_slug_metadata():
+    response = yt_html_get(SLUG_HOME)
+    metadata = YoutubeScrapper.fromresponse(response)
+    assert metadata.title == "Jeremy Griffith"
     assert (
-        fullmatch(
-            YOUTUBE_URL_PATTERN,
-            "https://www.youtube.com/results?search_query=jonny+giger",
-        )
-        is None
+        metadata.homepage_url
+        == "https://www.youtube.com/channel/UCa_Dlwrwv3ktrhCy91HpVRw"
     )
-
-
-def test_scrap():
-    channel_id = "UCa_Dlwrwv3ktrhCy91HpVRw"
-    url = f"https://www.youtube.com/channel/{channel_id}"
-
-    content = yt_get_page(url)
-    assert content
-    metadata = yt_scrap_metadata(content)
-    assert metadata
-    assert metadata["og:title"] == "Jeremy Griffith"
-    assert "og:image" in metadata
-    assert "og:url" in metadata
-
-
-def test_metadata():
-    channel_id = "UCn-eRu2K4LlRKGRXLJaAwJg"
-    url = f"https://www.youtube.com/channel/{channel_id}"
-
-    infos = youtube_find_channel_infos(url)
-    infos2 = youtube_find_channel_infos(channel_id)
-    assert infos == infos2
-    assert infos["id"] == channel_id
-    assert infos["name"] == "Jeremy Griffith"
-    assert infos["rss_url"] == yt_feed_url(channel_id)
+    assert metadata.avatar_url is not None

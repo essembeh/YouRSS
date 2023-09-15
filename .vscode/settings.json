@@ -4,10 +4,16 @@
         "**/__pycache__/": true,
     },
     "python.pythonPath": ".venv/bin/python",
-    // use this interpreter if you installed vscodium from flatpak
-    // "python.pythonPath": "extra/flatpak-python.sh",
     "python.formatting.provider": "black",
-    "editor.formatOnSave": true,
+    "[python]": {
+        "editor.formatOnSave": true,
+        "editor.codeActionsOnSave": {
+            "source.organizeImports": true
+        },
+    },
+    "isort.args": [
+        "--profile",
+        "black"
+    ],
     "python.linting.pylintEnabled": true,
-    "python.linting.pylintUseMinimalCheckers": false,
 }
