@@ -19,7 +19,7 @@ I simply wrote a minimal RSS client for web browsers.
 
 Using Docker you can run the latest image build on the latest commit
 ```sh
-$ docker run -d --name youtube -p 8000:8000 ghcr.io/essembeh/yourss
+$ docker run -d --name youtube -p 8000:8000 ghcr.io/essembeh/yourss:main
 # then open the page in your browser
 $ xdg-open http://127.0.0.1:8000
 ```
