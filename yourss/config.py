@@ -6,8 +6,6 @@ from loguru import logger
 
 @environ.config(prefix="YOURSS")
 class AppConfig:
-    EMBED_URL = environ.var("https://www.youtube-nocookie.com/embed/")
-    # EMBED_URL = environ.var("https://www.youtube.com/embed/")
     DEFAULT_CHANNELS = environ.var("@jonnygiger")
 
 
