@@ -2,11 +2,13 @@ from __future__ import annotations
 
 import re
 from dataclasses import dataclass
+from datetime import timedelta
 from functools import cached_property
 from urllib.parse import urlparse
 
 import requests
 from bs4 import BeautifulSoup
+from cachetools import TTLCache, cached
 from loguru import logger
 
 YT_HOSTS = ["consent.youtube.com", "www.youtube.com", "youtube.com", "youtu.be"]
@@ -151,11 +153,17 @@ def yt_html_get(youtube_url: str) -> requests.Response:
     return response
 
 
-def youtube_fetch_rss_feed(name: str) -> requests.Response:
+@cached(cache=TTLCache(maxsize=100, ttl=timedelta(hours=24).total_seconds()))
+def youtube_get_metadata(name: str) -> YoutubeScrapper:
+    return YoutubeScrapper.fromresponse(yt_html_get(yt_home_url(magic=name)))
+
+
+@cached(cache=TTLCache(maxsize=100, ttl=timedelta(hours=1).total_seconds()))
+def youtube_get_rss_feed(name: str) -> requests.Response:
     feed_url = None
     if name.startswith("@"):
         # parse homepage metadata
-        metadata = YoutubeScrapper.fromresponse(yt_html_get(yt_home_url(slug=name)))
+        metadata = youtube_get_metadata(name)
         # find channelid
         channel_id = metadata.find_channel_id()
         # fetch rss feed

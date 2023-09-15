@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "yourss"
-version = "0.3.1"
+version = "0.3.2"
 description = "Simple youtube browser based on RSS feeds"
 homepage = "https://github.com/essembeh/yourss"
 authors = ["Sébastien MB <seb@essembeh.org>"]
@@ -22,6 +22,7 @@ jinja2 = "^3.1.2"
 arrow = "^1.2.3"
 loguru = "^0.7.2"
 environ-config = "^23.2.0"
+cachetools = "^5.3.1"
 
 
 [tool.poetry.group.dev.dependencies]

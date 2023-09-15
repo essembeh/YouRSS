@@ -1,6 +1,11 @@
 from yourss.model import RssFeed
-from yourss.youtube import (YoutubeScrapper, youtube_fetch_rss_feed,
-                            yt_home_url, yt_html_get, yt_rss_url)
+from yourss.youtube import (
+    YoutubeScrapper,
+    youtube_get_rss_feed,
+    yt_home_url,
+    yt_html_get,
+    yt_rss_url,
+)
 
 USER = "DAN1ELmadison"
 USER_HOME = yt_home_url(user=USER)
@@ -15,7 +20,7 @@ SLUG_HOME = yt_home_url(slug=SLUG)
 
 
 def test_channel_rssfeed():
-    feed = RssFeed.fromresponse(youtube_fetch_rss_feed(CHANNEL_ID))
+    feed = RssFeed.fromresponse(youtube_get_rss_feed(CHANNEL_ID))
     assert feed is not None
     assert feed.title == "Jeremy Griffith"
 
@@ -32,7 +37,7 @@ def test_channel_metadata():
 
 
 def test_user_rssfeed():
-    feed = RssFeed.fromresponse(youtube_fetch_rss_feed(USER))
+    feed = RssFeed.fromresponse(youtube_get_rss_feed(USER))
     assert feed is not None
     assert feed.title == "Daniel Madison"
 
