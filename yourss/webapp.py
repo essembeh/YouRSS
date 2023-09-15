@@ -31,7 +31,7 @@ async def root():
 
 @app.get("/view/{channels}", response_class=HTMLResponse)
 async def view(request: Request, channels: str):
-    feeds = parallel_fetch(channels.split(","))
+    feeds = parallel_fetch(set(channels.split(",")))
     return TemplateResponse(
         "view.html",
         {"request": request, "feeds": feeds},

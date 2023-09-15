@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "yourss"
-version = "0.3.0"
+version = "0.3.1"
 description = "Simple youtube browser based on RSS feeds"
 homepage = "https://github.com/essembeh/yourss"
 authors = ["Sébastien MB <seb@essembeh.org>"]
