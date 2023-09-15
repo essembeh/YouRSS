@@ -35,7 +35,7 @@
           data-label="{{ feed.label }}" data-published="{{ video.published }}">
           <div class="card h-100" data-thumbnail="{{ video.thumbnail_url }}" data-video="{{ video.id }}">
             <img class="card-img-top" src="{{ video.thumbnail_url }}" style="cursor: pointer" alt="{{ video.title }}"
-              data-src="https://www.youtube-nocookie.com/embed/{{ video.video_id }}?autoplay=1" />
+              data-src="{{ config.EMBED_URL }}{{ video.video_id }}?autoplay=1" />
             <div class="card-body d-flex flex-column">
               <h5 class="card-title h5" style="cursor: pointer; font-weight: bold"
                 onclick="window.open('{{ feed.link }}')">
