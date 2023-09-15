@@ -1,11 +1,12 @@
 from fastapi import APIRouter, Response
 from fastapi.responses import RedirectResponse
 
-from . import __name__ as app_name
-from . import __version__ as app_version
-from .model import RssFeed
-from .schema import Feed
-from .youtube import YoutubeScrapper, youtube_fetch_rss_feed, yt_home_url, yt_html_get
+from .. import __name__ as app_name
+from .. import __version__ as app_version
+from ..model import RssFeed
+from ..schema import Feed
+from ..youtube import (YoutubeScrapper, youtube_fetch_rss_feed, yt_home_url,
+                       yt_html_get)
 
 router = APIRouter()
 

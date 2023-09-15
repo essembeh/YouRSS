@@ -20,3 +20,5 @@ YOURSS_USERS = {
 
 for user, channels in YOURSS_USERS.items():
     logger.info("Found user {}: {}", user, channels)
+
+config = environ.to_config(AppConfig)
