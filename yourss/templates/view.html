@@ -15,22 +15,36 @@
   <script src="https://cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js" crossorigin="anonymous"></script>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
 
-  <nav class="navbar navbar-dark bg-dark">
+  <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
     <div class="container-fluid">
-      <a class="navbar-brand" style="">
-        <span style="color: white;">
+      <a class="navbar-brand" href="#">
+        <span class="" style="color: white;">
           You
         </span>
-        <span class="badge border" style="color: white !important; background-color: red !important; border-color: red !important;">
+        <span class="badge border" style="color: white; background-color: red; border-color: red !important;">
           RSS
         </span>
-        <span style="margin-left: 20px;">
-          {% for feed in feeds|sort(attribute='title') %}
-          <span style="cursor: pointer;" onclick="window.open('/{{ feed.channel_id }}', '_self')">{{ feed.title }}</span>
-          &nbsp; &nbsp;
-          {% endfor %}
-        </span>
       </a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false"
+        aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <form class="container-fluid justify-content-start">
+          {% for feed in feeds|sort(attribute='title') %}
+          <button class="btn btn-secondary yourss-filter" type="button" data-channel="{{ feed.channel_id }}" onclick="toggle_filter('{{ feed.channel_id }}')">
+            {{ feed.title }}
+          </button>
+          {% endfor %}
+        </form>
+        <!-- 
+        <form class="d-flex">
+          <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
+          <button class="btn btn-outline-success" type="submit">Search</button>
+        </form> 
+        -->
+        <a class="bi bi-github" href="https://github.com/essembeh/YouRSS" target="_blank" style="color: white;"></a>
+      </div>
     </div>
   </nav>
 
@@ -41,7 +55,7 @@
       <div id="video-container" class="row">
         {% for feed in feeds %}
         {% for video in feed.entries %}
-        <div class="col-xxl-2 col-xl-3 col-lg-3 col-md-4 col-sm-6 mb-3 filterable" data-channel="{{ feed.channel_id }}" data-label="{{ feed.label }}"
+        <div class="col-xxl-2 col-xl-3 col-lg-3 col-md-4 col-sm-6 mb-3 yourss-filterable" data-channel="{{ feed.channel_id }}" data-label="{{ feed.label }}"
           data-published="{{ video.published }}">
           <div class="card h-100" data-thumbnail="{{ video.thumbnail_url }}" data-video="{{ video.id }}">
             <img class="card-img-top" src="{{ video.thumbnail_url }}" style="cursor: pointer" alt="{{ video.title }}"

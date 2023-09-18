@@ -33,7 +33,7 @@ $(document).ready(function () {
       }
     })
     if ((video_url = $(this).data("src"))) {
-      image_url = $(this).attr("src")
+      image_url = $(this).data("src")
       height = $(this).height()
       parent = $(this).parent()
       $(this).remove()
@@ -60,3 +60,31 @@ $(document).ready(function () {
       })
   )
 })
+
+/**
+ * Handle filter toggle
+ */
+var hidden_channel_ids = []
+function toggle_filter(channel_id) {
+  if (hidden_channel_ids.includes(channel_id)) {
+    hidden_channel_ids.pop(channel_id)
+  } else {
+    hidden_channel_ids.push(channel_id)
+  }
+  $(".yourss-filter").each(function () {
+    if (hidden_channel_ids.includes($(this).data("channel"))) {
+      $(this).removeClass("btn-secondary")
+      $(this).addClass("btn-outline-secondary")
+    } else {
+      $(this).addClass("btn-secondary")
+      $(this).removeClass("btn-outline-secondary")
+    }
+  })
+  $(".yourss-filterable").each(function () {
+    if (hidden_channel_ids.includes($(this).data("channel"))) {
+      $(this).css("display", "none")
+    } else {
+      $(this).css("display", "block")
+    }
+  })
+}

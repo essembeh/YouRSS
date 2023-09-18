@@ -50,3 +50,8 @@ YOURSS_USER_bar=@lostangelus52,UCB99aK4f2WaH96joccxLvSQ
 - a *json* rss-like can be accessed at `https://your.yourss.instance/api/json/@jonnygiger`
 - you will be redirected to the channel avatar with `https://your.yourss.instance/api/avatar/@jonnygiger`
 - all your custom pages can be accessed to `https://your.yourss.instance/u/<user>`
+
+
+# Extenal documentation:
+
+- Youtube player API: https://developers.google.com/youtube/player_parameters
