@@ -17,7 +17,17 @@
 
   <nav class="navbar navbar-dark bg-dark">
     <div class="container-fluid">
-      <a class="navbar-brand">:: YouRSS :: {{ feeds|map(attribute='title')|sort|join(', ') }}</a>
+      <a class="navbar-brand" style="">
+        <span style="color: white;">
+          You
+        </span>
+        <span class="badge border" style="color: white !important; background-color: red !important; border-color: red !important;">
+          RSS
+        </span>
+        <span style="margin-left: 20px;">
+          {{ feeds|map(attribute='title')|sort|join(', ') }}
+        </span>
+      </a>
     </div>
   </nav>
 
@@ -26,7 +36,7 @@
   <main>
     <div class="container-fluid mt-2">
       <div id="video-container" class="row">
-        {% for feed in feeds %} 
+        {% for feed in feeds %}
         {% for video in feed.entries %}
         <div class="col-xxl-2 col-xl-3 col-lg-3 col-md-4 col-sm-6 mb-3 filterable" data-channel="{{ feed.channel_id }}" data-label="{{ feed.label }}"
           data-published="{{ video.published }}">
@@ -45,7 +55,7 @@
             </div>
           </div>
         </div>
-        {% endfor %} 
+        {% endfor %}
         {% endfor %}
       </div>
     </div>
