@@ -25,7 +25,10 @@
           RSS
         </span>
         <span style="margin-left: 20px;">
-          {{ feeds|map(attribute='title')|sort|join(', ') }}
+          {% for feed in feeds|sort(attribute='title') %}
+          <span style="cursor: pointer;" onclick="window.open('/{{ feed.channel_id }}', '_self')">{{ feed.title }}</span>
+          &nbsp; &nbsp;
+          {% endfor %}
         </span>
       </a>
     </div>
@@ -42,7 +45,7 @@
           data-published="{{ video.published }}">
           <div class="card h-100" data-thumbnail="{{ video.thumbnail_url }}" data-video="{{ video.id }}">
             <img class="card-img-top" src="{{ video.thumbnail_url }}" style="cursor: pointer" alt="{{ video.title }}"
-              data-src="https://www.youtube-nocookie.com/embed/{{ video.video_id }}?autoplay=1" />
+              data-src="https://www.youtube-nocookie.com/embed/{{ video.video_id }}?autoplay=1&control=2&rel=0" />
             <div class="card-body d-flex flex-column">
               <h5 class="card-title h5" style="font-weight: bold">
                 <img src="/api/avatar/{{ feed.channel_id }}" width="30" height="30" class="rounded-circle" />
