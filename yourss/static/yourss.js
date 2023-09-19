@@ -39,7 +39,8 @@ $(document).ready(function () {
  */
 var hidden_channel_ids = []
 
-function toggle_filter(channel_id) {
+function toggle_filter(button) {
+  channel_id = $(button).data("channel-id")
   if (hidden_channel_ids.includes(channel_id)) {
     hidden_channel_ids.splice(hidden_channel_ids.indexOf(channel_id), 1)
   } else {
@@ -48,10 +49,10 @@ function toggle_filter(channel_id) {
   $(".yourss-filter").each(function () {
     if (hidden_channel_ids.includes($(this).data("channel-id"))) {
       $(this).removeClass("btn-secondary")
-      $(this).addClass("btn-outline-secondary")
+      $(this).addClass("btn-outline-danger")
     } else {
+      $(this).removeClass("btn-outline-danger")
       $(this).addClass("btn-secondary")
-      $(this).removeClass("btn-outline-secondary")
     }
   })
   $(".yourss-filterable").each(function () {
