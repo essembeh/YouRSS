@@ -33,7 +33,7 @@ $(document).ready(function () {
       }
     })
     if ((video_url = $(this).data("src"))) {
-      image_url = $(this).data("src")
+      image_url = $(this).attr("src")
       height = $(this).height()
       parent = $(this).parent()
       $(this).remove()
@@ -65,9 +65,10 @@ $(document).ready(function () {
  * Handle filter toggle
  */
 var hidden_channel_ids = []
+
 function toggle_filter(channel_id) {
   if (hidden_channel_ids.includes(channel_id)) {
-    hidden_channel_ids.pop(channel_id)
+    hidden_channel_ids.splice(hidden_channel_ids.indexOf(channel_id), 1)
   } else {
     hidden_channel_ids.push(channel_id)
   }
