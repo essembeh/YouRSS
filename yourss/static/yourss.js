@@ -18,33 +18,6 @@ $(document).ready(function () {
 })
 
 /**
- * Handle iframe/image swap for current video
- */
-$(document).ready(function () {
-  $("body").on("click", "img", function () {
-    $("iframe").each(function () {
-      if ((image_url = $(this).data("src"))) {
-        video_url = $(this).attr("src")
-        parent = $(this).parent()
-        $(this).remove()
-        $(parent).prepend(
-          `<img class="card-img-top" src="${image_url}" style="cursor: pointer;" data-src="${video_url}"/>`
-        )
-      }
-    })
-    if ((video_url = $(this).data("src"))) {
-      image_url = $(this).attr("src")
-      height = $(this).height()
-      parent = $(this).parent()
-      $(this).remove()
-      $(parent).prepend(
-        `<iframe src="${video_url}" data-src="${image_url}" width="100%" height="${height}" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen="" frameborder="0"></iframe>`
-      )
-    }
-  })
-})
-
-/**
  * Sort videos by updated date
  */
 $(document).ready(function () {
@@ -73,7 +46,7 @@ function toggle_filter(channel_id) {
     hidden_channel_ids.push(channel_id)
   }
   $(".yourss-filter").each(function () {
-    if (hidden_channel_ids.includes($(this).data("channel"))) {
+    if (hidden_channel_ids.includes($(this).data("channel-id"))) {
       $(this).removeClass("btn-secondary")
       $(this).addClass("btn-outline-secondary")
     } else {
@@ -82,10 +55,29 @@ function toggle_filter(channel_id) {
     }
   })
   $(".yourss-filterable").each(function () {
-    if (hidden_channel_ids.includes($(this).data("channel"))) {
+    if (hidden_channel_ids.includes($(this).data("channel-id"))) {
       $(this).css("display", "none")
     } else {
       $(this).css("display", "block")
     }
   })
+}
+
+/**
+ * Handle modal player
+ */
+function play_video(id) {
+  video_id = $(id).data("video-id")
+  $("#yourss-modal").data("video-id", video_id)
+  $("#yourss-modal").find("iframe").attr("src", `https://www.youtube-nocookie.com/embed/${video_id}?autoplay=1&control=2&rel=0`)
+  $("#yourss-modal").find(".modal-title").text($(id).data("channel-title") + ", " + $(id).data("video-title"))
+  $("#yourss-modal").modal("show")
+}
+$("#yourss-modal").on("hidden.bs.modal", function (e) {
+  $("#yourss-modal").find("iframe").removeAttr("src")
+})
+function open_external_video(base_url) {
+  video_id = $("#yourss-modal").data("video-id")
+  window.open(`${base_url}/watch?v=${video_id}`)
+  $("#yourss-modal").modal("hide")
 }
