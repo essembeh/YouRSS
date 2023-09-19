@@ -68,16 +68,20 @@ function toggle_filter(channel_id) {
  */
 function play_video(id) {
   video_id = $(id).data("video-id")
+  channel_id = $(id).data("channel-id")
   $("#yourss-modal").data("video-id", video_id)
   $("#yourss-modal").find("iframe").attr("src", `https://www.youtube-nocookie.com/embed/${video_id}?autoplay=1&control=2&rel=0`)
   $("#yourss-modal").find(".modal-title").text($(id).data("channel-title") + ", " + $(id).data("video-title"))
+  $("#yourss-modal-btn-youtube").data("url", `https://www.youtube.com/watch?v=${video_id}`)
+  $("#yourss-modal-btn-piped").data("url", `https://piped.kavin.rocks/watch?v=${video_id}`)
+  $("#yourss-modal-btn-rss").data("url", `/api/rss/${channel_id}`)
   $("#yourss-modal").modal("show")
 }
 $("#yourss-modal").on("hidden.bs.modal", function (e) {
   $("#yourss-modal").find("iframe").removeAttr("src")
 })
-function open_external_video(base_url) {
-  video_id = $("#yourss-modal").data("video-id")
-  window.open(`${base_url}/watch?v=${video_id}`)
-  $("#yourss-modal").modal("hide")
+function button_open(button) {
+  if (url = $(button).data("url")) {
+    window.open(url)
+  }
 }
