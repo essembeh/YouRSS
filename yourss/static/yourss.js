@@ -67,11 +67,16 @@ function toggle_filter(channel_id) {
  * Handle modal player
  */
 function play_video(id) {
-  video_id = $(id).data("video-id")
   channel_id = $(id).data("channel-id")
+  channel_title = $(id).data("channel-title")
+  video_id = $(id).data("video-id")
+  video_title = $(id).data("video-title")
+
   $("#yourss-modal").data("video-id", video_id)
   $("#yourss-modal").find("iframe").attr("src", `https://www.youtube-nocookie.com/embed/${video_id}?autoplay=1&control=2&rel=0`)
-  $("#yourss-modal").find(".modal-title").text($(id).data("channel-title") + ", " + $(id).data("video-title"))
+  $("#yourss-modal-channel-image").attr("src", `/api/avatar/${channel_id}`)
+  $("#yourss-modal-channel-title").text(channel_title)
+  $("#yourss-modal-video-title").text(video_title)
   $("#yourss-modal-btn-youtube").data("url", `https://www.youtube.com/watch?v=${video_id}`)
   $("#yourss-modal-btn-piped").data("url", `https://piped.kavin.rocks/watch?v=${video_id}`)
   $("#yourss-modal-btn-rss").data("url", `/api/rss/${channel_id}`)
