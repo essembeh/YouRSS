@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from fastapi import APIRouter, HTTPException, Request
+from fastapi import APIRouter, HTTPException, Query, Request
 from fastapi.responses import RedirectResponse
 from fastapi.templating import Jinja2Templates
 from starlette.responses import HTMLResponse
@@ -24,16 +24,10 @@ async def root():
     )
 
 
-@router.get("/{channels}", response_class=HTMLResponse)
-async def view_channels(request: Request, channels: str):
-    feeds = parallel_fetch(set(channels.split(",")))
-    return TemplateResponse(
-        "view.html",
-        {
-            "request": request,
-            "title": ", ".join(sorted((f.title for f in feeds))),
-            "feeds": feeds,
-        },
+@router.get("/watch", response_class=RedirectResponse)
+async def watch(video: str = Query(alias="v", min_length=11, max_length=11)):
+    return RedirectResponse(
+        f"https://www.youtube-nocookie.com/embed/{video}?autoplay=1&control=2&rel=0"
     )
 
 
@@ -48,6 +42,19 @@ async def get_user(request: Request, user: str):
         {
             "request": request,
             "title": f"/u/{user}",
+            "feeds": feeds,
+        },
+    )
+
+
+@router.get("/{channels}", response_class=HTMLResponse)
+async def view_channels(request: Request, channels: str):
+    feeds = parallel_fetch(set(channels.split(",")))
+    return TemplateResponse(
+        "view.html",
+        {
+            "request": request,
+            "title": ", ".join(sorted((f.title for f in feeds))),
             "feeds": feeds,
         },
     )
