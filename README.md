@@ -37,7 +37,7 @@ $ xdg-open http://127.0.0.1:8000
 Example:
 ```sh
 YOURSS_DEFAULT_CHANNELS=@jonnygiger,UCa_Dlwrwv3ktrhCy91HpVRw
-YOURSS_USER_foo=@jonnygiger
+YOURSS_USER_foo=@jonnygiger,-@ellisfrost8646
 YOURSS_USER_bar=@lostangelus52,UCB99aK4f2WaH96joccxLvSQ
 ```
 
@@ -50,7 +50,7 @@ YOURSS_USER_bar=@lostangelus52,UCB99aK4f2WaH96joccxLvSQ
 - a *json* rss-like can be accessed at `https://your.yourss.instance/api/json/@jonnygiger`
 - you will be redirected to the channel avatar with `https://your.yourss.instance/api/avatar/@jonnygiger`
 - all your custom pages can be accessed to `https://your.yourss.instance/u/<user>`
-
+- a channel which name begins with a `-` will be hidden by  default
 
 # Extenal documentation:
 

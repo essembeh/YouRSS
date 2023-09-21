@@ -3,6 +3,8 @@ import os
 import environ
 from loguru import logger
 
+from .utils import parse_channel_names
+
 
 @environ.config(prefix="YOURSS")
 class AppConfig:
@@ -11,7 +13,7 @@ class AppConfig:
 
 YOURSS_USER_PREFIX = "YOURSS_USER_"
 YOURSS_USERS = {
-    k[len(YOURSS_USER_PREFIX) :]: v.split(",")
+    k[len(YOURSS_USER_PREFIX) :]: parse_channel_names(v)
     for k, v in os.environ.items()
     if k.startswith(YOURSS_USER_PREFIX)
 }
