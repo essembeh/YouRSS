@@ -71,7 +71,7 @@
                 {{ video.title|escape }}
               </p>
               <p class="card-text mt-auto">
-                <small class="text-muted">{{ video.published_moment }}</small>
+                <small class="text-muted" title="{{ video.published }}">{{ video.published_moment }}</small>
                 <a class="bi bi-box-arrow-up-right" style="float: right; color:black;" href="/watch?v={{ video.video_id }}" target="_blank"></a>
               </p>
             </div>
