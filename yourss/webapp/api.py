@@ -4,7 +4,6 @@ from fastapi.responses import RedirectResponse
 import yourss
 
 from ..model import RssFeed
-from ..schema import Feed
 from ..youtube import youtube_get_metadata, youtube_get_rss_feed
 
 router = APIRouter()
@@ -20,13 +19,6 @@ async def rss_feed(name: str) -> RedirectResponse:
     resp = youtube_get_rss_feed(name)
     feed = RssFeed.fromresponse(resp)
     return RedirectResponse(feed.url)
-
-
-@router.get("/json/{name}")
-async def json_feed(name: str) -> Feed:
-    resp = youtube_get_rss_feed(name)
-    feed = RssFeed.fromresponse(resp)
-    return Feed.model_validate(feed)
 
 
 @router.get("/avatar/{name}")
