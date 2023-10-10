@@ -146,11 +146,9 @@ class RssFeed:
         )
 
     @property
-    def link(self) -> str:
-        return checknodeattr(
-            self.root.find("./atom:link[@rel='alternate']", namespaces=NAMESPACES),
-            "href",
-        )
+    def link(self) -> str | None:
+        node = self.root.find("./atom:link[@rel='alternate']", namespaces=NAMESPACES)
+        return checknodeattr(node, "href") if node is not None else None
 
     @property
     def entries(self) -> list[RssEntry]:

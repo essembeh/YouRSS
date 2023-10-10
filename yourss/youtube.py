@@ -72,11 +72,19 @@ def yt_parse_channel_id(channel_url: str) -> str | None:
         return last_segment
 
 
-def yt_rss_url(channel_id: str | None = None, user: str | None = None) -> str:
+def yt_thumbnail_url(video_id: str, instance: int = 1) -> str:
+    return f"https://i{instance}.ytimg.com/vi/{video_id}/hqdefault.jpg"
+
+
+def yt_rss_url(
+    channel_id: str | None = None, user: str | None = None, playlist: str | None = None
+) -> str:
     if channel_id is not None:
         return f"https://www.youtube.com/feeds/videos.xml?channel_id={channel_id}"
     if user is not None:
         return f"https://www.youtube.com/feeds/videos.xml?user={user}"
+    if playlist is not None:
+        return f"https://www.youtube.com/feeds/videos.xml?playlist_id={playlist}"
     raise ValueError()
 
 
@@ -168,6 +176,9 @@ def youtube_get_rss_feed(name: str) -> requests.Response:
         channel_id = metadata.find_channel_id()
         # fetch rss feed
         feed_url = yt_rss_url(channel_id=channel_id)
+    elif len(name) == 34 and name.startswith("PL"):
+        # fetch rss feed
+        feed_url = yt_rss_url(playlist=name)
     elif re.fullmatch(CHANNEL_PATTERN, name):
         # fetch rss feed
         feed_url = yt_rss_url(channel_id=name)
