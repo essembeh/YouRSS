@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException, Response
+from fastapi import APIRouter, HTTPException
 from fastapi.responses import RedirectResponse
 
 import yourss
@@ -16,9 +16,10 @@ async def version():
 
 
 @router.get("/rss/{name}")
-async def rss_feed(name: str) -> Response:
+async def rss_feed(name: str) -> RedirectResponse:
     resp = youtube_get_rss_feed(name)
-    return Response(resp.text, media_type=resp.headers.get("content-type", "text/xml"))
+    feed = RssFeed.fromresponse(resp)
+    return RedirectResponse(feed.url)
 
 
 @router.get("/json/{name}")
