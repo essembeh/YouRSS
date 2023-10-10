@@ -85,22 +85,17 @@ function play_video(id) {
   $("#yourss-modal-channel-image").attr("src", `/api/avatar/${channel_id}`)
   $("#yourss-modal-channel-title").text(channel_title)
   $("#yourss-modal-video-title").text(video_title)
-  $("#yourss-modal-btn-youtube").data(
-    "url",
+  $("#yourss-modal-link-youtube").attr(
+    "href",
     `https://www.youtube.com/watch?v=${video_id}`
   )
-  $("#yourss-modal-btn-piped").data(
-    "url",
+  $("#yourss-modal-link-piped").attr(
+    "href",
     `https://piped.kavin.rocks/watch?v=${video_id}`
   )
-  $("#yourss-modal-btn-rss").data("url", `/api/rss/${channel_id}`)
+  $("#yourss-modal-link-rss").attr("href", `/api/rss/${channel_id}`)
   $("#yourss-modal").modal("show")
 }
 $("#yourss-modal").on("hidden.bs.modal", function (e) {
   $("#yourss-modal").find("iframe").removeAttr("src")
 })
-function button_open(button) {
-  if ((url = $(button).data("url"))) {
-    window.open(url)
-  }
-}

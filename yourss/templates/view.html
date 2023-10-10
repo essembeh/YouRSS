@@ -43,9 +43,9 @@
           <button class="btn btn-outline-success" type="submit">Search</button>
         </form> 
         -->
-        <button class="btn btn-outline-secondary" type="button" data-url="https://github.com/essembeh/YouRSS" onclick="button_open(this)">
+        <a class="btn btn-outline-secondary" href="https://github.com/essembeh/YouRSS" target="_blank">
           <i class="bi bi-github"></i>
-        </button>
+        </a>
       </div>
     </div>
   </nav>
@@ -99,13 +99,17 @@
             <iframe width="100%" height="100%" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen="" frameborder="0"></iframe>
           </div>
           <div class="modal-footer">
-            <button id="yourss-modal-btn-rss" type="button" class="btn btn-warning" style="color: white; background-color: orange;" onclick="button_open(this)"><i
-                class="bi bi-rss-fill"></i></button>
-            <button id="yourss-modal-btn-piped" type="button" class="btn btn-success" onclick="$('#yourss-modal').modal('hide'); button_open(this)"><i
-                class="bi bi-incognito"></i></button>
-            <button id="yourss-modal-btn-youtube" type="button" class="btn btn-danger" onclick="$('#yourss-modal').modal('hide'); button_open(this)"><i
-                class="bi bi-youtube"></i></button>
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><i class="bi bi-x-lg"></i></button>
+            <a id="yourss-modal-link-rss" class="btn btn-warning" target="_blank">
+              <i class="bi bi-rss-fill" style="color: white;"></i>
+            </a><a id="yourss-modal-link-piped" class="btn btn-success" target="_blank" onclick="$('#yourss-modal').modal('hide')">
+              <i class="bi bi-incognito"></i>
+            </a>
+            <a id="yourss-modal-link-youtube" class="btn btn-danger" target="_blank" onclick="$('#yourss-modal').modal('hide')">
+              <i class="bi bi-youtube"></i>
+            </a>
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+              <i class="bi bi-x-lg"></i>
+            </button>
           </div>
         </div>
       </div>
@@ -114,7 +118,7 @@
 
   <script>
     // Initialize hidden channels
-    var hidden_channel_ids = {{ hidden_channel_ids|safe }} 
+    var hidden_channel_ids = {{ hidden_channel_ids| safe }} 
   </script>
   <script src="/static/yourss.js"></script>
 </body>
