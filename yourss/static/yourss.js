@@ -20,18 +20,50 @@ $(document).ready(function () {
 /**
  * Sort videos by updated date
  */
-$(document).ready(function () {
+var SORT_ORDERS = [
+  "bi bi-sort-down", // sort by date
+  "bi bi-sort-up", // sort by date, reverse
+  "bi bi-sort-alpha-down", // sort by channel, then date
+  "bi bi-sort-alpha-up", // sort by channel, then date, reverse
+]
+function toggle_sort(button) {
+  old_order = SORT_ORDERS.indexOf($(button).find("i").attr("class"))
+  new_order = old_order == -1 ? 0 : (old_order + 1) % SORT_ORDERS.length
+  $(button).find("i").attr("class", SORT_ORDERS[new_order])
+  sort_videos(new_order)
+}
+function sort_videos(order) {
   $("#video-container").html(
     $("#video-container")
       .children()
       .sort(function (a, b) {
+        a_channel = $(a).data("channel-title")
         a_date = new Date($(a).data("published")).getTime()
+        b_channel = $(b).data("channel-title")
         b_date = new Date($(b).data("published")).getTime()
-        if (a_date < b_date) return 1
-        if (a_date > b_date) return -1
+        if (order == 0) {
+          if (a_date < b_date) return 1
+          if (a_date > b_date) return -1
+        } else if (order == 1) {
+          if (a_date < b_date) return -1
+          if (a_date > b_date) return 1
+        } else if (order == 2) {
+          if (a_channel < b_channel) return -1
+          if (a_channel > b_channel) return 1
+          if (a_date < b_date) return 1
+          if (a_date > b_date) return -1
+        } else if (order == 3) {
+          if (a_channel < b_channel) return -1
+          if (a_channel > b_channel) return 1
+          if (a_date < b_date) return -1
+          if (a_date > b_date) return 1
+        }
         return 0
       })
   )
+}
+$(document).ready(function () {
+  sort_videos(0)
 })
 
 /**
