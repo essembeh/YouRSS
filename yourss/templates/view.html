@@ -18,7 +18,7 @@
 
   <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
     <div class="container-fluid">
-      <a class="navbar-brand" href="#">
+      <a class="navbar-brand" href="https://github.com/essembeh/YouRSS" target="_blank">
         <span class="" style="color: white;">
           You
         </span>
@@ -32,9 +32,7 @@
       </button>
       <div class="collapse navbar-collapse" id="navbarSupportedContent">
         <form class="container-fluid justify-content-start">
-          <button class="btn btn-secondary" type="button" onclick="toggle_sort(this)">
-            <i class="bi bi-sort-down"></i>
-          </button>
+
           {% for feed in feeds|sort(attribute='title') %}
           <button class="btn btn-secondary yourss-filter" type="button" data-channel-id="{{ feed.channel_id }}" onclick="toggle_filter(this)">
             {{ feed.title|escape }}
@@ -47,9 +45,9 @@
           <button class="btn btn-outline-success" type="submit">Search</button>
         </form> 
         -->
-        <a class="btn btn-outline-secondary" href="https://github.com/essembeh/YouRSS" target="_blank">
-          <i class="bi bi-github"></i>
-        </a>
+        <button class="btn btn-outline-secondary" type="button" onclick="toggle_sort(this)">
+          <i class="bi bi-sort-down"></i>
+        </button>
       </div>
     </div>
   </nav>
