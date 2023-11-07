@@ -1,6 +1,7 @@
 from yourss.model import RssFeed
 from yourss.youtube import (
     YoutubeScrapper,
+    youtube_get_metadata,
     youtube_get_rss_feed,
     yt_home_url,
     yt_html_get,
@@ -61,4 +62,10 @@ def test_slug_metadata():
         metadata.homepage_url
         == "https://www.youtube.com/channel/UCa_Dlwrwv3ktrhCy91HpVRw"
     )
+    assert metadata.avatar_url is not None
+
+def test_avatar():
+    metadata = youtube_get_metadata("@jonnygiger")
+    assert metadata is not None
+    print(">>>>>>>>>>>>>>", metadata.avatar_url)
     assert metadata.avatar_url is not None

@@ -128,8 +128,10 @@ class RssFeed:
     @property
     def channel_id(self) -> str:
         node = checknode(self.root.find("./yt:channelId", namespaces=NAMESPACES))
-        if node.text is not None:
-            return node.text
+        if (out := node.text) is not None:
+            # workaround, sometime channel id does not start with UC
+            if out.startswith("UC"):
+                return out
         # no channel id, parse the url to retrieve it
         params = parse_qs(urlparse(self.url).query)
         channel_id = params.get("channel_id")
