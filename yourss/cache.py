@@ -12,8 +12,8 @@ from .youtube import youtube_get_metadata, youtube_get_rss_feed
 
 
 def create_redis(url: str | None) -> Redis | None:
-    if url is not None:
-        out = Redis(host=url)
+    if isinstance(url, str) and len(url) > 0:
+        out = Redis.from_url(url)
         if out.ping():
             logger.info("Redis ping OK: {}", out)
             return out
@@ -65,13 +65,13 @@ def redis_cached(ttl: int | None = None):
     return decorator
 
 
-@redis_cached(ttl=14400)
+@redis_cached(ttl=config.TTL_AVATAR)
 def get_avatar_url(name: str) -> str | None:
     return youtube_get_metadata(name).avatar_url
 
 
 def get_rssfeeds(names: Iterable[str], workers: int = 4) -> dict[str, RssFeed | None]:
-    @redis_cached(ttl=3600)
+    @redis_cached(ttl=config.TTL_RSS)
     def get_response_text(name) -> str:
         resp = youtube_get_rss_feed(name)
         resp.raise_for_status()

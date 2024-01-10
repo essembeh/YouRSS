@@ -10,6 +10,8 @@ from .utils import parse_channel_names
 class AppConfig:
     DEFAULT_CHANNELS = environ.var("@jonnygiger")
     REDIS_URL = environ.var(default=None)
+    TTL_AVATAR = environ.var(converter=int, default=24 * 3600)
+    TTL_RSS = environ.var(converter=int, default=3600)
 
 
 YOURSS_USER_PREFIX = "YOURSS_USER_"
@@ -19,7 +21,8 @@ YOURSS_USERS = {
     if k.startswith(YOURSS_USER_PREFIX)
 }
 
+config = environ.to_config(AppConfig)
+
+logger.debug("Loaded configuration: {}", config)
 for user, channels in YOURSS_USERS.items():
     logger.info("Found user {}: {}", user, channels)
-
-config = environ.to_config(AppConfig)
