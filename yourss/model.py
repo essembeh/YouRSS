@@ -117,7 +117,11 @@ class RssFeed:
     @classmethod
     def fromresponse(cls, resp: requests.Response) -> RssFeed:
         resp.raise_for_status()
-        out = cls(ElementTree.fromstring(resp.text))
+        return cls.fromstring(resp.text)
+
+    @classmethod
+    def fromstring(cls, text: str) -> RssFeed:
+        out = cls(ElementTree.fromstring(text))
         assert out.title is not None
         return out
 

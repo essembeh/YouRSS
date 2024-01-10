@@ -3,8 +3,7 @@ from fastapi.responses import RedirectResponse
 
 import yourss
 
-from ..model import RssFeed
-from ..youtube import youtube_get_metadata, youtube_get_rss_feed
+from ..cache import get_avatar_url, get_rssfeeds
 
 router = APIRouter()
 
@@ -16,14 +15,15 @@ async def version():
 
 @router.get("/rss/{name}")
 async def rss_feed(name: str) -> RedirectResponse:
-    resp = youtube_get_rss_feed(name)
-    feed = RssFeed.fromresponse(resp)
+    feed = get_rssfeeds([name]).get(name)
+    if feed is None:
+        raise HTTPException(status_code=404)
     return RedirectResponse(feed.url)
 
 
 @router.get("/avatar/{name}")
 async def avatar(name: str) -> RedirectResponse:
-    metadata = youtube_get_metadata(name)
-    if metadata.avatar_url is None:
+    url = get_avatar_url(name)
+    if url is None:
         raise HTTPException(status_code=404)
-    return RedirectResponse(metadata.avatar_url)
+    return RedirectResponse(url)

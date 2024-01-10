@@ -23,6 +23,7 @@ arrow = "^1.2.3"
 loguru = "^0.7.2"
 environ-config = "^23.2.0"
 cachetools = "^5.3.1"
+redis = "^5.0.1"
 
 
 [tool.poetry.group.dev.dependencies]
@@ -33,6 +34,7 @@ pytest-cov = "^4.1.0"
 pytest-dotenv = "^0.5.2"
 uvicorn = "^0.25.0"
 isort = "^5.12.0"
+types-redis = "^4.6.0.20240106"
 
 
 [build-system]

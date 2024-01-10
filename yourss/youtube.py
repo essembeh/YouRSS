@@ -2,13 +2,11 @@ from __future__ import annotations
 
 import re
 from dataclasses import dataclass
-from datetime import timedelta
 from functools import cached_property
 from urllib.parse import urlparse
 
 import requests
 from bs4 import BeautifulSoup
-from cachetools import TTLCache, cached
 from loguru import logger
 
 YT_HOSTS = ["consent.youtube.com", "www.youtube.com", "youtube.com", "youtu.be"]
@@ -64,52 +62,53 @@ class YoutubeScrapper:
         #     return yt_magic_find_channel_id(results[0].replace("\\", ""))
 
 
+class YoutubeUrl:
+    @staticmethod
+    def thumbnail(video_id: str, instance: int = 1) -> str:
+        return f"https://i{instance}.ytimg.com/vi/{video_id}/hqdefault.jpg"
+
+    @staticmethod
+    def channel_rss(channel_id: str) -> str:
+        return f"https://www.youtube.com/feeds/videos.xml?channel_id={channel_id}"
+
+    @staticmethod
+    def user_rss(user: str) -> str:
+        return f"https://www.youtube.com/feeds/videos.xml?user={user}"
+
+    @staticmethod
+    def playlist_rss(playlist: str) -> str:
+        return f"https://www.youtube.com/feeds/videos.xml?playlist_id={playlist}"
+
+    @classmethod
+    def slug_home(cls, slug: str) -> str:
+        assert slug.startswith("@")
+        return f"https://www.youtube.com/{slug}"
+
+    @classmethod
+    def channel_home(cls, channel_id: str) -> str:
+        assert re.fullmatch(CHANNEL_PATTERN, channel_id)
+        return f"https://www.youtube.com/channel/{channel_id}"
+
+    @classmethod
+    def user_home(cls, user: str) -> str:
+        return f"https://www.youtube.com/user/{user}"
+
+    @classmethod
+    def home(cls, anything: str) -> str:
+        if anything.startswith("@"):
+            return cls.slug_home(anything)
+        elif re.fullmatch(CHANNEL_PATTERN, anything):
+            return cls.channel_home(anything)
+        else:
+            return cls.user_home(anything)
+
+
 def yt_parse_channel_id(channel_url: str) -> str | None:
     parsed_url = urlparse(channel_url)
     assert parsed_url.hostname in YT_HOSTS, f"Invalid host: {parsed_url.hostname}"
     last_segment = parsed_url.path.split("/")[-1]
     if re.fullmatch(CHANNEL_PATTERN, last_segment):
         return last_segment
-
-
-def yt_thumbnail_url(video_id: str, instance: int = 1) -> str:
-    return f"https://i{instance}.ytimg.com/vi/{video_id}/hqdefault.jpg"
-
-
-def yt_rss_url(
-    channel_id: str | None = None, user: str | None = None, playlist: str | None = None
-) -> str:
-    if channel_id is not None:
-        return f"https://www.youtube.com/feeds/videos.xml?channel_id={channel_id}"
-    if user is not None:
-        return f"https://www.youtube.com/feeds/videos.xml?user={user}"
-    if playlist is not None:
-        return f"https://www.youtube.com/feeds/videos.xml?playlist_id={playlist}"
-    raise ValueError()
-
-
-def yt_home_url(
-    slug: str | None = None,
-    channel_id: str | None = None,
-    user: str | None = None,
-    magic: str | None = None,
-) -> str:
-    if magic is not None:
-        if magic.startswith("@"):
-            return yt_home_url(slug=magic)
-        elif re.fullmatch(CHANNEL_PATTERN, magic):
-            return yt_home_url(channel_id=magic)
-        else:
-            return yt_home_url(user=magic)
-    if slug is not None:
-        assert slug.startswith("@")
-        return f"https://www.youtube.com/{slug}"
-    if channel_id is not None:
-        assert re.fullmatch(CHANNEL_PATTERN, channel_id)
-        return f"https://www.youtube.com/channel/{channel_id}"
-    if user is not None:
-        return f"https://www.youtube.com/user/{user}"
-    raise ValueError()
 
 
 def yt_request(
@@ -123,8 +122,10 @@ def yt_request(
     parsed_url = urlparse(youtube_url)
     assert parsed_url.hostname in YT_HOSTS, f"Invalid host: {parsed_url.hostname}"
 
+    # set default user agent
     headers = kwargs.pop("headers", {})
     headers["user-agent"] = user_agent
+
     response = requests.request(
         method, youtube_url, headers=headers, timeout=timeout, **kwargs
     )
@@ -161,12 +162,10 @@ def yt_html_get(youtube_url: str) -> requests.Response:
     return response
 
 
-@cached(cache=TTLCache(maxsize=100, ttl=timedelta(hours=24).total_seconds()))
 def youtube_get_metadata(name: str) -> YoutubeScrapper:
-    return YoutubeScrapper.fromresponse(yt_html_get(yt_home_url(magic=name)))
+    return YoutubeScrapper.fromresponse(yt_html_get(YoutubeUrl.home(name)))
 
 
-@cached(cache=TTLCache(maxsize=100, ttl=timedelta(hours=1).total_seconds()))
 def youtube_get_rss_feed(name: str) -> requests.Response:
     feed_url = None
     if name.startswith("@"):
@@ -174,17 +173,18 @@ def youtube_get_rss_feed(name: str) -> requests.Response:
         metadata = youtube_get_metadata(name)
         # find channelid
         channel_id = metadata.find_channel_id()
+        assert channel_id is not None
         # fetch rss feed
-        feed_url = yt_rss_url(channel_id=channel_id)
+        feed_url = YoutubeUrl.channel_rss(channel_id)
     elif len(name) == 34 and name.startswith("PL"):
         # fetch rss feed
-        feed_url = yt_rss_url(playlist=name)
+        feed_url = YoutubeUrl.playlist_rss(name)
     elif re.fullmatch(CHANNEL_PATTERN, name):
         # fetch rss feed
-        feed_url = yt_rss_url(channel_id=name)
+        feed_url = YoutubeUrl.channel_rss(name)
     else:
         # fetch rss feed
-        feed_url = yt_rss_url(user=name)
+        feed_url = YoutubeUrl.user_rss(name)
 
     resp = yt_request(feed_url)
     resp.raise_for_status()

@@ -9,6 +9,7 @@ from .utils import parse_channel_names
 @environ.config(prefix="YOURSS")
 class AppConfig:
     DEFAULT_CHANNELS = environ.var("@jonnygiger")
+    REDIS_URL = environ.var(default=None)
 
 
 YOURSS_USER_PREFIX = "YOURSS_USER_"

@@ -1,23 +1,22 @@
 from yourss.model import RssFeed
 from yourss.youtube import (
     YoutubeScrapper,
+    YoutubeUrl,
     youtube_get_metadata,
     youtube_get_rss_feed,
-    yt_home_url,
     yt_html_get,
-    yt_rss_url,
 )
 
 USER = "DAN1ELmadison"
-USER_HOME = yt_home_url(user=USER)
-USER_RSS = yt_rss_url(user=USER)
+USER_HOME = YoutubeUrl.user_home(USER)
+USER_RSS = YoutubeUrl.user_rss(USER)
 
 CHANNEL_ID = "UCa_Dlwrwv3ktrhCy91HpVRw"
-CHANNEL_ID_HOME = yt_home_url(channel_id=CHANNEL_ID)
-CHANNEL_ID_RSS = yt_rss_url(channel_id=CHANNEL_ID)
+CHANNEL_ID_HOME = YoutubeUrl.channel_home(CHANNEL_ID)
+CHANNEL_ID_RSS = YoutubeUrl.channel_rss(CHANNEL_ID)
 
 SLUG = "@LostAngelus52"
-SLUG_HOME = yt_home_url(slug=SLUG)
+SLUG_HOME = YoutubeUrl.slug_home(SLUG)
 
 
 def test_channel_rssfeed():
@@ -63,6 +62,7 @@ def test_slug_metadata():
         == "https://www.youtube.com/channel/UCa_Dlwrwv3ktrhCy91HpVRw"
     )
     assert metadata.avatar_url is not None
+
 
 def test_avatar():
     metadata = youtube_get_metadata("@jonnygiger")
