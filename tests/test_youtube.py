@@ -1,3 +1,5 @@
+import pytest
+
 from yourss.model import RssFeed
 from yourss.youtube import (
     YoutubeScrapper,
@@ -19,14 +21,16 @@ SLUG = "@LostAngelus52"
 SLUG_HOME = YoutubeUrl.slug_home(SLUG)
 
 
-def test_channel_rssfeed():
-    feed = RssFeed.fromresponse(youtube_get_rss_feed(CHANNEL_ID))
+@pytest.mark.asyncio
+async def test_channel_rssfeed():
+    feed = RssFeed.fromresponse(await youtube_get_rss_feed(CHANNEL_ID))
     assert feed is not None
     assert feed.title == "Jeremy Griffith"
 
 
-def test_channel_metadata():
-    response = yt_html_get(CHANNEL_ID_HOME)
+@pytest.mark.asyncio
+async def test_channel_metadata():
+    response = await yt_html_get(CHANNEL_ID_HOME)
     metadata = YoutubeScrapper.fromresponse(response)
     assert metadata.title == "Jeremy Griffith"
     assert (
@@ -36,14 +40,16 @@ def test_channel_metadata():
     assert metadata.avatar_url is not None
 
 
-def test_user_rssfeed():
-    feed = RssFeed.fromresponse(youtube_get_rss_feed(USER))
+@pytest.mark.asyncio
+async def test_user_rssfeed():
+    feed = RssFeed.fromresponse(await youtube_get_rss_feed(USER))
     assert feed is not None
     assert feed.title == "Daniel Madison"
 
 
-def test_user_metadata():
-    response = yt_html_get(USER_HOME)
+@pytest.mark.asyncio
+async def test_user_metadata():
+    response = await yt_html_get(USER_HOME)
     metadata = YoutubeScrapper.fromresponse(response)
     assert metadata.title == "Daniel Madison"
     assert (
@@ -53,8 +59,9 @@ def test_user_metadata():
     assert metadata.avatar_url is not None
 
 
-def test_slug_metadata():
-    response = yt_html_get(SLUG_HOME)
+@pytest.mark.asyncio
+async def test_slug_metadata():
+    response = await yt_html_get(SLUG_HOME)
     metadata = YoutubeScrapper.fromresponse(response)
     assert metadata.title == "Jeremy Griffith"
     assert (
@@ -64,8 +71,9 @@ def test_slug_metadata():
     assert metadata.avatar_url is not None
 
 
-def test_avatar():
-    metadata = youtube_get_metadata("@jonnygiger")
+@pytest.mark.asyncio
+async def test_avatar():
+    metadata = await youtube_get_metadata("@jonnygiger")
     assert metadata is not None
     print(">>>>>>>>>>>>>>", metadata.avatar_url)
     assert metadata.avatar_url is not None

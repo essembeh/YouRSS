@@ -5,8 +5,8 @@ from dataclasses import dataclass
 from functools import cached_property
 from urllib.parse import urlparse
 
-import requests
 from bs4 import BeautifulSoup
+from httpx import AsyncClient, Response
 from loguru import logger
 
 YT_HOSTS = ["consent.youtube.com", "www.youtube.com", "youtube.com", "youtu.be"]
@@ -23,12 +23,15 @@ MOZILLA_USER_AGENT = (
 CHANNEL_PATTERN = r"[a-zA-Z0-9_-]{24}"
 
 
+httpclient = AsyncClient()
+
+
 @dataclass
 class YoutubeScrapper:
     soup: BeautifulSoup
 
     @classmethod
-    def fromresponse(cls, resp: requests.Response) -> YoutubeScrapper:
+    def fromresponse(cls, resp: Response) -> YoutubeScrapper:
         resp.raise_for_status()
         assert resp.headers.get("content-type", "").startswith("text/html")
         return cls(BeautifulSoup(resp.text, features="html.parser"))
@@ -111,14 +114,14 @@ def yt_parse_channel_id(channel_url: str) -> str | None:
         return last_segment
 
 
-def yt_request(
+async def yt_request(
     youtube_url: str,
     method: str = "get",
     check_ok: bool = True,
     timeout: int = 10,
     user_agent: str = MOZILLA_USER_AGENT,
     **kwargs,
-) -> requests.Response:
+) -> Response:
     parsed_url = urlparse(youtube_url)
     assert parsed_url.hostname in YT_HOSTS, f"Invalid host: {parsed_url.hostname}"
 
@@ -126,8 +129,13 @@ def yt_request(
     headers = kwargs.pop("headers", {})
     headers["user-agent"] = user_agent
 
-    response = requests.request(
-        method, youtube_url, headers=headers, timeout=timeout, **kwargs
+    response = await httpclient.request(
+        method,
+        youtube_url,
+        headers=headers,
+        timeout=timeout,
+        follow_redirects=True,
+        **kwargs,
     )
     logger.debug("Youtube {} {}: {}", method, youtube_url, response.status_code)
     if check_ok:
@@ -135,11 +143,11 @@ def yt_request(
     return response
 
 
-def yt_html_get(youtube_url: str) -> requests.Response:
+async def yt_html_get(youtube_url: str) -> Response:
     """
     get a youtube page content with cookie accept if needed
     """
-    response = yt_request(youtube_url)
+    response = await yt_request(youtube_url)
     # check response is an html page
     if response.headers.get("content-type", "").startswith("text/html"):
         # check for the cookie accep form
@@ -149,7 +157,7 @@ def yt_html_get(youtube_url: str) -> requests.Response:
             attrs={"method": "POST", "action": "https://consent.youtube.com/save"},
         )
         if len(forms) > 0:
-            response = yt_request(
+            response = await yt_request(
                 (forms[0].attrs["action"]),
                 method="post",
                 data={
@@ -162,15 +170,15 @@ def yt_html_get(youtube_url: str) -> requests.Response:
     return response
 
 
-def youtube_get_metadata(name: str) -> YoutubeScrapper:
-    return YoutubeScrapper.fromresponse(yt_html_get(YoutubeUrl.home(name)))
+async def youtube_get_metadata(name: str) -> YoutubeScrapper:
+    return YoutubeScrapper.fromresponse(await yt_html_get(YoutubeUrl.home(name)))
 
 
-def youtube_get_rss_feed(name: str) -> requests.Response:
+async def youtube_get_rss_feed(name: str) -> Response:
     feed_url = None
     if name.startswith("@"):
         # parse homepage metadata
-        metadata = youtube_get_metadata(name)
+        metadata = await youtube_get_metadata(name)
         # find channelid
         channel_id = metadata.find_channel_id()
         assert channel_id is not None
@@ -186,6 +194,6 @@ def youtube_get_rss_feed(name: str) -> requests.Response:
         # fetch rss feed
         feed_url = YoutubeUrl.user_rss(name)
 
-    resp = yt_request(feed_url)
+    resp = await yt_request(feed_url)
     resp.raise_for_status()
     return resp

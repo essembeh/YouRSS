@@ -1,5 +1,4 @@
 import json
-from concurrent.futures import ThreadPoolExecutor, as_completed
 from functools import wraps
 from typing import Iterable
 
@@ -33,15 +32,15 @@ def redis_cached(ttl: int | None = None):
 
     def decorator(func):
         @wraps(func)
-        def wrapper(*args, **kwargs):
+        async def wrapper(*args, **kwargs):
             # Test is redis is declared
             if redis is None:
-                return func(*args, **kwargs)
+                return await func(*args, **kwargs)
 
             # Test if redis is ready
             if not redis.ping():
                 logger.warning("Redis ping failed: {}", redis)
-                return func(*args, **kwargs)
+                return await func(*args, **kwargs)
 
             # Generate the cache key from the function's arguments.
             key_parts = [func.__name__] + list(args)
@@ -50,7 +49,7 @@ def redis_cached(ttl: int | None = None):
 
             if result is None:
                 # Run the function and cache the result for next time.
-                value = func(*args, **kwargs)
+                value = await func(*args, **kwargs)
                 value_json = json.dumps(value)
                 redis.set(key, value_json, ex=ttl)
             else:
@@ -66,24 +65,17 @@ def redis_cached(ttl: int | None = None):
 
 
 @redis_cached(ttl=config.TTL_AVATAR)
-def get_avatar_url(name: str) -> str | None:
-    return youtube_get_metadata(name).avatar_url
+async def get_avatar_url(name: str) -> str | None:
+    return (await youtube_get_metadata(name)).avatar_url
 
 
-def get_rssfeeds(names: Iterable[str], workers: int = 4) -> dict[str, RssFeed | None]:
+async def get_rssfeeds(
+    names: Iterable[str], workers: int = 4
+) -> dict[str, RssFeed | None]:
     @redis_cached(ttl=config.TTL_RSS)
-    def get_response_text(name) -> str:
-        resp = youtube_get_rss_feed(name)
+    async def get_response_text(name) -> str:
+        resp = await youtube_get_rss_feed(name)
         resp.raise_for_status()
         return resp.text
 
-    out = {}
-    with ThreadPoolExecutor(max_workers=workers) as executor:
-        jobs = {executor.submit(get_response_text, x): x for x in set(names)}
-        for job in as_completed(jobs):
-            name = jobs[job]
-            try:
-                out[name] = RssFeed.fromstring(job.result())
-            except BaseException:
-                out[name] = None
-    return out
+    return {n: RssFeed.fromstring(await get_response_text(n)) for n in names}

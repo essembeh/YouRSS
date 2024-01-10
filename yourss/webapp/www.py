@@ -39,7 +39,7 @@ async def get_user(request: Request, user: str):
 
     channel_names = YOURSS_USERS[user]
     assert len(channel_names) > 0
-    feeds = get_rssfeeds(map(lambda x: x.removeprefix("-"), channel_names.keys()))
+    feeds = await get_rssfeeds(map(lambda x: x.removeprefix("-"), channel_names.keys()))
     return TemplateResponse(
         "view.html",
         {
@@ -59,7 +59,7 @@ async def get_user(request: Request, user: str):
 async def view_channels(request: Request, channels: str):
     channel_names = parse_channel_names(channels)
     assert len(channel_names) > 0
-    feeds = get_rssfeeds(map(lambda x: x.removeprefix("-"), channel_names.keys()))
+    feeds = await get_rssfeeds(map(lambda x: x.removeprefix("-"), channel_names.keys()))
     return TemplateResponse(
         "view.html",
         {

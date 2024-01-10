@@ -15,15 +15,15 @@ async def version():
 
 @router.get("/rss/{name}")
 async def rss_feed(name: str) -> RedirectResponse:
-    feed = get_rssfeeds([name]).get(name)
-    if feed is None:
-        raise HTTPException(status_code=404)
-    return RedirectResponse(feed.url)
+    feeds = await get_rssfeeds([name])
+    if (feed := feeds.get(name)) is not None:
+        return RedirectResponse(feed.url)
+    raise HTTPException(status_code=404)
 
 
 @router.get("/avatar/{name}")
 async def avatar(name: str) -> RedirectResponse:
-    url = get_avatar_url(name)
-    if url is None:
-        raise HTTPException(status_code=404)
-    return RedirectResponse(url)
+    url = await get_avatar_url(name)
+    if url is not None:
+        return RedirectResponse(url)
+    raise HTTPException(status_code=404)

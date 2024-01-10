@@ -7,7 +7,7 @@ from urllib.parse import parse_qs, urlparse
 from xml.etree import ElementTree
 
 import arrow
-import requests
+from httpx import Response
 
 NAMESPACES = {
     "atom": "http://www.w3.org/2005/Atom",
@@ -115,7 +115,7 @@ class RssFeed:
     root: ElementTree.Element
 
     @classmethod
-    def fromresponse(cls, resp: requests.Response) -> RssFeed:
+    def fromresponse(cls, resp: Response) -> RssFeed:
         resp.raise_for_status()
         return cls.fromstring(resp.text)
 
