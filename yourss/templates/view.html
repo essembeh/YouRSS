@@ -26,8 +26,7 @@
           RSS
         </span>
       </a>
-      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false"
-        aria-label="Toggle navigation">
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
       </button>
       <div class="collapse navbar-collapse" id="navbarSupportedContent">
@@ -59,11 +58,9 @@
       <div id="video-container" class="row">
         {% for feed in feeds %}
         {% for video in feed.entries %}
-        <div class="col-xxl-2 col-xl-3 col-lg-3 col-md-4 col-sm-6 mb-3 yourss-filterable" id="yourss-video-{{ video.video_id }}" data-video-id="{{ video.video_id }}"
-          data-channel-id="{{ feed.channel_id }}" data-channel-title="{{ feed.title|escape }}" data-video-title="{{ video.title|escape }}" data-published="{{ video.published }}">
+        <div class="col-xxl-2 col-xl-3 col-lg-3 col-md-4 col-sm-6 mb-3 yourss-filterable" id="yourss-video-{{ video.video_id }}" data-video-id="{{ video.video_id }}" data-channel-id="{{ feed.channel_id }}" data-channel-title="{{ feed.title|escape }}" data-video-title="{{ video.title|escape }}" data-published="{{ video.published }}">
           <div class="card h-100">
-            <img class="card-img-top" src="{{ video.thumbnail_url }}" style="cursor: pointer" alt="{{ video.title|escape }}"
-              onclick="play_video('#yourss-video-{{ video.video_id }}')" />
+            <img class="card-img-top" src="{{ video.thumbnail_url }}" style="cursor: pointer" alt="{{ video.title|escape }}" onclick="play_video('#yourss-video-{{ video.video_id }}')" />
             <div class="card-body d-flex flex-column">
               <h5 class="card-title h5">
                 <img src="/api/avatar/{{ feed.channel_id }}" width="30" height="30" class="rounded-circle" />
@@ -118,10 +115,6 @@
     </div>
   </main>
 
-  <script>
-    // Initialize hidden channels
-    var hidden_channel_ids = {{ hidden_channel_ids| safe }}
-  </script>
   <script src="/static/yourss.js"></script>
 </body>
 

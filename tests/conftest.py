@@ -1,13 +1,15 @@
-import asyncio
+import pytest_asyncio
+from fastapi.testclient import TestClient
 
-import pytest
+from yourss.webapp import app
+from yourss.youtube import YoutubeWebClient
 
 
-@pytest.fixture(scope="session")
-def event_loop():
-    try:
-        loop = asyncio.get_running_loop()
-    except RuntimeError:
-        loop = asyncio.new_event_loop()
-    yield loop
-    loop.close()
+@pytest_asyncio.fixture
+async def yt_client():
+    yield YoutubeWebClient()
+
+
+@pytest_asyncio.fixture
+async def yourss_client():
+    yield TestClient(app)

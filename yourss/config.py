@@ -21,8 +21,8 @@ YOURSS_USERS = {
     if k.startswith(YOURSS_USER_PREFIX)
 }
 
-config = environ.to_config(AppConfig)
+current_config = environ.to_config(AppConfig)
 
-logger.debug("Loaded configuration: {}", config)
+logger.debug("Loaded configuration: {}", current_config)
 for user, channels in YOURSS_USERS.items():
     logger.info("Found user {}: {}", user, channels)

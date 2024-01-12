@@ -1,13 +1,6 @@
 import pytest
 
-from yourss.model import RssFeed
-from yourss.youtube import (
-    YoutubeScrapper,
-    YoutubeUrl,
-    youtube_get_metadata,
-    youtube_get_rss_feed,
-    yt_html_get,
-)
+from yourss.youtube import YoutubeScrapper, YoutubeUrl
 
 USER = "DAN1ELmadison"
 USER_HOME = YoutubeUrl.user_home(USER)
@@ -22,15 +15,14 @@ SLUG_HOME = YoutubeUrl.slug_home(SLUG)
 
 
 @pytest.mark.asyncio
-async def test_channel_rssfeed():
-    feed = RssFeed.fromresponse(await youtube_get_rss_feed(CHANNEL_ID))
-    assert feed is not None
+async def test_channel_rssfeed(yt_client):
+    feed = await yt_client.get_rss_feed(CHANNEL_ID)
     assert feed.title == "Jeremy Griffith"
 
 
 @pytest.mark.asyncio
-async def test_channel_metadata():
-    response = await yt_html_get(CHANNEL_ID_HOME)
+async def test_channel_metadata(yt_client):
+    response = await yt_client.get_html(CHANNEL_ID_HOME)
     metadata = YoutubeScrapper.fromresponse(response)
     assert metadata.title == "Jeremy Griffith"
     assert (
@@ -41,15 +33,14 @@ async def test_channel_metadata():
 
 
 @pytest.mark.asyncio
-async def test_user_rssfeed():
-    feed = RssFeed.fromresponse(await youtube_get_rss_feed(USER))
-    assert feed is not None
+async def test_user_rssfeed(yt_client):
+    feed = await yt_client.get_rss_feed(USER)
     assert feed.title == "Daniel Madison"
 
 
 @pytest.mark.asyncio
-async def test_user_metadata():
-    response = await yt_html_get(USER_HOME)
+async def test_user_metadata(yt_client):
+    response = await yt_client.get_html(USER_HOME)
     metadata = YoutubeScrapper.fromresponse(response)
     assert metadata.title == "Daniel Madison"
     assert (
@@ -60,8 +51,8 @@ async def test_user_metadata():
 
 
 @pytest.mark.asyncio
-async def test_slug_metadata():
-    response = await yt_html_get(SLUG_HOME)
+async def test_slug_metadata(yt_client):
+    response = await yt_client.get_html(SLUG_HOME)
     metadata = YoutubeScrapper.fromresponse(response)
     assert metadata.title == "Jeremy Griffith"
     assert (
@@ -72,8 +63,7 @@ async def test_slug_metadata():
 
 
 @pytest.mark.asyncio
-async def test_avatar():
-    metadata = await youtube_get_metadata("@jonnygiger")
+async def test_avatar(yt_client):
+    metadata = await yt_client.get_metadata("@jonnygiger")
     assert metadata is not None
-    print(">>>>>>>>>>>>>>", metadata.avatar_url)
     assert metadata.avatar_url is not None

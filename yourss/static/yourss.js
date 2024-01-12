@@ -70,33 +70,28 @@ $(document).ready(function () {
  * Handle filter toggle
  */
 function toggle_filter(button) {
-  if ((channel_id = $(button).data("channel-id"))) {
-    if (hidden_channel_ids.includes(channel_id)) {
-      hidden_channel_ids.splice(hidden_channel_ids.indexOf(channel_id), 1)
-    } else {
-      hidden_channel_ids.push(channel_id)
-    }
-  }
+  selected_channel_id = $(button).hasClass("btn-secondary")
+    ? $(button).data("channel-id")
+    : null
   $(".yourss-filter").each(function () {
-    if (hidden_channel_ids.includes($(this).data("channel-id"))) {
+    if ($(this).data("channel-id") === selected_channel_id) {
+      $(this).addClass("btn-primary")
       $(this).removeClass("btn-secondary")
-      $(this).addClass("btn-outline-danger")
     } else {
-      $(this).removeClass("btn-outline-danger")
       $(this).addClass("btn-secondary")
+      $(this).removeClass("btn-primary")
     }
   })
   $(".yourss-filterable").each(function () {
-    if (hidden_channel_ids.includes($(this).data("channel-id"))) {
-      $(this).css("display", "none")
-    } else {
+    if (selected_channel_id === null) {
       $(this).css("display", "block")
+    } else if ($(this).data("channel-id") === selected_channel_id) {
+      $(this).css("display", "block")
+    } else {
+      $(this).css("display", "none")
     }
   })
 }
-$(document).ready(function () {
-  toggle_filter()
-})
 
 /**
  * Handle modal player
