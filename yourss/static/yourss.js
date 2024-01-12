@@ -21,15 +21,20 @@ $(document).ready(function () {
  * Sort videos by updated date
  */
 var SORT_ORDERS = [
-  "bi bi-sort-down", // sort by date
-  "bi bi-sort-up", // sort by date, reverse
-  "bi bi-sort-alpha-down", // sort by channel, then date
-  "bi bi-sort-alpha-up", // sort by channel, then date, reverse
+  // sort by date
+  "bi bi-sort-down",
+  // sort by date, reverse
+  "bi bi-sort-up",
+  // sort by channel, then date
+  //"bi bi-sort-alpha-down",
+  // sort by channel, then date, reverse
+  //"bi bi-sort-alpha-up",
 ]
 function toggle_sort(button) {
-  old_order = SORT_ORDERS.indexOf($(button).find("i").attr("class"))
-  new_order = old_order == -1 ? 0 : (old_order + 1) % SORT_ORDERS.length
-  $(button).find("i").attr("class", SORT_ORDERS[new_order])
+  old_order = $(button).find("i").attr("class")
+  new_order =
+    SORT_ORDERS[(SORT_ORDERS.indexOf(old_order) + 1) % SORT_ORDERS.length]
+  $(button).find("i").attr("class", new_order)
   sort_videos(new_order)
 }
 function sort_videos(order) {
@@ -41,18 +46,18 @@ function sort_videos(order) {
         a_date = new Date($(a).data("published")).getTime()
         b_channel = $(b).data("channel-title")
         b_date = new Date($(b).data("published")).getTime()
-        if (order == 0) {
+        if (order === "bi bi-sort-down") {
           if (a_date < b_date) return 1
           if (a_date > b_date) return -1
-        } else if (order == 1) {
+        } else if (order === "bi bi-sort-up") {
           if (a_date < b_date) return -1
           if (a_date > b_date) return 1
-        } else if (order == 2) {
+        } else if (order === "bi bi-sort-alpha-down") {
           if (a_channel < b_channel) return -1
           if (a_channel > b_channel) return 1
           if (a_date < b_date) return 1
           if (a_date > b_date) return -1
-        } else if (order == 3) {
+        } else if (order === "bi bi-sort-alpha-up") {
           if (a_channel < b_channel) return -1
           if (a_channel > b_channel) return 1
           if (a_date < b_date) return -1
