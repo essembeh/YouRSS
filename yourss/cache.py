@@ -23,7 +23,7 @@ def _redis_connect(url: str | None) -> Redis | None:
 current_redis = _redis_connect(current_config.REDIS_URL)
 
 
-def redis_cached(ttl: int | None = None):
+def redis_cached(ttl: int | None = None, skip_args: int = 0):
     """
     ttl is in seconds
     """
@@ -41,7 +41,7 @@ def redis_cached(ttl: int | None = None):
                 return await func(*args, **kwargs)
 
             # Generate the cache key from the function's arguments.
-            key_parts = [func.__name__] + list(map(str, args))
+            key_parts = [func.__name__] + list(map(str, args[skip_args:]))
             key = ":".join(key_parts)
             result = current_redis.get(key)
 
@@ -63,10 +63,10 @@ def redis_cached(ttl: int | None = None):
 
 
 class YoutubeWebClientWithCache(YoutubeWebClient):
-    @redis_cached(ttl=current_config.TTL_AVATAR)
+    @redis_cached(ttl=current_config.TTL_AVATAR, skip_args=1)
     async def get_avatar_url(self, name: str) -> str | None:
         return await super().get_avatar_url(name)
 
-    @redis_cached(ttl=current_config.TTL_RSS)
+    @redis_cached(ttl=current_config.TTL_RSS, skip_args=1)
     async def get_rss_xml(self, name: str) -> str:
         return await super().get_rss_xml(name)
