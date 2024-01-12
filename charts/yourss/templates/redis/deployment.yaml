@@ -1,0 +1,48 @@
+{{- if .Values.yourss.redis.enabled -}}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ template "yourss.fullname" . }}-redis
+  labels:
+    app: {{ template "yourss.fullname" . }}-redis
+spec:
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: {{ template "yourss.fullname" . }}-redis
+  template:
+    metadata:
+      labels:
+        app: {{ template "yourss.fullname" . }}-redis
+    spec:
+      {{- if .Values.serviceAccount.enabled }}
+      serviceAccountName: {{ template "yourss.serviceAccountName" . }}
+      {{- end }}
+      containers:
+        - name: redis
+          image: "{{ .Values.yourss.redis.repository }}:{{ .Values.yourss.redis.tag }}"
+          ports:
+            - name: redis
+              containerPort: 6379
+              protocol: TCP
+          livenessProbe:
+            tcpSocket:
+              port: redis
+            initialDelaySeconds: 5
+            timeoutSeconds: 5
+          readinessProbe:
+            exec:
+              command:
+                - redis-cli
+                - ping
+            initialDelaySeconds: 5
+            timeoutSeconds: 5
+          resources:
+            limits:
+              cpu: 1000m
+              memory: 128Mi
+            requests:
+              cpu: 100m
+              memory: 32Mi
+{{- end }}
