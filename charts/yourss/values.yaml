@@ -6,9 +6,9 @@ replicaCount: 1
 
 yourss:
   repository: ghcr.io/essembeh/yourss
-  # tag: 0.6.0
   pullPolicy: IfNotPresent
   timezone: Europe/Paris
+  logLevel: INFO
   defaultChannels: 
    - "@jonnygiger"
   users: []

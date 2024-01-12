@@ -39,6 +39,8 @@ spec:
           env:
             - name: TZ
               value: {{ .Values.yourss.timezone }}
+            - name: LOGURU_LEVEL
+              value: {{ .Values.yourss.logLevel }}
             - name: YOURSS_DEFAULT_CHANNELS
               value: "{{ join "," .Values.yourss.defaultChannels }}"
             {{- if .Values.yourss.redis.enabled }}
