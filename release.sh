@@ -5,6 +5,7 @@ set -eu -o pipefail
 
 # create new version with poetry
 VERSION=$(poetry version "$1" -s)
+export VERSION
 
 # update charts
 yq e '.version = strenv(VERSION)'    -i charts/yourss/Chart.yaml
