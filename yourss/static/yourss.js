@@ -68,7 +68,7 @@ function sort_videos(order) {
   )
 }
 $(document).ready(function () {
-  sort_videos(0)
+  sort_videos(SORT_ORDERS[0])
 })
 
 /**
