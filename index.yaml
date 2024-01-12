@@ -1,0 +1,20 @@
+apiVersion: v1
+entries:
+  yourss:
+  - apiVersion: v2
+    appVersion: 0.6.0
+    created: "2024-01-12T10:21:07.328124215Z"
+    description: Webapp to subscribe to Youtube channels using RSS
+    digest: b602548e017f299b9e7753527a17e961b839d162ed9a1383fbb1c66c86f8d227
+    home: https://github.com/essembeh/YouRSS
+    maintainers:
+    - email: essembeh@users.noreply.github.com
+      name: Sébastien MB
+    name: yourss
+    sources:
+    - https://github.com/essembeh/YouRSS
+    type: application
+    urls:
+    - https://github.com/essembeh/YouRSS/releases/download/yourss-0.6.0/yourss-0.6.0.tgz
+    version: 0.6.0
+generated: "2024-01-12T10:21:07.328136569Z"
