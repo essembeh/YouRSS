@@ -34,8 +34,8 @@ spec:
         - name: {{ .Chart.Name }}
           securityContext:
             {{- toYaml .Values.securityContext | nindent 12 }}
-          image: "{{ .Values.yourss.repository }}:{{ .Values.yourss.tag | default .Chart.AppVersion }}"
-          imagePullPolicy: {{ .Values.yourss.pullPolicy }}
+          image: "{{ .Values.yourss.image.repository }}:{{ .Values.yourss.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.yourss.image.pullPolicy }}
           env:
             - name: TZ
               value: {{ .Values.yourss.timezone }}
@@ -43,13 +43,17 @@ spec:
               value: {{ .Values.yourss.logLevel }}
             - name: YOURSS_DEFAULT_CHANNELS
               value: "{{ join "," .Values.yourss.defaultChannels }}"
-            {{- if .Values.yourss.redis.enabled }}
-            - name: YOURSS_REDIS_URL
-              value: redis://{{ template "yourss.fullname" . }}-redis:6379/0
-            {{- end }}
             {{- range $user := .Values.yourss.users }}
             - name: YOURSS_USER_{{ $user.name }}
               value: "{{ join "," $user.channels }}"
+            {{- end }}
+            {{- if .Values.redis.enabled }}
+            - name: YOURSS_REDIS_URL
+              value: redis://{{ template "yourss.fullname" . }}-redis:6379/0
+            - name: YOURSS_TTL_AVATAR
+              value: {{ .Values.redis.ttl.avatar }}
+            - name: YOURSS_TTL_RSS
+              value: {{ .Values.redis.ttl.rss }}
             {{- end }}
           ports:
             - name: http
@@ -85,3 +89,19 @@ spec:
       tolerations:
         {{- toYaml . | nindent 8 }}
       {{- end }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "yourss.fullname" . }}
+  labels:
+    {{- include "yourss.labels" . | nindent 4 }}
+spec:
+  type: {{ .Values.service.type }}
+  ports:
+    - port: {{ .Values.service.port }}
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    {{- include "yourss.selectorLabels" . | nindent 4 }}

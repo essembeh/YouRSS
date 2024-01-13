@@ -5,8 +5,10 @@
 replicaCount: 1
 
 yourss:
-  repository: ghcr.io/essembeh/yourss
-  pullPolicy: IfNotPresent
+  image:
+    repository: ghcr.io/essembeh/yourss
+    # tag: latest
+    pullPolicy: IfNotPresent
   timezone: Europe/Paris
   logLevel: INFO
   defaultChannels: 
@@ -16,13 +18,16 @@ yourss:
     #   channels: 
     #     - "@jonnygiger"
     #     - "@lostangelus52"
-  redis:
-    enabled: false
+
+redis:
+  enabled: false
+  image:
     repository: redis
-    tag: 7
-    ttl: []
-      # avatar: 86400
-      # rss: 3600
+    tag: 7 
+    pullPolicy: IfNotPresent
+  ttl:
+    avatar: 86400
+    rss: 3600
 
 imagePullSecrets: []
 nameOverride: ""
