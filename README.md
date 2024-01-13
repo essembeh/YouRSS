@@ -85,7 +85,7 @@ See [`.env`](./.env) for example.
 # Usage
 
 - you can browse a single channel with: `http://<your-instance>/@jonnygiger`
-- you can browse multiple channels in a single page: `http://<your-instance>/@jonnygiger,@lostangelus52`
+- you can browse multiple channels in a single page: `http://<your-instance>/@jonnygiger,@berricks`
 - the original *RSS* feed can be access at `http://<your-instance>/api/rss/@jonnygiger`
 - you will be redirected to the channel avatar with `http://<your-instance>/api/avatar/@jonnygiger`
 - if you defined *users* with `YOURSS_USER_demo`, the pages can be accessed at `http://<your-instance>/u/demo`
