@@ -17,7 +17,7 @@ yourss:
     # - name: demo
     #   channels: 
     #     - "@jonnygiger"
-    #     - "@lostangelus52"
+    #     - "@berricks"
 
 redis:
   enabled: false
