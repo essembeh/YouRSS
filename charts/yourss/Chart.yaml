@@ -1,8 +1,8 @@
 apiVersion: v2
 name: yourss
 type: application
-version: 0.8.0
-appVersion: 0.8.0
+version: 0.8.1
+appVersion: 0.8.1
 description: Webapp to subscribe to Youtube channels using RSS
 home: https://github.com/essembeh/YouRSS
 maintainers:
