@@ -102,7 +102,7 @@ function toggle_filter(button) {
  * Handle mark as read
  */
 function mark_as_read(date) {
-  if (date !== null) {
+  if (date) {
     mark_date = new Date(date)
     $(".yourss-filterable").each(function () {
       video_date = new Date($(this).data("published"))
@@ -115,11 +115,11 @@ function mark_as_read(date) {
         video_mark.removeClass("bi-bookmark-fill")
       }
     })
-    Cookies.set("mark-date", date)
+    Cookies.set("mark-date:" + window.location.pathname, date)
   }
 }
 $(document).ready(function () {
-  mark_as_read(Cookies.get("mark-date"))
+  mark_as_read(Cookies.get("mark-date:" + window.location.pathname))
 })
 
 /**
