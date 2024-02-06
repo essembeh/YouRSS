@@ -3,7 +3,7 @@ name: yourss
 type: application
 version: 0.8.1
 appVersion: 0.8.1
-description: Webapp to subscribe to Youtube channels using RSS
+description: Simple Youtube browser based on RSS feeds
 home: https://github.com/essembeh/YouRSS
 maintainers:
   - email: essembeh@users.noreply.github.com

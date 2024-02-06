@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "yourss"
 version = "0.8.1"
-description = "Simple youtube browser based on RSS feeds"
+description = "Simple Youtube browser based on RSS feeds"
 homepage = "https://github.com/essembeh/yourss"
 authors = ["Sébastien MB <seb@essembeh.org>"]
 license = "Apache-2.0"

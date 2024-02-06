@@ -3,7 +3,7 @@
 
 # Youtube RSS viewer
 
-> TL;DR; a minimal Youtube RSS feed viewer in your browser. There is no adds, no cookie, no registration, no authentication, only the RSS content.
+> TL;DR; a minimal Youtube RSS feed viewer in your browser. There is no adds, no cookie*, no registration, no authentication, only the RSS content.
 
 See [YouRSS on Desktop](./images/yourss_desktop.png) and [YouRSS on Mobile](./images/yourss_mobile.png)
 
@@ -13,6 +13,15 @@ You don't need a Youtube account to suscribe to channels, simply browse the late
 In social medias like Youtube, the keyword is *share*, I personnally think RSS feeds are a pretty good way to share content, it has been for decades. Youtube RSS feeds let *users* choose how they want to see videos, with the app they want.
 
 I simply wrote a minimal RSS client webapp for web browsers.
+
+## Features
+
+- view the last 15 videos published by channels you like in a minimal page
+- no account needed, simply add the channels you like to the *URL* (example https://yourss.domain.tld/@jonnygiger,@berrics)
+- on a page with several channels, you can choose to show/hide one or another, you can sort videos by published date
+- you can mark videos as read so that on the next visit, you quickly see the new videos
+- you can have *user* pages and you can configure which associated channels 
+- support *Redis* for caching and speeding up the webapp
 
 
 # Install
@@ -85,7 +94,7 @@ See [`.env`](./.env) for example.
 # Usage
 
 - you can browse a single channel with: `http://<your-instance>/@jonnygiger`
-- you can browse multiple channels in a single page: `http://<your-instance>/@jonnygiger,@berricks`
+- you can browse multiple channels in a single page: `http://<your-instance>/@jonnygiger,@berrics`
 - the original *RSS* feed can be access at `http://<your-instance>/api/rss/@jonnygiger`
 - you will be redirected to the channel avatar with `http://<your-instance>/api/avatar/@jonnygiger`
 - if you defined *users* with `YOURSS_USER_demo`, the pages can be accessed at `http://<your-instance>/u/demo`
