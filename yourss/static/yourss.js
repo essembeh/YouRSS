@@ -43,9 +43,9 @@ function sort_videos(order) {
       .children()
       .sort(function (a, b) {
         a_channel = $(a).data("channel-title")
-        a_date = new Date($(a).data("published")).getTime()
+        a_date = new Date($(a).data("published"))
         b_channel = $(b).data("channel-title")
-        b_date = new Date($(b).data("published")).getTime()
+        b_date = new Date($(b).data("published"))
         if (order === "bi bi-sort-down") {
           if (a_date < b_date) return 1
           if (a_date > b_date) return -1
@@ -97,6 +97,30 @@ function toggle_filter(button) {
     }
   })
 }
+
+/**
+ * Handle mark as read
+ */
+function mark_as_read(date) {
+  if (date !== null) {
+    mark_date = new Date(date)
+    $(".yourss-filterable").each(function () {
+      video_date = new Date($(this).data("published"))
+      video_mark = $(this).find(".new-item")
+      if (video_date > mark_date) {
+        video_mark.addClass("bi-bookmark-fill")
+        video_mark.removeClass("bi-bookmark")
+      } else {
+        video_mark.addClass("bi-bookmark")
+        video_mark.removeClass("bi-bookmark-fill")
+      }
+    })
+    Cookies.set("mark-date", date)
+  }
+}
+$(document).ready(function () {
+  mark_as_read(Cookies.get("mark-date"))
+})
 
 /**
  * Handle modal player
