@@ -71,8 +71,9 @@
                 {{ video.title|escape }}
               </p>
               <p class="card-text mt-auto">
-                <i class="new-item bi bi-bookmark-fill" style="color: rgb(34, 93, 219);" onclick="mark_as_read('{{ video.published }}')"></i>
-                <small class="text-muted" title="{{ video.published }}">{{ video.published_moment }}</small>
+                <i class="new-item bi bi-bookmark-fill" style="color: rgb(34, 93, 219);" onclick="mark_as_read('{{ video.published }}')">
+                  <small class="text-muted" title="{{ video.published }}">{{ video.published_moment }}</small>
+                </i>
                 <a class="bi bi-box-arrow-up-right" style="float: right; color:black;" href="/watch?v={{ video.video_id }}" target="_blank"></a>
               </p>
             </div>
