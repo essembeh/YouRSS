@@ -60,6 +60,7 @@ async def get_user(
             "request": request,
             "title": f"/u/{user}",
             "feeds": feeds,
+            "version": yourss.__version__,
         },
     )
 
@@ -86,5 +87,6 @@ async def view_channels(
             "request": request,
             "title": ", ".join(sorted(map(lambda f: f.title, feeds))),
             "feeds": feeds,
+            "version": yourss.__version__,
         },
     )
