@@ -12,6 +12,7 @@ class AppConfig:
     REDIS_URL = environ.var(default=None)
     TTL_AVATAR = environ.var(converter=int, default=24 * 3600)
     TTL_RSS = environ.var(converter=int, default=3600)
+    CLEAN_TITLES = environ.bool_var(default=False)
 
 
 YOURSS_USER_PREFIX = "YOURSS_USER_"

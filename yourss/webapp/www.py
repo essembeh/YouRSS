@@ -4,6 +4,7 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException, Query, Request
 from fastapi.responses import RedirectResponse
 from fastapi.templating import Jinja2Templates
+from jinja2 import Environment, FileSystemLoader
 from loguru import logger
 from starlette.responses import HTMLResponse
 
@@ -14,9 +15,17 @@ from ..utils import parse_channel_names
 from ..youtube import YoutubeWebClient
 from .utils import get_youtube_client
 
-TemplateResponse = Jinja2Templates(
-    directory=Path(yourss.__file__).parent / "templates"
-).TemplateResponse
+
+def clean_title(text: str) -> str:
+    if current_config.CLEAN_TITLES:
+        return text.capitalize()
+    return text
+
+
+# Jinja customization
+env = Environment(loader=FileSystemLoader(Path(yourss.__file__).parent / "templates"))
+env.filters["clean_title"] = clean_title
+TemplateResponse = Jinja2Templates(env=env).TemplateResponse
 
 router = APIRouter()
 

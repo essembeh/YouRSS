@@ -84,6 +84,7 @@ Then visit [http://localhost:8000/](http://localhost:8000/)
 - `YOURSS_REDIS_URL`: you can use a redis instance to cache RSS feeds and avatars (for example: `redis://localhost:6379/0`)
 - `YOURSS_TTL_AVATAR`: the TTL of cached avatars (default is `24 * 3600`, 24 hours)
 - `YOURSS_TTL_AVATAR`: the TTL of cached RSS feeds (default is `3600`, 1 hour)
+- `YOURSS_CLEAN_TITLES`: if set to `true`, videos titles are cleaned to prevent UPPERCASE TITLES 
 - `LOGURU_LEVEL` for logging level
 
 > Note: channels can be Youtube username (like `@JonnyGiger`) or directly a *channel_id* (24 alnum chars) like `UCa_Dlwrwv3ktrhCy91HpVRw`, to provide a list, use a coma between channels

@@ -55,6 +55,8 @@ spec:
             - name: YOURSS_TTL_RSS
               value: "{{ .Values.redis.ttl.rss }}"
             {{- end }}
+            - name: YOURSS_CLEAN_TITLES
+              value: "{{ .Values.yourss.cleanTitles }}"
           ports:
             - name: http
               containerPort: 8000

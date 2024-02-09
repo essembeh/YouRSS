@@ -68,7 +68,7 @@
                 <span class="fw-bold" style="cursor: pointer;" onclick="window.open('{{ feed.link }}')">{{ feed.title }}</span>
               </h5>
               <p class="card-text">
-                {{ video.title|escape }}
+                {{ video.title|escape|clean_title }}
               </p>
               <p class="card-text mt-auto">
                 <i class="new-item bi bi-bookmark-fill" style="color: rgb(34, 93, 219);" onclick="mark_as_read('{{ video.published }}')">
