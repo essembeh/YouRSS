@@ -60,7 +60,7 @@
         {% for feed in feeds %}
         {% for video in feed.entries %}
         <div class="col-xxl-2 col-xl-3 col-lg-3 col-md-4 col-sm-6 mb-3 yourss-filterable" id="yourss-video-{{ video.video_id }}" data-video-id="{{ video.video_id }}" data-channel-id="{{ feed.channel_id }}" data-channel-title="{{ feed.title|escape }}" data-video-title="{{ video.title|escape }}" data-published="{{ video.published }}">
-          <div class="card h-100">
+          <div class="card h-100 shadow">
             <img class="card-img-top" src="{{ video.thumbnail_url }}" style="cursor: pointer" alt="{{ video.title|escape }}" onclick="play_video('#yourss-video-{{ video.video_id }}')" />
             <div class="card-body d-flex flex-column">
               <h5 class="card-title h5">
@@ -71,7 +71,7 @@
                 {{ video.title|escape|clean_title }}
               </p>
               <p class="card-text mt-auto">
-                <i class="new-item bi bi-bookmark-fill" style="color: rgb(34, 93, 219);" onclick="mark_as_read('{{ video.published }}')">
+                <i class="new-item bi bi-record-fill text-primary" onclick="mark_as_read('{{ video.published }}')">
                   <small class="text-muted" title="{{ video.published }}">{{ video.published_moment }}</small>
                 </i>
                 <a class="bi bi-box-arrow-up-right" style="float: right; color:black;" href="/watch?v={{ video.video_id }}" target="_blank"></a>

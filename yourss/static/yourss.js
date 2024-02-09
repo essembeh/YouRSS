@@ -108,11 +108,11 @@ function mark_as_read(date) {
       video_date = new Date($(this).data("published"))
       video_mark = $(this).find(".new-item")
       if (video_date > mark_date) {
-        video_mark.addClass("bi-bookmark-fill")
-        video_mark.removeClass("bi-bookmark")
+        video_mark.addClass("bi-record-fill")
+        video_mark.removeClass("bi-record")
       } else {
-        video_mark.addClass("bi-bookmark")
-        video_mark.removeClass("bi-bookmark-fill")
+        video_mark.addClass("bi-record")
+        video_mark.removeClass("bi-record-fill")
       }
     })
     Cookies.set("mark-date:" + window.location.pathname, date)
