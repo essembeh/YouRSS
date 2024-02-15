@@ -13,6 +13,7 @@ class AppConfig:
     TTL_AVATAR = environ.var(converter=int, default=24 * 3600)
     TTL_RSS = environ.var(converter=int, default=3600)
     CLEAN_TITLES = environ.bool_var(default=False)
+    THEME = environ.var("light")
 
 
 YOURSS_USER_PREFIX = "YOURSS_USER_"

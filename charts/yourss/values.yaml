@@ -12,6 +12,7 @@ yourss:
   timezone: Europe/Paris
   logLevel: INFO
   cleanTitles: true
+  theme: light
   defaultChannels:
     - "@jonnygiger"
   users:

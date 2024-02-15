@@ -57,6 +57,8 @@ spec:
             {{- end }}
             - name: YOURSS_CLEAN_TITLES
               value: "{{ .Values.yourss.cleanTitles }}"
+            - name: YOURSS_THEME
+              value: "{{ .Values.yourss.theme }}"
           ports:
             - name: http
               containerPort: 8000

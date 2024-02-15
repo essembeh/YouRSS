@@ -22,7 +22,7 @@ I simply wrote a minimal RSS client webapp for web browsers.
 - you can mark videos as read so that on the next visit, you quickly see the new videos
 - you can have *user* pages and you can configure which associated channels 
 - support *Redis* for caching and speeding up the webapp
-
+- support *light* and *dark* themes
 
 # Install
 
@@ -85,6 +85,7 @@ Then visit [http://localhost:8000/](http://localhost:8000/)
 - `YOURSS_TTL_AVATAR`: the TTL of cached avatars (default is `24 * 3600`, 24 hours)
 - `YOURSS_TTL_AVATAR`: the TTL of cached RSS feeds (default is `3600`, 1 hour)
 - `YOURSS_CLEAN_TITLES`: if set to `true`, videos titles are cleaned to prevent UPPERCASE TITLES 
+- `YOURSS_THEME`: choose between `dark` and `light` Bootstrap themes (default is `light`)
 - `LOGURU_LEVEL` for logging level
 
 > Note: channels can be Youtube username (like `@JonnyGiger`) or directly a *channel_id* (24 alnum chars) like `UCa_Dlwrwv3ktrhCy91HpVRw`, to provide a list, use a coma between channels
