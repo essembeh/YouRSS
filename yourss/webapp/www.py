@@ -1,3 +1,4 @@
+from enum import Enum
 from pathlib import Path
 from typing import Annotated
 
@@ -20,6 +21,11 @@ def clean_title(text: str) -> str:
     if current_config.CLEAN_TITLES:
         return text.capitalize()
     return text
+
+
+class Theme(str, Enum):
+    light = "light"
+    dark = "dark"
 
 
 # Jinja customization
@@ -49,6 +55,7 @@ async def get_user(
     request: Request,
     user: str,
     yt_client: Annotated[YoutubeWebClient, Depends(get_youtube_client)],
+    theme: Theme | None = None,
 ):
     if user not in YOURSS_USERS:
         raise HTTPException(status_code=404, detail="User not found")
@@ -69,7 +76,7 @@ async def get_user(
             "request": request,
             "title": f"/u/{user}",
             "feeds": feeds,
-            "theme": current_config.THEME,
+            "theme": theme.value if theme is not None else current_config.THEME,
             "version": yourss.__version__,
         },
     )
@@ -80,6 +87,7 @@ async def view_channels(
     request: Request,
     channels: str,
     yt_client: Annotated[YoutubeWebClient, Depends(get_youtube_client)],
+    theme: Theme | None = None,
 ):
     feeds = []
     for name in parse_channel_names(channels):
@@ -97,7 +105,7 @@ async def view_channels(
             "request": request,
             "title": ", ".join(sorted(map(lambda f: f.title, feeds))),
             "feeds": feeds,
-            "theme": current_config.THEME,
+            "theme": theme.value if theme is not None else current_config.THEME,
             "version": yourss.__version__,
         },
     )
