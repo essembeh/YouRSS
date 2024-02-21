@@ -14,6 +14,9 @@ RUN poetry build
 #######################################
 FROM python:3
 
+ENV PYTHONDONTWRITEBYTECODE 1
+ENV PYTHONUNBUFFERED 1
+
 RUN pip3 install uvicorn
 COPY --from=builder /app/dist/yourss-*.whl /tmp
 RUN pip install /tmp/yourss-*.whl
