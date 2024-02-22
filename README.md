@@ -82,8 +82,8 @@ Then visit [http://localhost:8000/](http://localhost:8000/)
   - you can add as many users as you need
   - there is no registration nor authentication for users
 - `YOURSS_REDIS_URL`: you can use a redis instance to cache RSS feeds and avatars (for example: `redis://localhost:6379/0`)
-- `YOURSS_TTL_AVATAR`: the TTL of cached avatars (default is `24 * 3600`, 24 hours)
-- `YOURSS_TTL_AVATAR`: the TTL of cached RSS feeds (default is `3600`, 1 hour)
+- `YOURSS_TTL_METADATA`: the TTL of cached metadata, used for avatars urls... (default is `24 * 3600`, 24 hours)
+- `YOURSS_TTL_RSS`: the TTL of cached RSS feeds (default is `3600`, 1 hour)
 - `YOURSS_CLEAN_TITLES`: if set to `true`, videos titles are cleaned to prevent UPPERCASE TITLES 
 - `YOURSS_THEME`: choose between `dark` and `light` Bootstrap themes (default is `light`)
 - `LOGURU_LEVEL` for logging level

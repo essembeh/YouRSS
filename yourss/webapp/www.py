@@ -65,7 +65,7 @@ async def get_user(
         try:
             feeds.append(await yt_client.get_rss_feed(name))
         except BaseException as error:
-            logger.warning("Cannot get rss feed for {}: {}", name, error)
+            logger.exception("Cannot get rss feed for {}: {}", name, error)
 
     if len(feeds) == 0:
         raise HTTPException(status_code=404, detail="No channels found")
@@ -94,7 +94,7 @@ async def view_channels(
         try:
             feeds.append(await yt_client.get_rss_feed(name))
         except BaseException as error:
-            logger.warning("Cannot get rss feed for {}: {}", name, error)
+            logger.exception("Cannot get rss feed for {}: {}", name, error)
 
     if len(feeds) == 0:
         raise HTTPException(status_code=404, detail="No channels found")

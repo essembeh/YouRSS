@@ -50,8 +50,8 @@ spec:
             {{- if .Values.redis.enabled }}
             - name: YOURSS_REDIS_URL
               value: redis://{{ template "yourss.fullname" . }}-redis:6379/0
-            - name: YOURSS_TTL_AVATAR
-              value: "{{ .Values.redis.ttl.avatar }}"
+            - name: YOURSS_TTL_METADATA
+              value: "{{ .Values.redis.ttl.metadata }}"
             - name: YOURSS_TTL_RSS
               value: "{{ .Values.redis.ttl.rss }}"
             {{- end }}

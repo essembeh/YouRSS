@@ -10,7 +10,7 @@ from .utils import parse_channel_names
 class AppConfig:
     DEFAULT_CHANNELS = environ.var("@jonnygiger")
     REDIS_URL = environ.var(default=None)
-    TTL_AVATAR = environ.var(converter=int, default=24 * 3600)
+    TTL_METADATA = environ.var(converter=int, default=24 * 3600)
     TTL_RSS = environ.var(converter=int, default=3600)
     CLEAN_TITLES = environ.bool_var(default=False)
     THEME = environ.var("light")

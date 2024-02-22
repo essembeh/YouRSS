@@ -9,6 +9,8 @@ from bs4 import BeautifulSoup
 from httpx import AsyncClient, Response
 from loguru import logger
 
+from .cache import YourssCache
+from .config import current_config
 from .model import RssFeed
 
 YT_HOSTS = ["consent.youtube.com", "www.youtube.com", "youtube.com", "youtu.be"]
@@ -127,6 +129,7 @@ class YoutubeUrl:
 
 @dataclass
 class YoutubeWebClient:
+    cache: YourssCache
     client: AsyncClient = field(default_factory=create_client)
 
     async def _request(
@@ -151,6 +154,10 @@ class YoutubeWebClient:
         """
         get a youtube page content with cookie accept if needed
         """
+        key = f"html:get:{youtube_url}"
+        if (cached := await self.cache.read(key, Response)) is not None:
+            return cached
+
         response = await self._request(youtube_url)
         response.raise_for_status()
         # check response is an html page
@@ -176,10 +183,15 @@ class YoutubeWebClient:
                 )
                 response.raise_for_status()
 
+        await self.cache.write(key, response, current_config.TTL_METADATA)
         return response
 
     async def get_metadata(self, name: str) -> YoutubeScrapper:
         return YoutubeScrapper.fromresponse(await self.get_html(YoutubeUrl.home(name)))
+
+    async def get_avatar_url(self, name: str) -> str | None:
+        meta = await self.get_metadata(name)
+        return meta.avatar_url
 
     async def get_rss_xml(self, name: str) -> str:
         feed_url = None
@@ -206,13 +218,14 @@ class YoutubeWebClient:
             feed_url = YoutubeUrl.user_rss(name)
 
         logger.debug("Rss feed url for {}: {}", name, feed_url)
+
+        key = f"http:get:{feed_url}"
+        if (cached := await self.cache.read(key, Response)) is not None:
+            return cached.text
         resp = await self._request(feed_url)
         resp.raise_for_status()
+        await self.cache.write(key, resp, current_config.TTL_RSS)
         return resp.text
 
     async def get_rss_feed(self, name: str) -> RssFeed:
         return RssFeed.fromstring(await self.get_rss_xml(name))
-
-    async def get_avatar_url(self, name: str) -> str | None:
-        meta = await self.get_metadata(name)
-        return meta.avatar_url

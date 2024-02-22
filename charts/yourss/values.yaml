@@ -20,7 +20,7 @@ yourss:
     # - name: demo
     #   channels:
     #     - "@jonnygiger"
-    #     - "@berricks"
+    #     - "@berrics"
 
 redis:
   enabled: false
@@ -29,7 +29,7 @@ redis:
     tag: 7
     pullPolicy: IfNotPresent
   ttl:
-    avatar: 86400
+    metadata: 86400
     rss: 3600
 
 imagePullSecrets: []
