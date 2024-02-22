@@ -31,6 +31,13 @@ redis:
   ttl:
     metadata: 86400
     rss: 3600
+  autoFetch:
+    enabled: true
+    ## see https://kubernetes.io/docs/concepts/workloads/controllers/cron-jobs/#schedule-syntax
+    cron: "@hourly"
+    ## You can choose to automatically refresh only some user pages, by default, all pages are fetched
+    #users:
+    # - demo
 
 imagePullSecrets: []
 nameOverride: ""

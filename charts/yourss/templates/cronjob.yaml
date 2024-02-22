@@ -1,0 +1,40 @@
+{{- if and (.Values.redis.enabled) (.Values.redis.autoFetch.enabled) (len .Values.yourss.users) -}}
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: {{ template "yourss.fullname" . }}-refresh
+  labels:
+    app: {{ template "yourss.fullname" . }}-refresh
+spec:
+  schedule: "{{ .Values.redis.autoFetch.cron }}"
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 1
+  failedJobsHistoryLimit: 1
+  jobTemplate:
+    spec:
+      backoffLimit: 1
+      template:
+        spec:
+          restartPolicy: Never
+          containers:
+            - name: curl
+              image: alpine:latest
+              command: ["sh", "-c"]
+              args:
+                - |
+                  apk add curl && \
+                  {{- if and (.Values.redis.autoFetch.users) (len (.Values.redis.autoFetch.users)) }}
+                  for USER in {{ range $user := .Values.redis.autoFetch.users }}{{ $user }} {{ end }}; do \
+                  {{- else }}
+                  for USER in {{ range $user := .Values.yourss.users }}{{ $user.name }} {{ end }}; do \
+                  {{- end }}
+                    echo "Force refresh user: $USER"; \
+                    curl -s -I -m 60 -X GET "http://{{ template "yourss.fullname" . }}:8000/u/$USER?refresh=true" >/dev/null ; \
+                  done
+              resources:
+                requests:
+                  memory: 32Mi
+                  cpu: 100m
+                limits:
+                  memory: 64Mi
+{{- end }}
