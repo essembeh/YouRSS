@@ -13,6 +13,9 @@ yourss:
   logLevel: INFO
   cleanTitles: true
   theme: light
+  # open actions can be: openModal, openTab or openEmbedded
+  openPrimary: openModal
+  openSecondary: openTab
   defaultChannels:
     - "@jonnygiger"
   users:

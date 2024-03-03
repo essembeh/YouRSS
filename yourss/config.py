@@ -14,6 +14,8 @@ class AppConfig:
     TTL_RSS = environ.var(converter=int, default=3600)
     CLEAN_TITLES = environ.bool_var(default=False)
     THEME = environ.var("light")
+    OPEN_PRIMARY = environ.var("openModal")
+    OPEN_SECONDARY = environ.var("openTab")
 
 
 YOURSS_USER_PREFIX = "YOURSS_USER_"

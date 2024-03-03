@@ -12,7 +12,7 @@ from starlette.responses import HTMLResponse
 import yourss
 
 from ..config import YOURSS_USERS, current_config
-from ..utils import parse_channel_names
+from ..utils import custom_template_response, parse_channel_names
 from ..youtube import YoutubeWebClient
 from .utils import get_youtube_client
 
@@ -31,7 +31,13 @@ class Theme(str, Enum):
 # Jinja customization
 env = Environment(loader=FileSystemLoader(Path(yourss.__file__).parent / "templates"))
 env.filters["clean_title"] = clean_title
-TemplateResponse = Jinja2Templates(env=env).TemplateResponse
+ViewTemplateResponse = custom_template_response(
+    Jinja2Templates(env=env),
+    "view.html",
+    version=yourss.__version__,
+    open_primary=current_config.OPEN_PRIMARY,
+    open_secondary=current_config.OPEN_SECONDARY,
+)
 
 router = APIRouter()
 
@@ -70,15 +76,11 @@ async def get_user(
     if len(feeds) == 0:
         raise HTTPException(status_code=404, detail="No channels found")
 
-    return TemplateResponse(
-        "view.html",
-        {
-            "request": request,
-            "title": f"/u/{user}",
-            "feeds": feeds,
-            "theme": theme.value if theme is not None else current_config.THEME,
-            "version": yourss.__version__,
-        },
+    return ViewTemplateResponse(
+        request=request,
+        title=f"/u/{user}",
+        feeds=feeds,
+        theme=theme.value if theme is not None else current_config.THEME,
     )
 
 
@@ -99,13 +101,9 @@ async def view_channels(
     if len(feeds) == 0:
         raise HTTPException(status_code=404, detail="No channels found")
 
-    return TemplateResponse(
-        "view.html",
-        {
-            "request": request,
-            "title": ", ".join(sorted(map(lambda f: f.title, feeds))),
-            "feeds": feeds,
-            "theme": theme.value if theme is not None else current_config.THEME,
-            "version": yourss.__version__,
-        },
+    return ViewTemplateResponse(
+        request=request,
+        title=", ".join(sorted(map(lambda f: f.title, feeds))),
+        feeds=feeds,
+        theme=theme.value if theme is not None else current_config.THEME,
     )

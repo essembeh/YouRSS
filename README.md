@@ -23,6 +23,10 @@ I simply wrote a minimal RSS client webapp for web browsers.
 - you can have *user* pages and you can configure which associated channels 
 - support *Redis* for caching and speeding up the webapp
 - support *light* and *dark* themes
+- you can choose th ebehavior when you click on the video thumbnail:
+  - open a modal dialog with the player (default)
+  - the player will replace the thumbnail
+  - open a new tab with the video
 
 # Install
 
@@ -86,6 +90,8 @@ Then visit [http://localhost:8000/](http://localhost:8000/)
 - `YOURSS_TTL_RSS`: the TTL of cached RSS feeds (default is `3600`, 1 hour)
 - `YOURSS_CLEAN_TITLES`: if set to `true`, videos titles are cleaned to prevent UPPERCASE TITLES 
 - `YOURSS_THEME`: choose between `dark` and `light` Bootstrap themes (default is `light`)
+- `YOURSS_OPEN_PRIMARY`: choose the action when you click on a thumbnail, can be `openEmbedded`, `openTab` or `openModal`, default is `openModal`
+- `YOURSS_OPEN_SECONDARY`: choose the action when you click on the bottom right icon, can be `openEmbedded`, `openTab` or `openModal`, default is `openTab`
 - `LOGURU_LEVEL` for logging level
 
 > Note: channels can be Youtube username (like `@JonnyGiger`) or directly a *channel_id* (24 alnum chars) like `UCa_Dlwrwv3ktrhCy91HpVRw`, to provide a list, use a coma between channels
