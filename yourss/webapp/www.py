@@ -1,4 +1,3 @@
-from enum import Enum
 from pathlib import Path
 from typing import Annotated
 
@@ -13,7 +12,7 @@ from starlette.status import HTTP_404_NOT_FOUND
 import yourss
 
 from ..config import current_config
-from ..users import User, get_auth_user
+from ..users import Theme, User, get_auth_user
 from ..utils import custom_template_response, parse_channel_names
 from ..youtube import YoutubeWebClient
 from .utils import get_youtube_client
@@ -23,11 +22,6 @@ def clean_title(text: str) -> str:
     if current_config.CLEAN_TITLES:
         return text.capitalize()
     return text
-
-
-class Theme(str, Enum):
-    light = "light"
-    dark = "dark"
 
 
 # Jinja customization
@@ -79,7 +73,7 @@ async def get_user(
         request=request,
         title=f"/u/{user.name}",
         feeds=feeds,
-        theme=theme.value if theme is not None else current_config.THEME,
+        theme=theme or user.theme or current_config.THEME,
     )
 
 
@@ -104,5 +98,5 @@ async def view_channels(
         request=request,
         title=", ".join(sorted(map(lambda f: f.title, feeds))),
         feeds=feeds,
-        theme=theme.value if theme is not None else current_config.THEME,
+        theme=theme or current_config.THEME,
     )

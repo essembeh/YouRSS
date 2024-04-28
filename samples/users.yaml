@@ -7,6 +7,8 @@ users:
       #  clear: password are store in plain text
       method: argon2
       value: "$argon2i$v=19$m=4096,t=3,p=1$c29tZXNhbHQ$y+awVl4ev1h6eG8IbOrPAAjANRIbraM51FL50Pcf/B8"
+    # override default app theme, supported values are 'light' and 'dark'
+    theme: light
     channels:
       # channels can be
       #  a channel_id like UCVooVnzQxPSTXTMzSi1s6uw
@@ -15,6 +17,7 @@ users:
       - "@jonnygiger"
       - "@berrics"
   - name: bob
+    theme: dark
     password:
       method: clear
       value: "bar"

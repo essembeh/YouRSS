@@ -12,10 +12,16 @@ from pydantic import BaseModel
 from pydantic_yaml import parse_yaml_raw_as
 from starlette.status import HTTP_401_UNAUTHORIZED, HTTP_404_NOT_FOUND
 
-from .config import current_config
-
 security = HTTPBasic()
 argon2hasher = PasswordHasher()
+
+
+class Theme(Enum):
+    LIGHT = "light"
+    DARK = "dark"
+
+    def __str__(self) -> str:
+        return self.value
 
 
 class PasswordMethod(Enum):
@@ -45,6 +51,7 @@ class User(BaseModel):
     name: str
     password: Password | None = None
     channels: list[str]
+    theme: Theme | None = None
 
 
 class Config(BaseModel):
@@ -52,6 +59,8 @@ class Config(BaseModel):
 
 
 def find_user(username: str) -> Optional[User]:
+    from .config import current_config
+
     if (user_yaml := current_config.USERS_FILE) is not None:
         try:
             config = parse_yaml_raw_as(Config, Path(user_yaml).read_bytes())
