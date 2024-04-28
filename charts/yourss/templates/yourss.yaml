@@ -43,10 +43,8 @@ spec:
               value: {{ .Values.yourss.logLevel }}
             - name: YOURSS_DEFAULT_CHANNELS
               value: "{{ join "," .Values.yourss.defaultChannels }}"
-            {{- range $user := .Values.yourss.users }}
-            - name: YOURSS_USER_{{ $user.name }}
-              value: "{{ join "," $user.channels }}"
-            {{- end }}
+            - name: YOURSS_USERS_FILE
+              value: /yourss/users.yaml
             {{- if .Values.redis.enabled }}
             - name: YOURSS_REDIS_URL
               value: redis://{{ template "yourss.fullname" . }}-redis:6379/0
@@ -77,14 +75,19 @@ spec:
               port: http
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
-          {{- with .Values.volumeMounts }}
           volumeMounts:
-            {{- toYaml . | nindent 12 }}
-          {{- end }}
-      {{- with .Values.volumes }}
+            - name: yourss-config
+              mountPath: /yourss
+            {{- with .Values.volumeMounts }}
+              {{- toYaml . | nindent 12 }}
+            {{- end }}
       volumes:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
+        - name: yourss-config
+          configMap:
+            name: {{ include "yourss.fullname" . }}-config
+        {{- with .Values.volumes }}
+          {{- toYaml . | nindent 8 }}
+        {{- end }}
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
@@ -113,3 +116,12 @@ spec:
       name: http
   selector:
     {{- include "yourss.selectorLabels" . | nindent 4 }}
+---
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: {{ include "yourss.fullname" . }}-config
+data:
+  users.yaml: |
+    users:
+{{- toYaml .Values.yourss.users | nindent 6 }}

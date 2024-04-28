@@ -7,7 +7,7 @@ replicaCount: 1
 yourss:
   image:
     repository: ghcr.io/essembeh/yourss
-    # tag: latest
+    # tag: main
     pullPolicy: IfNotPresent
   timezone: Europe/Paris
   logLevel: INFO
@@ -20,10 +20,21 @@ yourss:
     - "@jonnygiger"
   users:
     []
+    # - name: alice
+    #   password:
+    #     method: argon2
+    #     value: "$argon2i$v=19$m=4096,t=3,p=1$c29tZXNhbHQ$y+awVl4ev1h6eG8IbOrPAAjANRIbraM51FL50Pcf/B8"
+    #   channels:
+    #     - "@jonnygiger"
+    # - name: bob
+    #   password:
+    #     method: clear
+    #     value: "bar"
+    #   channels:
+    #     - "@jonnygiger"
     # - name: demo
     #   channels:
     #     - "@jonnygiger"
-    #     - "@berrics"
 
 redis:
   enabled: false
@@ -40,7 +51,8 @@ redis:
     cron: "@hourly"
     ## You can choose to automatically refresh only some user pages, by default, all pages are fetched
     #users:
-    # - demo
+    # - alice
+    # - bob
 
 imagePullSecrets: []
 nameOverride: ""

@@ -2,6 +2,7 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import RedirectResponse
+from starlette.status import HTTP_404_NOT_FOUND
 
 from .. import __name__ as app_name
 from .. import __version__ as app_version
@@ -22,8 +23,6 @@ async def rss_feed(
 ):
     feed = await yt_client.get_rss_feed(name)
     return RedirectResponse(feed.url)
-    # return RedirectResponse("https://home.essembeh.org")
-    # return {"foo": feed.url}
 
 
 @router.get("/avatar/{name}", response_class=RedirectResponse)
@@ -32,5 +31,5 @@ async def avatar(
 ):
     url = await yt_client.get_avatar_url(name)
     if url is None:
-        raise HTTPException(status_code=404)
+        raise HTTPException(status_code=HTTP_404_NOT_FOUND)
     return RedirectResponse(url)

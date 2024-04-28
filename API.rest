@@ -1,0 +1,21 @@
+@base_url = http://localhost:8000
+
+
+###
+GET {{base_url}}/u/alice
+Authorization: Basic alice foo
+
+###
+GET {{base_url}}/u/alice
+Authorization: Basic alice bar
+
+### 
+GET {{base_url}}/u/bob
+Authorization: Basic bob foo
+
+### 
+GET {{base_url}}/u/bob
+Authorization: Basic bob bar
+
+### 
+GET {{base_url}}/u/demo

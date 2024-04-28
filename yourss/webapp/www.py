@@ -8,10 +8,12 @@ from fastapi.templating import Jinja2Templates
 from jinja2 import Environment, FileSystemLoader
 from loguru import logger
 from starlette.responses import HTMLResponse
+from starlette.status import HTTP_404_NOT_FOUND
 
 import yourss
 
-from ..config import YOURSS_USERS, current_config
+from ..config import current_config
+from ..users import User, get_auth_user
 from ..utils import custom_template_response, parse_channel_names
 from ..youtube import YoutubeWebClient
 from .utils import get_youtube_client
@@ -56,29 +58,26 @@ async def watch(video: str = Query(alias="v", min_length=11, max_length=11)):
     )
 
 
-@router.get("/u/{user}", response_class=HTMLResponse)
+@router.get("/u/{username}", response_class=HTMLResponse)
 async def get_user(
     request: Request,
-    user: str,
     yt_client: Annotated[YoutubeWebClient, Depends(get_youtube_client)],
     theme: Theme | None = None,
+    user: User = Depends(get_auth_user),
 ):
-    if user not in YOURSS_USERS:
-        raise HTTPException(status_code=404, detail="User not found")
-
     feeds = []
-    for name in YOURSS_USERS[user]:
+    for name in user.channels:
         try:
             feeds.append(await yt_client.get_rss_feed(name))
         except BaseException as error:
             logger.exception("Cannot get rss feed for {}: {}", name, error)
 
     if len(feeds) == 0:
-        raise HTTPException(status_code=404, detail="No channels found")
+        raise HTTPException(status_code=HTTP_404_NOT_FOUND, detail="No channels found")
 
     return ViewTemplateResponse(
         request=request,
-        title=f"/u/{user}",
+        title=f"/u/{user.name}",
         feeds=feeds,
         theme=theme.value if theme is not None else current_config.THEME,
     )
@@ -99,7 +98,7 @@ async def view_channels(
             logger.exception("Cannot get rss feed for {}: {}", name, error)
 
     if len(feeds) == 0:
-        raise HTTPException(status_code=404, detail="No channels found")
+        raise HTTPException(status_code=HTTP_404_NOT_FOUND, detail="No channels found")
 
     return ViewTemplateResponse(
         request=request,

@@ -23,7 +23,7 @@ I simply wrote a minimal RSS client webapp for web browsers.
 - you can have *user* pages and you can configure which associated channels 
 - support *Redis* for caching and speeding up the webapp
 - support *light* and *dark* themes
-- you can choose th ebehavior when you click on the video thumbnail:
+- you can choose the behavior when you click on the video thumbnail:
   - open a modal dialog with the player (default)
   - the player will replace the thumbnail
   - open a new tab with the video
@@ -79,12 +79,9 @@ Then visit [http://localhost:8000/](http://localhost:8000/)
 
 # Configuration
 
-*YouRSS* can only be configured using environment variables.
+*YouRSS* can be configured using environment variables.
 
 - `YOURSS_DEFAULT_CHANNELS`: defines the default channels to display
-- `YOURSS_USER_foo`: create a custom page available at *https://yourss.tld/u/foo*, the value of the environment variable is the list of the channels
-  - you can add as many users as you need
-  - there is no registration nor authentication for users
 - `YOURSS_REDIS_URL`: you can use a redis instance to cache RSS feeds and avatars (for example: `redis://localhost:6379/0`)
 - `YOURSS_TTL_METADATA`: the TTL of cached metadata, used for avatars urls... (default is `24 * 3600`, 24 hours)
 - `YOURSS_TTL_RSS`: the TTL of cached RSS feeds (default is `3600`, 1 hour)
@@ -98,14 +95,23 @@ Then visit [http://localhost:8000/](http://localhost:8000/)
 
 See [`.env`](./.env) for example.
 
+## Configure user pages
+
+You can create *user* pages with as many *channels* as you want, *user* pages are easier to type or remember.
+For example you can have http://my-yourss-instance/u/skate with some *channels* configured instead of bookmarking http://my-yourss-instance/@jonnygiger,@berrics 
+
+To configure users:
+- set `YOURSS_USERS_FILE` and point to a *YAML* file where you'll declare your *users*
+- see [sample `users.yaml`](./samples/users.yaml) for example
+- *user* page can be protected by a *password* (configurable using plain text passwords or argon2 hash)
 
 # Usage
 
-- you can browse a single channel with: `http://<your-instance>/@jonnygiger`
-- you can browse multiple channels in a single page: `http://<your-instance>/@jonnygiger,@berrics`
-- the original *RSS* feed can be access at `http://<your-instance>/api/rss/@jonnygiger`
-- you will be redirected to the channel avatar with `http://<your-instance>/api/avatar/@jonnygiger`
-- if you defined *users* with `YOURSS_USER_demo`, the pages can be accessed at `http://<your-instance>/u/demo`
+- you can browse a single channel with: `http://my-yourss-instance/@jonnygiger`
+- you can browse multiple channels in a single page: `http://my-yourss-instance/@jonnygiger,@berrics`
+- the original *RSS* feed can be access at `http://my-yourss-instance/api/rss/@jonnygiger`
+- you will be redirected to the channel avatar with `http://my-yourss-instance/api/avatar/@jonnygiger`
+- if you defined somes *users*, for example `demo`, the page can be accessed at `http://my-yourss-instance/u/demo`
 
 
 # Extenal links
