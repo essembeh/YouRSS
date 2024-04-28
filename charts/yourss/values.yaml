@@ -21,20 +21,34 @@ yourss:
   users:
     []
     # - name: alice
+    #   # password is optional
     #   password:
+    #     # supported methods are
+    #     #  argon2: example here https://gchq.github.io/CyberChef/#recipe=Argon2(%7B'option':'UTF8','string':'yourss%20secret%20salt'%7D,3,4096,1,32,'Argon2i','Encoded%20hash')&input=TXkgc2VjdXJlIHBhc3N3b3Jk
+    #     #  clear: password are store in plain text
     #     method: argon2
     #     value: "$argon2i$v=19$m=4096,t=3,p=1$c29tZXNhbHQ$y+awVl4ev1h6eG8IbOrPAAjANRIbraM51FL50Pcf/B8"
+    #   # override default app theme, supported values are 'light' and 'dark'
+    #   theme: light
     #   channels:
+    #     # channels can be
+    #     #  a channel_id like UCVooVnzQxPSTXTMzSi1s6uw
+    #     #  a user_id like DAN1ELmadison
+    #     #  a slug like @jonnygiger
     #     - "@jonnygiger"
+    #     - "@berrics"
     # - name: bob
+    #   theme: dark
     #   password:
     #     method: clear
     #     value: "bar"
     #   channels:
     #     - "@jonnygiger"
+    #     - "@berrics"
     # - name: demo
     #   channels:
     #     - "@jonnygiger"
+    #     - "@berrics"
 
 redis:
   enabled: false
