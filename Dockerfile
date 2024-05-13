@@ -22,5 +22,5 @@ COPY --from=builder /app/dist/yourss-*.whl /tmp
 RUN pip install /tmp/yourss-*.whl
 
 EXPOSE 8000
-ENTRYPOINT uvicorn --host 0.0.0.0 --port 8000 yourss.webapp:app
+ENTRYPOINT uvicorn --host 0.0.0.0 --port 8000 yourss.main:app
 

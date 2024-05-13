@@ -1,10 +1,10 @@
 from __future__ import annotations
 
 import pickle
+from dataclasses import dataclass
 from datetime import timedelta
 from typing import Any, Optional, Type, TypeVar
 
-from attr import dataclass
 from loguru import logger
 from redis.asyncio import Redis as AsyncRedis
 
@@ -22,8 +22,7 @@ class YourssCache:
         return False
 
 
-class NoCache(YourssCache):
-    ...
+class NoCache(YourssCache): ...
 
 
 @dataclass(kw_only=True)

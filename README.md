@@ -38,7 +38,7 @@ First, you need [Poetry](https://python-poetry.org/), see [installation document
 $ git clone https://github.com/essembeh/YouRSS
 $ cd YouRSS
 $ poetry install
-$ poetry run -- dotenv run uvicorn yourss.webapp:app --reload 
+$ poetry run -- dotenv run fastapi dev yourss/main.py
 ```
 
 Then visit [http://localhost:8000/](http://localhost:8000/)

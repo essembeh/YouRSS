@@ -11,7 +11,7 @@ from loguru import logger
 
 from .cache import YourssCache
 from .config import current_config
-from .model import RssFeed
+from .rss import RssFeed
 
 YT_HOSTS = ["consent.youtube.com", "www.youtube.com", "youtube.com", "youtu.be"]
 
@@ -183,7 +183,7 @@ class YoutubeWebClient:
                 )
                 response.raise_for_status()
 
-        await self.cache.write(key, response, current_config.TTL_METADATA)
+        await self.cache.write(key, response, current_config.ttl_metadata)
         return response
 
     async def get_metadata(self, name: str) -> YoutubeScrapper:
@@ -224,7 +224,7 @@ class YoutubeWebClient:
             return cached.text
         resp = await self._request(feed_url)
         resp.raise_for_status()
-        await self.cache.write(key, resp, current_config.TTL_RSS)
+        await self.cache.write(key, resp, current_config.ttl_rss)
         return resp.text
 
     async def get_rss_feed(self, name: str) -> RssFeed:

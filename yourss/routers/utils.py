@@ -1,8 +1,20 @@
-from typing import Callable
+from typing import AsyncGenerator, Callable
 
 from starlette.templating import Jinja2Templates, _TemplateResponse
 
-from .config import current_config
+from ..cache import create_cache
+from ..config import current_config
+from ..youtube import YoutubeWebClient
+
+
+async def get_youtube_client(
+    refresh: bool = False,
+) -> AsyncGenerator[YoutubeWebClient, None]:
+    yield YoutubeWebClient(
+        cache=await create_cache(
+            redis_url=current_config.redis_url, force_renew=refresh
+        )
+    )
 
 
 def parse_channel_names(text: str, delimiter: str = ",") -> set[str]:
@@ -17,9 +29,3 @@ def custom_template_response(
         return jinja.TemplateResponse(template_file, kwargs2)
 
     return func
-
-
-def clean_title(text: str) -> str:
-    if current_config.CLEAN_TITLES:
-        return text.capitalize()
-    return text

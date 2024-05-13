@@ -2,7 +2,7 @@ from datetime import datetime
 from pathlib import Path
 from xml.etree import ElementTree
 
-from yourss.model import RssFeed
+from yourss.rss import RssFeed
 
 SAMPLES_FOLDER = Path(__file__).parent.parent / "samples"
 

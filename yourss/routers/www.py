@@ -1,4 +1,3 @@
-from pathlib import Path
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, Query, Request
@@ -11,28 +10,28 @@ from starlette.status import HTTP_404_NOT_FOUND
 
 import yourss
 
-from ..config import current_config
-from ..users import Theme, User, get_auth_user
-from ..utils import custom_template_response, parse_channel_names
+from ..config import current_config, templates_folder
+from ..schema import Theme, User
+from ..security import get_auth_user
 from ..youtube import YoutubeWebClient
-from .utils import get_youtube_client
+from .utils import custom_template_response, get_youtube_client, parse_channel_names
 
 
 def clean_title(text: str) -> str:
-    if current_config.CLEAN_TITLES:
+    if current_config.clean_titles:
         return text.capitalize()
     return text
 
 
 # Jinja customization
-env = Environment(loader=FileSystemLoader(Path(yourss.__file__).parent / "templates"))
+env = Environment(loader=FileSystemLoader(templates_folder))
 env.filters["clean_title"] = clean_title
 ViewTemplateResponse = custom_template_response(
     Jinja2Templates(env=env),
     "view.html",
     version=yourss.__version__,
-    open_primary=current_config.OPEN_PRIMARY,
-    open_secondary=current_config.OPEN_SECONDARY,
+    open_primary=current_config.open_primary,
+    open_secondary=current_config.open_secondary,
 )
 
 router = APIRouter()
@@ -41,7 +40,7 @@ router = APIRouter()
 @router.get("/", response_class=RedirectResponse)
 async def root():
     return RedirectResponse(
-        router.url_path_for("view_channels", channels=current_config.DEFAULT_CHANNELS)
+        router.url_path_for("view_channels", channels=current_config.default_channels)
     )
 
 
@@ -73,7 +72,7 @@ async def get_user(
         request=request,
         title=f"/u/{user.name}",
         feeds=feeds,
-        theme=theme or user.theme or current_config.THEME,
+        theme=theme or user.theme or current_config.theme,
     )
 
 
@@ -98,5 +97,5 @@ async def view_channels(
         request=request,
         title=", ".join(sorted(map(lambda f: f.title, feeds))),
         feeds=feeds,
-        theme=theme or current_config.THEME,
+        theme=theme or current_config.theme,
     )

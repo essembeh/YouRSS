@@ -2,7 +2,7 @@ import pytest_asyncio
 from fastapi.testclient import TestClient
 
 from yourss.cache import NoCache
-from yourss.webapp import app
+from yourss.main import app
 from yourss.youtube import YoutubeWebClient
 
 
