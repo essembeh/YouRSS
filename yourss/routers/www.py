@@ -1,5 +1,7 @@
+from datetime import datetime
 from typing import Annotated
 
+import arrow
 from fastapi import APIRouter, Depends, HTTPException, Query, Request
 from fastapi.responses import RedirectResponse
 from fastapi.templating import Jinja2Templates
@@ -23,9 +25,14 @@ def clean_title(text: str) -> str:
     return text
 
 
+def date_humanize(date: datetime) -> str:
+    return arrow.get(date).humanize()
+
+
 # Jinja customization
 env = Environment(loader=FileSystemLoader(templates_folder))
 env.filters["clean_title"] = clean_title
+env.filters["date_humanize"] = date_humanize
 ViewTemplateResponse = custom_template_response(
     Jinja2Templates(env=env),
     "view.html",

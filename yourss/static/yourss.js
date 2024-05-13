@@ -31,6 +31,7 @@ var SORT_ORDERS = [
   //"bi bi-sort-alpha-up",
 ]
 function toggle_sort(button) {
+  closeAllPlayers()
   let oldOrder = $(button).find("i").attr("class")
   let newOrder =
     SORT_ORDERS[(SORT_ORDERS.indexOf(oldOrder) + 1) % SORT_ORDERS.length]
@@ -42,10 +43,10 @@ function sort_videos(order) {
     $("#video-container")
       .children()
       .sort(function (left, right) {
-        let leftChannel = $(left).data("channel-title")
-        let leftDate = new Date($(left).data("published"))
-        let rightChannel = $(right).data("channel-title")
-        let rightDate = new Date($(right).data("published"))
+        let leftChannel = $(left).data("feed-title")
+        let leftDate = new Date($(left).data("entry-published"))
+        let rightChannel = $(right).data("feed-title")
+        let rightDate = new Date($(right).data("entry-published"))
         if (order === "bi bi-sort-down") {
           if (leftDate < rightDate) return 1
           if (leftDate > rightDate) return -1
@@ -75,11 +76,12 @@ $(document).ready(function () {
  * Handle filter toggle
  */
 function toggle_filter(button) {
+  closeAllPlayers()
   let selectedChannelId = $(button).hasClass("btn-secondary")
-    ? $(button).data("channel-id")
+    ? $(button).data("feed-uid")
     : null
   $(".yourss-filter").each(function () {
-    if ($(this).data("channel-id") === selectedChannelId) {
+    if ($(this).data("feed-uid") === selectedChannelId) {
       $(this).addClass("btn-primary")
       $(this).removeClass("btn-secondary")
     } else {
@@ -90,7 +92,7 @@ function toggle_filter(button) {
   $(".yourss-filterable").each(function () {
     if (selectedChannelId === null) {
       $(this).css("display", "block")
-    } else if ($(this).data("channel-id") === selectedChannelId) {
+    } else if ($(this).data("feed-uid") === selectedChannelId) {
       $(this).css("display", "block")
     } else {
       $(this).css("display", "none")
@@ -165,16 +167,17 @@ function openModal(videoId) {
   closeAllPlayers()
 
   let videoDiv = $(`#yourss-video-${videoId}`)
-  let channelId = videoDiv.data("channel-id")
-  let channelTitle = videoDiv.data("channel-title")
-  let videoTitle = videoDiv.data("video-title")
+  let channelId = videoDiv.data("feed-channel-id")
+  let feedTitle = videoDiv.data("feed-title")
+  let feedUrl = videoDiv.data("feed-url")
+  let entryTitle = videoDiv.data("entry-title")
   let videoUrl = getVideoPlayerUrl(videoId)
 
   $("#yourss-modal").data("video-id", videoId)
   $("#yourss-modal").find("iframe").attr("src", videoUrl)
   $("#yourss-modal-channel-image").attr("src", `/api/avatar/${channelId}`)
-  $("#yourss-modal-channel-title").text(channelTitle)
-  $("#yourss-modal-video-title").text(videoTitle)
+  $("#yourss-modal-feed-title").text(feedTitle)
+  $("#yourss-modal-video-title").text(entryTitle)
   $("#yourss-modal-link-youtube").attr(
     "href",
     `https://www.youtube.com/watch?v=${videoId}`
@@ -184,7 +187,7 @@ function openModal(videoId) {
     "href",
     `https://piped.kavin.rocks/watch?v=${videoId}`
   )
-  $("#yourss-modal-link-rss").attr("href", `/api/rss/${channelId}`)
+  $("#yourss-modal-link-rss").attr("href", feedUrl)
   $("#yourss-modal").modal("show")
 }
 $("#yourss-modal").on("hidden.bs.modal", function (e) {

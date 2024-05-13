@@ -1,5 +1,6 @@
 @base_url = http://localhost:8000
 
+@channel_id = UCVooVnzQxPSTXTMzSi1s6uw
 
 ###
 GET {{base_url}}/u/alice
@@ -19,3 +20,9 @@ Authorization: Basic bob bar
 
 ### 
 GET {{base_url}}/u/demo
+
+###
+GET {{base_url}}/api/rss/{{channel_id}}
+
+###
+GET {{base_url}}/api/avatar/{{channel_id}}

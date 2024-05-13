@@ -11,7 +11,7 @@ from loguru import logger
 
 from .cache import YourssCache
 from .config import current_config
-from .rss import RssFeed
+from .rss import Feed
 
 YT_HOSTS = ["consent.youtube.com", "www.youtube.com", "youtube.com", "youtu.be"]
 
@@ -24,7 +24,7 @@ MOZILLA_USER_AGENT = (
     "Mozilla/5.0 (X11; Linux x86_64; rv:109.0) Gecko/20100101 Firefox/117.0"
 )
 
-CHANNEL_PATTERN = r"[a-zA-Z0-9_-]{24}"
+CHANNEL_PATTERN = r"UC[a-zA-Z0-9_-]{22}"
 
 
 def create_client(
@@ -227,5 +227,5 @@ class YoutubeWebClient:
         await self.cache.write(key, resp, current_config.ttl_rss)
         return resp.text
 
-    async def get_rss_feed(self, name: str) -> RssFeed:
-        return RssFeed.fromstring(await self.get_rss_xml(name))
+    async def get_rss_feed(self, name: str) -> Feed:
+        return Feed.from_xml(await self.get_rss_xml(name))

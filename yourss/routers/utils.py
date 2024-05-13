@@ -7,6 +7,13 @@ from ..config import current_config
 from ..youtube import YoutubeWebClient
 
 
+def force_https(url: str) -> str:
+    assert isinstance(url, str)
+    if url.startswith("http:"):
+        return url.replace("http:", "https:", 1)
+    return url
+
+
 async def get_youtube_client(
     refresh: bool = False,
 ) -> AsyncGenerator[YoutubeWebClient, None]:

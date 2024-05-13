@@ -9,3 +9,6 @@ __pycache__
 # IDE
 /.vscode/*
 !/.vscode/settings.json
+
+# Tests
+/tests/feeds.txt
