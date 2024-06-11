@@ -107,7 +107,7 @@ function mark_as_read(date) {
   if (date) {
     let markDate = new Date(date)
     $(".yourss-filterable").each(function () {
-      let videoDate = new Date($(this).data("published"))
+      let videoDate = new Date($(this).data("entry-published"))
       let videoMark = $(this).find(".new-item")
       if (videoDate > markDate) {
         videoMark.addClass("bi-record-fill")
