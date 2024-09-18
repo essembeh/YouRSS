@@ -1,5 +1,5 @@
 run: 
-    poetry run -- dotenv run -- fastapi dev yourss/main.py
+    poetry run -- dotenv run -- fastapi dev --host 0.0.0.0 yourss/main.py
 
 run-redis:
     docker run --rm -ti -p 6379:6379 redis 

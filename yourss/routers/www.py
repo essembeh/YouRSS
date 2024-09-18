@@ -6,16 +6,16 @@ from fastapi import APIRouter, Depends, HTTPException, Query, Request
 from fastapi.responses import RedirectResponse
 from fastapi.templating import Jinja2Templates
 from jinja2 import Environment, FileSystemLoader
-from loguru import logger
 from starlette.responses import HTMLResponse
 from starlette.status import HTTP_404_NOT_FOUND
 
 import yourss
+from yourss.async_utils import get_feeds
 
-from ..config import current_config, templates_folder
 from ..schema import Theme, User
 from ..security import get_auth_user
-from ..youtube import YoutubeWebClient
+from ..settings import current_config, templates_folder
+from ..youtube.client import YoutubeClient
 from .utils import custom_template_response, get_youtube_client, parse_channel_names
 
 
@@ -61,20 +61,12 @@ async def watch(video: str = Query(alias="v", min_length=11, max_length=11)):
 @router.get("/u/{username}", response_class=HTMLResponse)
 async def get_user(
     request: Request,
-    yt_client: Annotated[YoutubeWebClient, Depends(get_youtube_client)],
+    yt_client: Annotated[YoutubeClient, Depends(get_youtube_client)],
     theme: Theme | None = None,
     user: User = Depends(get_auth_user),
 ):
-    feeds = []
-    for name in user.channels:
-        try:
-            feeds.append(await yt_client.get_rss_feed(name))
-        except BaseException as error:
-            logger.exception("Cannot get rss feed for {}: {}", name, error)
-
-    if len(feeds) == 0:
+    if len(feeds := await get_feeds(yt_client, user.channels)) == 0:
         raise HTTPException(status_code=HTTP_404_NOT_FOUND, detail="No channels found")
-
     return ViewTemplateResponse(
         request=request,
         title=f"/u/{user.name}",
@@ -87,19 +79,11 @@ async def get_user(
 async def view_channels(
     request: Request,
     channels: str,
-    yt_client: Annotated[YoutubeWebClient, Depends(get_youtube_client)],
+    yt_client: Annotated[YoutubeClient, Depends(get_youtube_client)],
     theme: Theme | None = None,
 ):
-    feeds = []
-    for name in parse_channel_names(channels):
-        try:
-            feeds.append(await yt_client.get_rss_feed(name))
-        except BaseException as error:
-            logger.exception("Cannot get rss feed for {}: {}", name, error)
-
-    if len(feeds) == 0:
+    if len(feeds := await get_feeds(yt_client, parse_channel_names(channels))) == 0:
         raise HTTPException(status_code=HTTP_404_NOT_FOUND, detail="No channels found")
-
     return ViewTemplateResponse(
         request=request,
         title=", ".join(sorted(map(lambda f: f.title, feeds))),

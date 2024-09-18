@@ -3,8 +3,8 @@ from fastapi.staticfiles import StaticFiles
 
 from . import __name__ as app_name
 from . import __version__ as app_version
-from .config import static_folder
 from .routers import api, www
+from .settings import static_folder
 
 app = FastAPI(name=app_name, version=app_version)
 app.include_router(www.router)

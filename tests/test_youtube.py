@@ -1,6 +1,7 @@
 import pytest
 
-from yourss.youtube import YoutubeScrapper, YoutubeUrl
+from yourss.youtube.client import YoutubeMetadata
+from yourss.youtube.url import YoutubeUrl
 
 USER = "DAN1ELmadison"
 USER_HOME = YoutubeUrl.user_home(USER)
@@ -23,7 +24,7 @@ async def test_channel_rssfeed(yt_client):
 @pytest.mark.asyncio
 async def test_channel_metadata(yt_client):
     response = await yt_client.get_html(CHANNEL_ID_HOME)
-    metadata = YoutubeScrapper.fromresponse(response)
+    metadata = YoutubeMetadata.fromresponse(response)
     assert metadata.title == "Jonny Giger"
     assert (
         metadata.homepage_url
@@ -41,7 +42,7 @@ async def test_user_rssfeed(yt_client):
 @pytest.mark.asyncio
 async def test_user_metadata(yt_client):
     response = await yt_client.get_html(USER_HOME)
-    metadata = YoutubeScrapper.fromresponse(response)
+    metadata = YoutubeMetadata.fromresponse(response)
     assert metadata.title == "Daniel Madison"
     assert (
         metadata.homepage_url
@@ -53,7 +54,7 @@ async def test_user_metadata(yt_client):
 @pytest.mark.asyncio
 async def test_slug_metadata(yt_client):
     response = await yt_client.get_html(SLUG_HOME)
-    metadata = YoutubeScrapper.fromresponse(response)
+    metadata = YoutubeMetadata.fromresponse(response)
     assert metadata.title == "Jonny Giger"
     assert (
         metadata.homepage_url

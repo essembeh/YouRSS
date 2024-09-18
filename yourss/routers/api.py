@@ -6,7 +6,7 @@ from starlette.status import HTTP_404_NOT_FOUND
 
 from .. import __name__ as app_name
 from .. import __version__ as app_version
-from ..youtube import YoutubeWebClient
+from ..youtube.client import YoutubeClient
 from .utils import force_https, get_youtube_client
 
 router = APIRouter()
@@ -19,7 +19,7 @@ async def version():
 
 @router.get("/rss/{name}", response_class=RedirectResponse)
 async def rss_feed(
-    name: str, yt_client: Annotated[YoutubeWebClient, Depends(get_youtube_client)]
+    name: str, yt_client: Annotated[YoutubeClient, Depends(get_youtube_client)]
 ):
     feed = await yt_client.get_rss_feed(name)
     return RedirectResponse(force_https(str(feed.get_url())))
@@ -27,7 +27,7 @@ async def rss_feed(
 
 @router.get("/avatar/{name}", response_class=RedirectResponse)
 async def avatar(
-    name: str, yt_client: Annotated[YoutubeWebClient, Depends(get_youtube_client)]
+    name: str, yt_client: Annotated[YoutubeClient, Depends(get_youtube_client)]
 ):
     url = await yt_client.get_avatar_url(name)
     if url is None:

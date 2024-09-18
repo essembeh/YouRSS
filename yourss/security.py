@@ -30,7 +30,7 @@ def verify_password(user: User, value: str) -> bool:
 
 
 def find_user(username: str) -> Optional[User]:
-    from .config import current_config
+    from .settings import current_config
 
     if current_config.users_file is not None and current_config.users_file.exists():
         try:
