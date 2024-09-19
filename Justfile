@@ -13,6 +13,7 @@ release bump="patch":
     git commit --message "🔖 New release: `poetry version -s`"
     git tag "`poetry version -s`"
 
+[confirm('Confirm push --tags ?')]
 publish:
     git log -1 --pretty="%B" | grep '^🔖 New release: '
     git push
