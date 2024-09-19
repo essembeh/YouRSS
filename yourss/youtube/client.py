@@ -7,9 +7,7 @@ from bs4 import BeautifulSoup
 from httpx import AsyncClient, Response
 from loguru import logger
 
-from ..cache import YourssCache
 from ..rss import Feed
-from ..settings import current_config
 from .metadata import CHANNEL_PATTERN, YoutubeMetadata
 from .url import YoutubeUrl
 
@@ -21,11 +19,10 @@ MOZILLA_USER_AGENT = (
 
 
 class YoutubeClient(AsyncClient):
-    def __init__(self, cache: YourssCache, *args, **kwargs):
+    def __init__(self, *args, **kwargs):
         kwargs.setdefault("follow_redirects", True)
         kwargs.setdefault("headers", {"user-agent": MOZILLA_USER_AGENT})
         super().__init__(*args, **kwargs)
-        self.cache = cache
 
     async def youtube_request(
         self,
@@ -46,18 +43,14 @@ class YoutubeClient(AsyncClient):
             response.status_code,
             response.elapsed,
         )
+        response.raise_for_status()
         return response
 
     async def get_html(self, youtube_url: str) -> Response:
         """
         get a youtube page content with cookie accept if needed
         """
-        key = f"html:get:{youtube_url}"
-        if (cached := await self.cache.read(key, Response)) is not None:
-            return cached
-
         response = await self.youtube_request(youtube_url)
-        response.raise_for_status()
         # check response is an html page
         if response.headers.get("content-type", "").startswith("text/html"):
             # check for the cookie accep form
@@ -66,8 +59,8 @@ class YoutubeClient(AsyncClient):
                 "form",
                 attrs={"method": "POST", "action": "https://consent.youtube.com/save"},
             )
-            logger.debug("Found {} forms in html page", len(forms))
             if len(forms) > 0:
+                logger.debug("Found {} forms in html page", len(forms))
                 form = forms[0]
                 logger.debug("Auto accept youtube consent {}", form.attrs)
                 response = await self.youtube_request(
@@ -79,9 +72,7 @@ class YoutubeClient(AsyncClient):
                         if "name" in element.attrs and "value" in element.attrs
                     },
                 )
-                response.raise_for_status()
 
-        await self.cache.write(key, response, current_config.ttl_metadata)
         return response
 
     async def get_metadata(self, name: str) -> YoutubeMetadata:
@@ -117,12 +108,7 @@ class YoutubeClient(AsyncClient):
 
         logger.debug("Rss feed url for {}: {}", name, feed_url)
 
-        key = f"http:get:{feed_url}"
-        if (cached := await self.cache.read(key, Response)) is not None:
-            return cached.text
         resp = await self.youtube_request(feed_url)
-        resp.raise_for_status()
-        await self.cache.write(key, resp, current_config.ttl_rss)
         return resp.text
 
     async def get_rss_feed(self, name: str) -> Feed:

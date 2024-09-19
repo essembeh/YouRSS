@@ -21,7 +21,6 @@ I simply wrote a minimal RSS client webapp for web browsers.
 - on a page with several channels, you can choose to show/hide one or another, you can sort videos by published date
 - you can mark videos as read so that on the next visit, you quickly see the new videos
 - you can have *user* pages and you can configure which associated channels 
-- support *Redis* for caching and speeding up the webapp
 - support *light* and *dark* themes
 - you can choose the behavior when you click on the video thumbnail:
   - open a modal dialog with the player (default)
@@ -82,9 +81,6 @@ Then visit [http://localhost:8000/](http://localhost:8000/)
 *YouRSS* can be configured using environment variables.
 
 - `YOURSS_DEFAULT_CHANNELS`: defines the default channels to display
-- `YOURSS_REDIS_URL`: you can use a redis instance to cache RSS feeds and avatars (for example: `redis://localhost:6379/0`)
-- `YOURSS_TTL_METADATA`: the TTL of cached metadata, used for avatars urls... (default is `24 * 3600`, 24 hours)
-- `YOURSS_TTL_RSS`: the TTL of cached RSS feeds (default is `3600`, 1 hour)
 - `YOURSS_CLEAN_TITLES`: if set to `true`, videos titles are cleaned to prevent UPPERCASE TITLES 
 - `YOURSS_THEME`: choose between `dark` and `light` Bootstrap themes (default is `light`)
 - `YOURSS_OPEN_PRIMARY`: choose the action when you click on a thumbnail, can be `openEmbedded`, `openTab` or `openModal`, default is `openModal`
@@ -116,7 +112,7 @@ To configure users:
 
 # Extenal links
 
-Special thanks to the amazing python frameworks: [FastAPI](https://fastapi.tiangolo.com/), [asyncio](https://docs.python.org/fr/3/library/asyncio.html), [httpx](https://www.python-httpx.org/) and [Redis](https://redis.io/)
+Special thanks to the amazing python frameworks: [FastAPI](https://fastapi.tiangolo.com/), [asyncio](https://docs.python.org/fr/3/library/asyncio.html), [httpx](https://www.python-httpx.org/) and [Pydantic](https://docs.pydantic.dev/) ♥️
 
 
 - Youtube player API: https://developers.google.com/youtube/player_parameters

@@ -1,5 +1,4 @@
 from datetime import datetime
-from typing import Annotated
 
 import arrow
 from fastapi import APIRouter, Depends, HTTPException, Query, Request
@@ -10,8 +9,8 @@ from starlette.responses import HTMLResponse
 from starlette.status import HTTP_404_NOT_FOUND
 
 import yourss
-from yourss.async_utils import get_feeds
 
+from ..async_utils import get_feeds
 from ..schema import Theme, User
 from ..security import get_auth_user
 from ..settings import current_config, templates_folder
@@ -61,7 +60,7 @@ async def watch(video: str = Query(alias="v", min_length=11, max_length=11)):
 @router.get("/u/{username}", response_class=HTMLResponse)
 async def get_user(
     request: Request,
-    yt_client: Annotated[YoutubeClient, Depends(get_youtube_client)],
+    yt_client: YoutubeClient = Depends(get_youtube_client),
     theme: Theme | None = None,
     user: User = Depends(get_auth_user),
 ):
@@ -79,7 +78,7 @@ async def get_user(
 async def view_channels(
     request: Request,
     channels: str,
-    yt_client: Annotated[YoutubeClient, Depends(get_youtube_client)],
+    yt_client: YoutubeClient = Depends(get_youtube_client),
     theme: Theme | None = None,
 ):
     if len(feeds := await get_feeds(yt_client, parse_channel_names(channels))) == 0:

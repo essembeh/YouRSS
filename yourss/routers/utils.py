@@ -1,10 +1,11 @@
+from http.cookiejar import CookieJar
 from typing import AsyncGenerator, Callable
 
 from starlette.templating import Jinja2Templates, _TemplateResponse
 
-from ..cache import create_cache
-from ..settings import current_config
 from ..youtube.client import YoutubeClient
+
+cookiejar = CookieJar()
 
 
 def force_https(url: str) -> str:
@@ -17,11 +18,7 @@ def force_https(url: str) -> str:
 async def get_youtube_client(
     refresh: bool = False,
 ) -> AsyncGenerator[YoutubeClient, None]:
-    yield YoutubeClient(
-        cache=await create_cache(
-            redis_url=current_config.redis_url, force_renew=refresh
-        )
-    )
+    yield YoutubeClient(cookies=cookiejar)
 
 
 def parse_channel_names(text: str, delimiter: str = ",") -> set[str]:

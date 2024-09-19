@@ -45,14 +45,6 @@ spec:
               value: "{{ join "," .Values.yourss.defaultChannels }}"
             - name: YOURSS_USERS_FILE
               value: /yourss/users.yaml
-            {{- if .Values.redis.enabled }}
-            - name: YOURSS_REDIS_URL
-              value: redis://{{ template "yourss.fullname" . }}-redis:6379/0
-            - name: YOURSS_TTL_METADATA
-              value: "{{ .Values.redis.ttl.metadata }}"
-            - name: YOURSS_TTL_RSS
-              value: "{{ .Values.redis.ttl.rss }}"
-            {{- end }}
             - name: YOURSS_CLEAN_TITLES
               value: "{{ .Values.yourss.cleanTitles }}"
             - name: YOURSS_THEME

@@ -1,5 +1,3 @@
-from typing import Annotated
-
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import RedirectResponse
 from starlette.status import HTTP_404_NOT_FOUND
@@ -18,17 +16,13 @@ async def version():
 
 
 @router.get("/rss/{name}", response_class=RedirectResponse)
-async def rss_feed(
-    name: str, yt_client: Annotated[YoutubeClient, Depends(get_youtube_client)]
-):
+async def rss_feed(name: str, yt_client: YoutubeClient = Depends(get_youtube_client)):
     feed = await yt_client.get_rss_feed(name)
     return RedirectResponse(force_https(str(feed.get_url())))
 
 
 @router.get("/avatar/{name}", response_class=RedirectResponse)
-async def avatar(
-    name: str, yt_client: Annotated[YoutubeClient, Depends(get_youtube_client)]
-):
+async def avatar(name: str, yt_client: YoutubeClient = Depends(get_youtube_client)):
     url = await yt_client.get_avatar_url(name)
     if url is None:
         raise HTTPException(status_code=HTTP_404_NOT_FOUND)
