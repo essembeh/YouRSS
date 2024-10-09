@@ -1,46 +1,58 @@
-from .test_youtube import CHANNEL_ID, SLUG, USER
+import re
+
+import pytest
+
+from yourss.main import app_name, app_version
 
 
-def test_version(yourss_client):
-    resp = yourss_client.get("/api/version")
+@pytest.mark.anyio
+async def test_version(client):
+    resp = await client.get("/api/version")
     resp.raise_for_status()
 
-
-def test_api_avatar_slug(yourss_client):
-    resp = yourss_client.get(f"/api/avatar/{SLUG}", follow_redirects=False)
-    assert 300 <= resp.status_code < 400
-
-
-def test_api_avatar_channel(yourss_client):
-    resp = yourss_client.get(f"/api/avatar/{CHANNEL_ID}", follow_redirects=False)
-    assert 300 <= resp.status_code < 400
+    payload = resp.json()
+    assert payload.get("name") == app_name
+    assert payload.get("version") == app_version
 
 
-def test_api_avatar_user(yourss_client):
-    resp = yourss_client.get(f"/api/avatar/{USER}", follow_redirects=False)
-    assert 300 <= resp.status_code < 400
+@pytest.mark.anyio
+async def test_proxy_rss(client):
+    channel = await client.get("/proxy/rss/UCVooVnzQxPSTXTMzSi1s6uw")
+    user = await client.get("/proxy/rss/@jonnygiger")
+    playlist = await client.get("/proxy/rss/PLw-vK1_d04zZCal3yMX_T23h5nDJ2toTk")
+
+    assert user.status_code == channel.status_code == playlist.status_code == 307
+    assert (
+        user.headers["Location"]
+        == user.headers["Location"]
+        == "https://www.youtube.com/feeds/videos.xml?channel_id=UCVooVnzQxPSTXTMzSi1s6uw"
+    )
+    assert (
+        playlist.headers["Location"]
+        == "https://www.youtube.com/feeds/videos.xml?playlist_id=PLw-vK1_d04zZCal3yMX_T23h5nDJ2toTk"
+    )
 
 
-def test_api_rss_slug(yourss_client):
-    resp = yourss_client.get(f"/api/rss/{SLUG}", follow_redirects=False)
-    assert 300 <= resp.status_code < 400
+@pytest.mark.anyio
+async def test_proxy_avatar(client):
+    channel = await client.get("/proxy/avatar/UCVooVnzQxPSTXTMzSi1s6uw")
+    user = await client.get("/proxy/avatar/@jonnygiger")
+
+    assert user.status_code == channel.status_code == 307
+    assert user.headers["Location"] == user.headers["Location"]
+    assert re.fullmatch(
+        r"^https://yt[0-9]+\.googleusercontent\.com/.*$", user.headers["Location"]
+    )
 
 
-def test_api_rss_channel(yourss_client):
-    resp = yourss_client.get(f"/api/rss/{CHANNEL_ID}", follow_redirects=False)
-    assert 300 <= resp.status_code < 400
+@pytest.mark.anyio
+async def test_proxy_home(client):
+    channel = await client.get("/proxy/home/UCVooVnzQxPSTXTMzSi1s6uw")
+    user = await client.get("/proxy/home/@jonnygiger")
 
-
-def test_api_rss_user(yourss_client):
-    resp = yourss_client.get(f"/api/rss/{USER}", follow_redirects=False)
-    assert 300 <= resp.status_code < 400
-
-
-def test_homepage(yourss_client):
-    resp = yourss_client.get("/")
-    assert resp.status_code == 200
-
-
-def test_page(yourss_client):
-    resp = yourss_client.get("/@jonnygiger")
-    assert resp.status_code == 200
+    assert user.status_code == channel.status_code == 307
+    assert (
+        user.headers["Location"]
+        == user.headers["Location"]
+        == "https://www.youtube.com/channel/UCVooVnzQxPSTXTMzSi1s6uw"
+    )

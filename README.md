@@ -38,6 +38,9 @@ $ git clone https://github.com/essembeh/YouRSS
 $ cd YouRSS
 $ poetry install
 $ poetry run -- dotenv run fastapi dev yourss/main.py
+
+# or if you use just
+$ just run
 ```
 
 Then visit [http://localhost:8000/](http://localhost:8000/)
@@ -103,12 +106,13 @@ To configure users:
 
 # Usage
 
-- you can browse a single channel with: `http://my-yourss-instance/@jonnygiger`
-- you can browse multiple channels in a single page: `http://my-yourss-instance/@jonnygiger,@berrics`
-- the original *RSS* feed can be access at `http://my-yourss-instance/api/rss/@jonnygiger`
-- you will be redirected to the channel avatar with `http://my-yourss-instance/api/avatar/@jonnygiger`
-- if you defined somes *users*, for example `demo`, the page can be accessed at `http://my-yourss-instance/u/demo`
+- you can browse a single channel with: `http://yourss.local/@jonnygiger`
+- you can browse multiple channels in a single page: `http://yourss.local/@jonnygiger,@berrics`
+- the original *RSS* feed can be access at `http://yourss.local/api/rss/@jonnygiger`
+- you will be redirected to the channel avatar with `http://yourss.local/api/avatar/@jonnygiger`
+- if you defined somes *users*, for example `demo`, the page can be accessed at `http://yourss.local/u/demo`
 
+> Note: replace `yourss.local` with the URL of your *YouRSS* instance.
 
 # Extenal links
 

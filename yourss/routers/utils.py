@@ -1,11 +1,14 @@
 from http.cookiejar import CookieJar
-from typing import AsyncGenerator, Callable
+from typing import AsyncGenerator, Callable, List
 
+from httpx import AsyncClient
 from starlette.templating import Jinja2Templates, _TemplateResponse
 
-from ..youtube.client import YoutubeClient
-
 cookiejar = CookieJar()
+
+
+async def get_youtube_web_client() -> AsyncGenerator[AsyncClient, None]:
+    yield AsyncClient(cookies=cookiejar)
 
 
 def force_https(url: str) -> str:
@@ -15,14 +18,10 @@ def force_https(url: str) -> str:
     return url
 
 
-async def get_youtube_client(
-    refresh: bool = False,
-) -> AsyncGenerator[YoutubeClient, None]:
-    yield YoutubeClient(cookies=cookiejar)
-
-
-def parse_channel_names(text: str, delimiter: str = ",") -> set[str]:
-    return set(filter(None, text.split(delimiter)))
+def parse_channel_names(text: str, delimiter: str = ",") -> List[str]:
+    return list(
+        set(filter(lambda s: len(s) > 0, map(str.strip, text.split(delimiter))))
+    )
 
 
 def custom_template_response(

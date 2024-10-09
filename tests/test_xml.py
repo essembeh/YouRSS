@@ -4,7 +4,7 @@ from pathlib import Path
 from httpx import Client
 from pytest import mark
 
-from yourss.rss import Feed
+from yourss.youtube import Feed
 
 SAMPLES_FOLDER = Path(__file__).parent.parent / "samples"
 FEEDS_FILE = Path(__file__).parent / "feeds.txt"

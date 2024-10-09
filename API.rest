@@ -1,28 +1,63 @@
 @base_url = http://localhost:8000
 
-@channel_id = UCVooVnzQxPSTXTMzSi1s6uw
+
+#########################################
+## API
+#########################################
 
 ###
-GET {{base_url}}/u/alice
-Authorization: Basic alice foo
+GET {{base_url}}/api/version
+
+
+#########################################
+## Youtube proxy
+#########################################
 
 ###
+GET {{base_url}}/proxy/rss/UCVooVnzQxPSTXTMzSi1s6uw
+
+###
+GET {{base_url}}/proxy/avatar/UCVooVnzQxPSTXTMzSi1s6uw
+
+###
+GET {{base_url}}/proxy/home/UCVooVnzQxPSTXTMzSi1s6uw
+
+###
+GET {{base_url}}/proxy/rss/@jonnygiger
+
+###
+GET {{base_url}}/proxy/avatar/@jonnygiger
+
+###
+GET {{base_url}}/proxy/home/@jonnygiger
+
+
+
+#########################################
+## Frontend
+#########################################
+
+### Default page
+GET {{base_url}}/
+
+### Error, wrong password
 GET {{base_url}}/u/alice
 Authorization: Basic alice bar
 
-### 
+### Alice's homepage
+GET {{base_url}}/u/alice
+Authorization: Basic alice foo
+
+### Error, wrong password
 GET {{base_url}}/u/bob
 Authorization: Basic bob foo
 
-### 
+### Bob's homepage
 GET {{base_url}}/u/bob
 Authorization: Basic bob bar
 
-### 
+### Demo's homepage
 GET {{base_url}}/u/demo
 
-###
-GET {{base_url}}/api/rss/{{channel_id}}
-
-###
-GET {{base_url}}/api/avatar/{{channel_id}}
+### Watch single video
+GET {{base_url}}/watch?v=q5IMA244HXw

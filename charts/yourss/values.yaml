@@ -32,9 +32,8 @@ yourss:
     #   theme: light
     #   channels:
     #     # channels can be
-    #     #  a channel_id like UCVooVnzQxPSTXTMzSi1s6uw
-    #     #  a user_id like DAN1ELmadison
-    #     #  a slug like @jonnygiger
+    #     #  a channel_id (starting with UC) like UCVooVnzQxPSTXTMzSi1s6uw
+    #     #  a user (starting with @) like @jonnygiger
     #     - "@jonnygiger"
     #     - "@berrics"
     # - name: bob

@@ -4,18 +4,19 @@ import arrow
 from fastapi import APIRouter, Depends, HTTPException, Query, Request
 from fastapi.responses import RedirectResponse
 from fastapi.templating import Jinja2Templates
+from httpx import AsyncClient
 from jinja2 import Environment, FileSystemLoader
 from starlette.responses import HTMLResponse
 from starlette.status import HTTP_404_NOT_FOUND
 
 import yourss
 
-from ..async_utils import get_feeds
+from ..async_utils import afetch_feeds
 from ..schema import Theme, User
 from ..security import get_auth_user
 from ..settings import current_config, templates_folder
-from ..youtube.client import YoutubeClient
-from .utils import custom_template_response, get_youtube_client, parse_channel_names
+from ..youtube import Feed, YoutubeRssApi, YoutubeWebApi
+from .utils import custom_template_response, get_youtube_web_client, parse_channel_names
 
 
 def clean_title(text: str) -> str:
@@ -60,16 +61,21 @@ async def watch(video: str = Query(alias="v", min_length=11, max_length=11)):
 @router.get("/u/{username}", response_class=HTMLResponse)
 async def get_user(
     request: Request,
-    yt_client: YoutubeClient = Depends(get_youtube_client),
+    yt_client: AsyncClient = Depends(get_youtube_web_client),
     theme: Theme | None = None,
     user: User = Depends(get_auth_user),
 ):
-    if len(feeds := await get_feeds(yt_client, user.channels)) == 0:
+    feeds = await afetch_feeds(
+        user.channels, rss_api=YoutubeRssApi(), web_api=YoutubeWebApi(yt_client)
+    )
+    active_feeds = [f for f in feeds.values() if isinstance(f, Feed)]
+    if len(active_feeds) == 0:
         raise HTTPException(status_code=HTTP_404_NOT_FOUND, detail="No channels found")
+
     return ViewTemplateResponse(
         request=request,
         title=f"/u/{user.name}",
-        feeds=feeds,
+        feeds=active_feeds,
         theme=theme or user.theme or current_config.theme,
     )
 
@@ -78,14 +84,21 @@ async def get_user(
 async def view_channels(
     request: Request,
     channels: str,
-    yt_client: YoutubeClient = Depends(get_youtube_client),
+    yt_client: AsyncClient = Depends(get_youtube_web_client),
     theme: Theme | None = None,
 ):
-    if len(feeds := await get_feeds(yt_client, parse_channel_names(channels))) == 0:
+    feeds = await afetch_feeds(
+        parse_channel_names(channels),
+        rss_api=YoutubeRssApi(),
+        web_api=YoutubeWebApi(yt_client),
+    )
+    active_feeds = [f for f in feeds.values() if isinstance(f, Feed)]
+    if len(active_feeds) == 0:
         raise HTTPException(status_code=HTTP_404_NOT_FOUND, detail="No channels found")
+
     return ViewTemplateResponse(
         request=request,
-        title=", ".join(sorted(map(lambda f: f.title, feeds))),
-        feeds=feeds,
+        title=", ".join(sorted(map(lambda f: f.title, active_feeds))),
+        feeds=active_feeds,
         theme=theme or current_config.theme,
     )

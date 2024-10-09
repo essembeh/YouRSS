@@ -175,7 +175,7 @@ function openModal(videoId) {
 
   $("#yourss-modal").data("video-id", videoId)
   $("#yourss-modal").find("iframe").attr("src", videoUrl)
-  $("#yourss-modal-channel-image").attr("src", `/api/avatar/${channelId}`)
+  $("#yourss-modal-channel-image").attr("src", `/proxy/avatar/${channelId}`)
   $("#yourss-modal-feed-title").text(feedTitle)
   $("#yourss-modal-video-title").text(entryTitle)
   $("#yourss-modal-link-youtube").attr(
@@ -187,7 +187,7 @@ function openModal(videoId) {
     "href",
     `https://piped.kavin.rocks/watch?v=${videoId}`
   )
-  $("#yourss-modal-link-rss").attr("href", feedUrl)
+  $("#yourss-modal-link-rss").attr("href", `/proxy/rss/${channelId}`)
   $("#yourss-modal").modal("show")
 }
 $("#yourss-modal").on("hidden.bs.modal", function (e) {

@@ -2,7 +2,9 @@ run:
     poetry run -- dotenv run -- fastapi dev --host 0.0.0.0 yourss/main.py
 
 test pytest_args="":
-    poetry run -- pytest {{pytest_args}} tests/
+    poetry run -- pytest --cov=yourss {{pytest_args}} tests/
+    poetry run -- coverage html
+    xdg-open htmlcov/index.html
 
 release bump="patch":
     echo "{{bump}}" | grep -E "^(major|minor|patch)$"

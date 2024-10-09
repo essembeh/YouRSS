@@ -69,8 +69,8 @@
             <div class="yourss-player-container" id="yourss-player-{{ entry.video_id }}" style="display: none"></div>
             <div class="card-body d-flex flex-column">
               <h5 class="card-title h5">
-                <img src="/api/avatar/{{ feed.channel_id }}" width="30" height="30" class="rounded-circle" />
-                <span class="fw-bold" style="cursor: pointer" onclick="window.open('{{ feed.get_link() }}')">
+                <img src="/proxy/avatar/{{ feed.channel_id }}" width="30" height="30" class="rounded-circle" />
+                <span class="fw-bold" style="cursor: pointer" onclick="window.open('/proxy/home/{{ feed.channel_id }}')">
                   {{ feed.title }}
                 </span>
               </h5>

@@ -1,70 +1,77 @@
+from http.cookiejar import CookieJar
+
 import pytest
+from httpx import AsyncClient
 
-from yourss.youtube.client import YoutubeMetadata
-from yourss.youtube.url import YoutubeUrl
-
-USER = "DAN1ELmadison"
-USER_HOME = YoutubeUrl.user_home(USER)
-USER_RSS = YoutubeUrl.user_rss(USER)
-
-CHANNEL_ID = "UCVooVnzQxPSTXTMzSi1s6uw"
-CHANNEL_ID_HOME = YoutubeUrl.channel_home(CHANNEL_ID)
-CHANNEL_ID_RSS = YoutubeUrl.channel_rss(CHANNEL_ID)
-
-SLUG = "@jonnygiger"
-SLUG_HOME = YoutubeUrl.slug_home(SLUG)
+from yourss.youtube import (
+    YoutubeMetadata,
+    YoutubeRssApi,
+    YoutubeWebApi,
+)
+from yourss.youtube.utils import html_get_rgpd_forms
 
 
-@pytest.mark.asyncio
-async def test_channel_rssfeed(yt_client):
-    feed = await yt_client.get_rss_feed(CHANNEL_ID)
+@pytest.mark.asyncio(loop_scope="module")
+async def test_rgpd_with_cookies():
+    api = YoutubeWebApi(AsyncClient(cookies=CookieJar()))
+
+    url = "https://www.youtube.com/@jonnygiger"
+
+    # first call should fail
+    resp = await api.get_html(url)
+    assert resp.status_code == 200
+    assert len(html_get_rgpd_forms(resp.text)) > 0
+
+    # this call automatically accept the rgpd form
+    resp = await api.get_rgpd_html(url)
+    assert resp.status_code == 200
+    assert len(html_get_rgpd_forms(resp.text)) == 0
+
+    # now we can get the page without the rgpd form
+    resp = await api.get_html(url)
+    assert resp.status_code == 200
+    assert len(html_get_rgpd_forms(resp.text)) == 0
+
+
+@pytest.mark.asyncio(loop_scope="module")
+async def test_rss_channel():
+    api = YoutubeRssApi()
+
+    feed = await api.get_channel_rss("UCVooVnzQxPSTXTMzSi1s6uw")
     assert feed.title == "Jonny Giger"
 
 
-@pytest.mark.asyncio
-async def test_channel_metadata(yt_client):
-    response = await yt_client.get_html(CHANNEL_ID_HOME)
-    metadata = YoutubeMetadata.fromresponse(response)
-    assert metadata.title == "Jonny Giger"
+@pytest.mark.asyncio(loop_scope="module")
+async def test_rss_playlist():
+    api = YoutubeRssApi()
+
+    feed = await api.get_playlist_rss("PLw-vK1_d04zZCal3yMX_T23h5nDJ2toTk")
+    assert feed.title == "IMPOSSIBLE TRICKS OF RODNEY MULLEN"
+
+
+@pytest.mark.asyncio(loop_scope="module")
+async def test_metadata_channel():
+    api = YoutubeWebApi(AsyncClient(cookies=CookieJar()))
+
+    resp = await api.get_homepage("UCVooVnzQxPSTXTMzSi1s6uw")
+    meta = YoutubeMetadata.from_response(resp)
+    assert meta.title == "Jonny Giger"
+    assert meta.channel_id == "UCVooVnzQxPSTXTMzSi1s6uw"
     assert (
-        metadata.homepage_url
-        == "https://www.youtube.com/channel/UCVooVnzQxPSTXTMzSi1s6uw"
+        meta.url.geturl() == "https://www.youtube.com/channel/UCVooVnzQxPSTXTMzSi1s6uw"
     )
-    assert metadata.avatar_url is not None
+    assert meta.avatar_url is not None
 
 
-@pytest.mark.asyncio
-async def test_user_rssfeed(yt_client):
-    feed = await yt_client.get_rss_feed(USER)
-    assert feed.title == "Daniel Madison"
+@pytest.mark.asyncio(loop_scope="module")
+async def test_metadata_user():
+    api = YoutubeWebApi(AsyncClient(cookies=CookieJar()))
 
-
-@pytest.mark.asyncio
-async def test_user_metadata(yt_client):
-    response = await yt_client.get_html(USER_HOME)
-    metadata = YoutubeMetadata.fromresponse(response)
-    assert metadata.title == "Daniel Madison"
+    resp = await api.get_homepage("@jonnygiger")
+    meta = YoutubeMetadata.from_response(resp)
+    assert meta.title == "Jonny Giger"
+    assert meta.channel_id == "UCVooVnzQxPSTXTMzSi1s6uw"
     assert (
-        metadata.homepage_url
-        == "https://www.youtube.com/channel/UCB99aK4f2WaH96joccxLvSQ"
+        meta.url.geturl() == "https://www.youtube.com/channel/UCVooVnzQxPSTXTMzSi1s6uw"
     )
-    assert metadata.avatar_url is not None
-
-
-@pytest.mark.asyncio
-async def test_slug_metadata(yt_client):
-    response = await yt_client.get_html(SLUG_HOME)
-    metadata = YoutubeMetadata.fromresponse(response)
-    assert metadata.title == "Jonny Giger"
-    assert (
-        metadata.homepage_url
-        == "https://www.youtube.com/channel/UCVooVnzQxPSTXTMzSi1s6uw"
-    )
-    assert metadata.avatar_url is not None
-
-
-@pytest.mark.asyncio
-async def test_avatar(yt_client):
-    metadata = await yt_client.get_metadata("@jonnygiger")
-    assert metadata is not None
-    assert metadata.avatar_url is not None
+    assert meta.avatar_url is not None
