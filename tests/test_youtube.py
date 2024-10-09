@@ -1,7 +1,7 @@
 from http.cookiejar import CookieJar
 
 import pytest
-from httpx import AsyncClient
+from httpx import AsyncClient, get
 
 from yourss.youtube import (
     YoutubeMetadata,
@@ -11,6 +11,12 @@ from yourss.youtube import (
 from yourss.youtube.utils import html_get_rgpd_forms
 
 
+def is_rgpd_applicable():
+    resp = get("https://ifconfig.io/country_code")
+    return resp.status_code == 200 and resp.text.strip() == "FR"
+
+
+@pytest.mark.skipif(not is_rgpd_applicable(), reason="Not applicable outside Europe")
 @pytest.mark.asyncio(loop_scope="module")
 async def test_rgpd_with_cookies():
     api = YoutubeWebApi(AsyncClient(cookies=CookieJar()))
