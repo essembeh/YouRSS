@@ -2,7 +2,7 @@
 #######################################
 ## Buider
 #######################################
-FROM python:3 as builder
+FROM python:3.12 as builder
 
 RUN pip3 install poetry
 ADD . /app
@@ -12,7 +12,7 @@ RUN poetry build
 #######################################
 ## Runner
 #######################################
-FROM python:3
+FROM python:3.12
 
 ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
