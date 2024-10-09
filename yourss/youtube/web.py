@@ -4,7 +4,8 @@ from urllib.parse import urlparse
 
 from httpx import Response
 from loguru import logger
-from rapid_api_client import Body, Path, RapidApi, get, post
+from rapid_api_client import Path, RapidApi, get, post
+from rapid_api_client.annotations import FormBody
 
 from .utils import (
     ALLOWED_HOSTS,
@@ -26,7 +27,7 @@ class YoutubeWebApi(RapidApi):
 
     @post("{url}")
     async def post_html(
-        self, url: Annotated[str, Path()], form: Annotated[Dict, Body(target="data")]
+        self, url: Annotated[str, Path()], form: Annotated[Dict, FormBody()]
     ): ...
 
     async def get_rgpd_html(self, url: str) -> Response:
