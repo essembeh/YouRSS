@@ -4,9 +4,10 @@ from urllib.parse import urlparse
 
 from httpx import Response
 from loguru import logger
-from rapid_api_client import Path, RapidApi, get, post
-from rapid_api_client.annotations import FormBody
+from rapid_api_client import FormBody, Path
+from rapid_api_client.async_ import AsyncRapidApi, get, post
 
+from .schema import Feed
 from .utils import (
     ALLOWED_HOSTS,
     MOZILLA_USER_AGENT,
@@ -15,9 +16,13 @@ from .utils import (
     is_user,
 )
 
+BASE_URL = "https://www.youtube.com"
+CHANNEL_RSS_URL = "/feeds/videos.xml?channel_id={channel_id}"
+PLAYLIST_RSS_URL = "/feeds/videos.xml?playlist_id={playlist_id}"
+
 
 @dataclass
-class YoutubeWebApi(RapidApi):
+class YoutubeWebApi(AsyncRapidApi):
     def __post_init__(self):
         self.client.follow_redirects = True
         self.client.headers.setdefault("user-agent", MOZILLA_USER_AGENT)
@@ -57,3 +62,15 @@ class YoutubeWebApi(RapidApi):
         if is_user(name):
             return await self.get_rgpd_html(f"https://www.youtube.com/{name}")
         raise ValueError(f"Cannot find homepage for: {name}")
+
+
+@dataclass
+class YoutubeRssApi(AsyncRapidApi):
+    def __post_init__(self):
+        self.client.base_url = BASE_URL
+
+    @get(CHANNEL_RSS_URL, response_class=Feed)
+    async def get_channel_rss(self, channel_id: Annotated[str, Path()]): ...
+
+    @get(PLAYLIST_RSS_URL, response_class=Feed)
+    async def get_playlist_rss(self, playlist_id: Annotated[str, Path()]): ...
