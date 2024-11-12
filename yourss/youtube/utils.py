@@ -1,7 +1,7 @@
 import re
 from typing import Dict
 
-from bs4 import BeautifulSoup, ResultSet
+from bs4 import BeautifulSoup
 
 ALLOWED_HOSTS = ["consent.youtube.com", "www.youtube.com", "youtube.com", "youtu.be"]
 
@@ -40,15 +40,6 @@ def bs_parse(html_text: str) -> BeautifulSoup:
     Parses the given HTML text and returns a BeautifulSoup object.
     """
     return BeautifulSoup(html_text, features="html.parser")
-
-
-def html_get_rgpd_forms(html_text: str) -> ResultSet:
-    """
-    Extract RGPD forms from a Youtube page
-    """
-    return bs_parse(html_text).find_all(
-        "form", attrs={"method": "POST", "action": "https://consent.youtube.com/save"}
-    )
 
 
 def html_get_metadata(html_text: str) -> Dict[str, str]:

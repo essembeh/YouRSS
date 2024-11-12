@@ -1,42 +1,46 @@
 from http.cookiejar import CookieJar
 
 import pytest
-from httpx import AsyncClient, get
+from httpx import AsyncClient
 
 from yourss.youtube import (
     YoutubeMetadata,
     YoutubeRssApi,
     YoutubeWebApi,
 )
-from yourss.youtube.utils import html_get_rgpd_forms
+from yourss.youtube.scrapper import VideoScrapper
+from yourss.youtube.utils import bs_parse
 
 
-def is_rgpd_applicable():
-    resp = get("https://ifconfig.io/country_code")
-    return resp.status_code == 200 and resp.text.strip() == "FR"
-
-
-@pytest.mark.skipif(not is_rgpd_applicable(), reason="Not applicable outside Europe")
 @pytest.mark.asyncio(loop_scope="module")
-async def test_rgpd_with_cookies():
-    api = YoutubeWebApi(AsyncClient(cookies=CookieJar()))
+async def test_rgpd():
+    api = YoutubeWebApi()
 
-    url = "https://www.youtube.com/@jonnygiger"
+    url = "/@jonnygiger"
 
-    # first call should fail
     resp = await api.get_html(url)
     assert resp.status_code == 200
-    assert len(html_get_rgpd_forms(resp.text)) > 0
+    assert (
+        len(
+            bs_parse(resp.text).find_all(
+                "form",
+                attrs={"method": "POST", "action": "https://consent.youtube.com/save"},
+            )
+        )
+        == 0
+    )
 
-    # this call automatically accept the rgpd form
-    resp = await api.get_rgpd_html(url)
+    resp = await api.get_html(url, ucbcb=0)
     assert resp.status_code == 200
-    assert len(html_get_rgpd_forms(resp.text)) == 0
-
-    # now we can get the page without the rgpd form
-    resp = await api.get_html(url)
-    assert resp.status_code == 200
-    assert len(html_get_rgpd_forms(resp.text)) == 0
+    assert (
+        len(
+            bs_parse(resp.text).find_all(
+                "form",
+                attrs={"method": "POST", "action": "https://consent.youtube.com/save"},
+            )
+        )
+        > 0
+    )
 
 
 @pytest.mark.asyncio(loop_scope="module")
@@ -81,3 +85,15 @@ async def test_metadata_user():
         meta.url.geturl() == "https://www.youtube.com/channel/UCVooVnzQxPSTXTMzSi1s6uw"
     )
     assert meta.avatar_url is not None
+
+
+@pytest.mark.asyncio(loop_scope="module")
+async def test_scrap_videos():
+    scrapper = VideoScrapper(YoutubeWebApi())
+
+    page_iterator = scrapper.iter_videos("UCVooVnzQxPSTXTMzSi1s6uw")
+    page1 = await anext(page_iterator)
+    assert len(page1) == 30
+    page2 = await anext(page_iterator)
+    assert len(page2) > 10
+    assert page1 != page2

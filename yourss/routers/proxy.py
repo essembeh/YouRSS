@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import RedirectResponse
 from httpx import AsyncClient
+from pydantic import PositiveInt
 from starlette.status import HTTP_404_NOT_FOUND
 
 from ..youtube import (
@@ -70,3 +71,10 @@ async def home(
     meta = YoutubeMetadata.from_response(homepage)
 
     return RedirectResponse(meta.url.geturl())
+
+
+@router.get("/thumbnail/{video_id}", response_class=RedirectResponse)
+async def thumbnail(video_id: str, instance: PositiveInt = 1):
+    return RedirectResponse(
+        f"https://i{instance}.ytimg.com/vi/{video_id}/hqdefault.jpg"
+    )

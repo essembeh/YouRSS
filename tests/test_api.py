@@ -56,3 +56,18 @@ async def test_proxy_home(client):
         == user.headers["Location"]
         == "https://www.youtube.com/channel/UCVooVnzQxPSTXTMzSi1s6uw"
     )
+
+
+@pytest.mark.anyio
+async def test_proxy_thumbnail(client):
+    thumbnail = await client.get("/proxy/thumbnail/XivF3Nx3exA")
+    thumbnail2 = await client.get("/proxy/thumbnail/XivF3Nx3exA?instance=2")
+    assert thumbnail.status_code == thumbnail2.status_code == 307
+    assert (
+        thumbnail.headers["Location"]
+        == "https://i1.ytimg.com/vi/XivF3Nx3exA/hqdefault.jpg"
+    )
+    assert (
+        thumbnail2.headers["Location"]
+        == "https://i2.ytimg.com/vi/XivF3Nx3exA/hqdefault.jpg"
+    )
