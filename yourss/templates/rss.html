@@ -28,8 +28,7 @@
         </span>
       </a>
 
-      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false"
-        aria-label="Toggle navigation">
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
       </button>
       <div id="navbarSupportedContent" class="collapse navbar-collapse">
@@ -40,12 +39,6 @@
           </button>
           {% endfor %}
         </form>
-        <!-- 
-        <form class="d-flex">
-          <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
-          <button class="btn btn-outline-success" type="submit">Search</button>
-        </form> 
-        -->
         <button class="btn btn-outline-secondary" type="button" onclick="toggle_sort(this)">
           <i class="bi bi-sort-down"></i>
         </button>
@@ -60,17 +53,14 @@
       <div id="video-container" class="row">
         {% for feed in feeds %}
         {% for entry in feed.entries %}
-        <div class="col-xxl-2 col-xl-3 col-lg-3 col-md-4 col-sm-6 mb-3 yourss-filterable" id="yourss-video-{{ entry.video_id }}" data-feed-uid="{{ feed.uid }}"
-          data-feed-channel-id="{{ feed.channel_id }}" data-feed-url="{{ feed.get_url() }}" data-feed-title="{{ feed.title|escape }}" data-entry-title="{{ entry.title|clean_title|escape }}"
-          data-entry-video-id="{{ entry.video_id }}" data-entry-published="{{ entry.published }}">
+        <div class="col-xxl-2 col-xl-3 col-lg-3 col-md-4 col-sm-6 mb-3 yourss-filterable" id="yourss-video-{{ entry.video_id }}" data-feed-uid="{{ feed.uid }}" data-feed-channel-id="{{ feed.channel_id }}" data-feed-url="{{ feed.get_url() }}" data-feed-title="{{ feed.title|escape }}" data-entry-title="{{ entry.title|clean_title|escape }}" data-entry-video-id="{{ entry.video_id }}" data-entry-published="{{ entry.published }}">
           <div class="card h-100 shadow">
-            <img id="yourss-thumbnail-{{ entry.video_id }}" class="card-img-top yourss-thumbnail" src="{{ entry.media_info.thumbnail.url }}" onclick="{{ open_primary }}('{{ entry.video_id }}')"
-              style="cursor: pointer" alt="{{ entry.title|escape }}" />
-            <div class="yourss-player-container" id="yourss-player-{{ entry.video_id }}" style="display: none"></div>
+            <img id="yourss-thumbnail-{{ entry.video_id }}" class="card-img-top yourss-thumbnail" src="{{ entry.media_info.thumbnail.url }}" onclick="{{ open_primary }}('{{ entry.video_id }}')" style="cursor: pointer" alt="{{ entry.title|escape }}" />
+            <div id="yourss-player-{{ entry.video_id }}" class="yourss-player-container" style="display: none"></div>
             <div class="card-body d-flex flex-column">
               <h5 class="card-title h5">
                 <img src="/proxy/avatar/{{ feed.channel_id }}" width="30" height="30" class="rounded-circle" />
-                <span class="fw-bold" style="cursor: pointer" onclick="window.open('/proxy/home/{{ feed.channel_id }}')">
+                <span class="fw-bold" style="cursor: pointer" onclick="window.open('/c/{{ feed.channel_id }}')">
                   {{ feed.title }}
                 </span>
               </h5>
@@ -81,13 +71,6 @@
                 <i class="new-item bi bi-record-fill text-primary" onclick="mark_as_read('{{ entry.published }}')">
                   <small class="text-muted" title="{{ entry.published }}">
                     {{ entry.published|date_humanize }}
-                    <script>
-                      let videoDate = new Date("{{ entry.published }}");
-                      let now = new Date();
-                      let diff = now - videoDate;
-                      let formatter = new Intl.RelativeTimeFormat("en", {})
-                      console.log(formatter.format(new Date("{{ entry.published }}") - Date.UTC()));
-                    </script>
                   </small>
                 </i>
                 <a class="bi bi-box-arrow-up-right" style="float: right" onclick="{{ open_secondary }}('{{ entry.video_id }}')" target="_blank"></a>

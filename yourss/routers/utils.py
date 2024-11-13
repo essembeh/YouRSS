@@ -1,14 +1,6 @@
-from http.cookiejar import CookieJar
-from typing import AsyncGenerator, Callable, List
+from typing import Callable, List
 
-from httpx import AsyncClient
 from starlette.templating import Jinja2Templates, _TemplateResponse
-
-cookiejar = CookieJar()
-
-
-async def get_youtube_web_client() -> AsyncGenerator[AsyncClient, None]:
-    yield AsyncClient(cookies=cookiejar)
 
 
 def force_https(url: str) -> str:

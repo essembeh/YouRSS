@@ -1,13 +1,9 @@
 import re
-from typing import Dict
+from typing import Dict, Iterator, Type, TypeVar
 
-from bs4 import BeautifulSoup
+from jsonpath_ng import parse
 
-ALLOWED_HOSTS = ["consent.youtube.com", "www.youtube.com", "youtube.com", "youtu.be"]
-
-MOZILLA_USER_AGENT = (
-    "Mozilla/5.0 (X11; Linux x86_64; rv:109.0) Gecko/20100101 Firefox/117.0"
-)
+T = TypeVar("T")
 
 CHANNEL_PATTERN = r"^UC[\w-]{22}$"
 PLAYLIST_PATTERN = r"^PL[\w-]{32}$"
@@ -35,20 +31,12 @@ def is_user(text: str) -> bool:
     return bool(re.fullmatch(USER_PATTERN, text, flags=re.IGNORECASE))
 
 
-def bs_parse(html_text: str) -> BeautifulSoup:
-    """
-    Parses the given HTML text and returns a BeautifulSoup object.
-    """
-    return BeautifulSoup(html_text, features="html.parser")
+def json_iter(path: str, payload: Dict, cls: Type[T] | None = None) -> Iterator[T]:
+    for match in parse(path).find(payload):
+        out = match.value
+        if out is not None and (cls is None or isinstance(out, cls)):
+            yield out
 
 
-def html_get_metadata(html_text: str) -> Dict[str, str]:
-    """
-    Find all meta properties from given html page
-    """
-    soup = bs_parse(html_text)
-    return {
-        m["property"]: m.get("content")
-        for m in soup.find_all("meta")
-        if "property" in m.attrs
-    }
+def json_first(path: str, payload: Dict, cls: Type[T] | None = None) -> T:
+    return next(json_iter(path, payload, cls=cls))

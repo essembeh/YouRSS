@@ -1,7 +1,6 @@
 import pytest
+from bs4 import BeautifulSoup
 from httpx import BasicAuth
-
-from yourss.youtube.utils import bs_parse
 
 
 @pytest.mark.anyio
@@ -58,7 +57,7 @@ async def test_page_content(client):
     resp = await client.get("/" + ",".join(names))
     assert resp.status_code == 200
 
-    soup = bs_parse(resp.text)
+    soup = BeautifulSoup(resp.text, features="html.parser")
     assert len(soup.find_all("div", class_="yourss-filterable")) == 45
 
     # when no valid feed given, should return 404
