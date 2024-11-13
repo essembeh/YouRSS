@@ -2,11 +2,17 @@ from http.cookiejar import CookieJar
 
 import pytest
 from bs4 import BeautifulSoup
-from httpx import AsyncClient
+from httpx import AsyncClient, get
 
 from yourss.youtube import PageScrapper, VideoScrapper, YoutubeApi
 
 
+def is_rgpd_applicable():
+    resp = get("https://ifconfig.io/country_code")
+    return resp.status_code == 200 and resp.text.strip() == "FR"
+
+
+@pytest.mark.skipif(not is_rgpd_applicable(), reason="Not applicable outside Europe")
 @pytest.mark.asyncio(loop_scope="module")
 async def test_rgpd():
     api = YoutubeApi()
