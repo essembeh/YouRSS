@@ -1,7 +1,8 @@
 import json
 from collections import UserDict
 from dataclasses import dataclass
-from typing import Any, Dict, Iterator, Literal, Self
+from datetime import datetime
+from typing import Any, Iterator, Self
 from urllib.parse import urlparse
 
 from .utils import is_channel_id, json_first, json_iter
@@ -35,15 +36,15 @@ class YoutubeMetadata(UserDict[str, str]):
 class VideoDescription:
     video_id: str
     title: str
-    published: str
+    published: str | datetime
+    channel: str | None = None
+    channel_id: str | None = None
+    thumbnail: str | None = None
+    feed_uid: str | None = None
 
-    @classmethod
-    def from_json(cls, payload: Dict[str, Any]) -> Self:
-        return cls(
-            video_id=json_first("$.videoId", payload, str),
-            title=json_first("$.title.runs[0].text", payload, str),
-            published=json_first("$.publishedTimeText.simpleText", payload, str),
-        )
+    def __post_init__(self):
+        if self.thumbnail is None:
+            self.thumbnail = f"https://i1.ytimg.com/vi/{self.video_id}/hqdefault.jpg"
 
 
 class BrowseData(UserDict[str, Any]):
@@ -51,11 +52,27 @@ class BrowseData(UserDict[str, Any]):
     def from_json_string(cls, text: str) -> Self:
         return cls(json.loads(text))
 
-    def iter_videos(
-        self, selector: Literal["videoRenderer", "reelItemRenderer"] = "videoRenderer"
-    ) -> Iterator[VideoDescription]:
-        for item in json_iter(f"$..{selector}", self.data):
-            yield VideoDescription.from_json(item)
+    def iter_videos(self, shorts: bool = False) -> Iterator[VideoDescription]:
+        for item in json_iter(
+            f"$..{'videoRenderer' if not shorts else  'richItemRenderer'}", self.data
+        ):
+            if shorts:
+                yield VideoDescription(
+                    video_id=json_first(
+                        "$.content..reelWatchEndpoint.videoId", item, str
+                    ),
+                    title=json_first("$.content..primaryText.content", item, str),
+                    published=json_first("$.content..secondaryText.content", item, str),
+                    thumbnail=json_first(
+                        "$.content..thumbnail.sources[0].url", item, str
+                    ),
+                )
+            else:
+                yield VideoDescription(
+                    video_id=json_first("$.videoId", item, str),
+                    title=json_first("$.title.runs[0].text", item, str),
+                    published=json_first("$.publishedTimeText.simpleText", item, str),
+                )
 
     @property
     def continuation_token(self) -> str | None:

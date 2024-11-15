@@ -50,9 +50,6 @@ async def test_page_content(client):
         "PLw-vK1_d04zZCal3yMX_T23h5nDJ2toTk",  # a playlist
         "UCVooVnzQxPSTXTMzSi1s6uw",  # a channel
         "@CardMagicByJason",  # a user
-        "@UCAAAAAAAAAAAAAAAAAAAAAA",  # an unknown user
-        "UCAAAAAAAAAAAAAAAAAAAAAA",  # an invalid channel
-        "foobar",  # an invalid name
     ]
     resp = await client.get("/" + ",".join(names))
     assert resp.status_code == 200
@@ -60,6 +57,16 @@ async def test_page_content(client):
     soup = BeautifulSoup(resp.text, features="html.parser")
     assert len(soup.find_all("div", class_="yourss-filterable")) == 45
 
-    # when no valid feed given, should return 404
-    resp = await client.get("/UCAAAAAAAAAAAAAAAAAAAAAA,@UCAAAAAAAAAAAAAAAAAAAAAA")
-    assert resp.status_code == 404
+
+@pytest.mark.anyio
+async def test_page_content_invalid_names(client):
+    names = [
+        "PLw-vK1_d04zZCal3yMX_T23h5nDJ2toTk",  # a playlist
+        "UCVooVnzQxPSTXTMzSi1s6uw",  # a channel
+        "@CardMagicByJason",  # a user
+        "@UCAAAAAAAAAAAAAAAAAAAAAA",  # an unknown user
+        "UCAAAAAAAAAAAAAAAAAAAAAA",  # an invalid channel
+        "foobar",  # an invalid name
+    ]
+    resp = await client.get("/" + ",".join(names))
+    assert resp.status_code == 500

@@ -43,7 +43,7 @@ class YoutubeApi(AsyncRapidApi):
     async def api_browse(self, data: Annotated[dict, JsonBody()]): ...
 
     async def get_homepage(
-        self, name: str, suffix: Literal["/videos"] | None = None
+        self, name: str, suffix: Literal["/videos", "/shorts", "/streams"] | None = None
     ) -> Response:
         if is_channel_id(name):
             return await self.get_html(f"/channel/{name}{suffix or ''}")

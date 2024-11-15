@@ -33,8 +33,7 @@ var SORT_ORDERS = [
 function toggle_sort(button) {
   closeAllPlayers()
   let oldOrder = $(button).find("i").attr("class")
-  let newOrder =
-    SORT_ORDERS[(SORT_ORDERS.indexOf(oldOrder) + 1) % SORT_ORDERS.length]
+  let newOrder = SORT_ORDERS[(SORT_ORDERS.indexOf(oldOrder) + 1) % SORT_ORDERS.length]
   $(button).find("i").attr("class", newOrder)
   sort_videos(newOrder)
 }
@@ -43,10 +42,10 @@ function sort_videos(order) {
     $("#video-container")
       .children()
       .sort(function (left, right) {
-        let leftChannel = $(left).data("feed-title")
-        let leftDate = new Date($(left).data("entry-published"))
-        let rightChannel = $(right).data("feed-title")
-        let rightDate = new Date($(right).data("entry-published"))
+        let leftChannel = $(left).data("channel-name")
+        let rightChannel = $(right).data("channel-name")
+        let leftDate = new Date($(left).data("published"))
+        let rightDate = new Date($(right).data("published"))
         if (order === "bi bi-sort-down") {
           if (leftDate < rightDate) return 1
           if (leftDate > rightDate) return -1
@@ -77,9 +76,7 @@ $(document).ready(function () {
  */
 function toggle_filter(button) {
   closeAllPlayers()
-  let selectedChannelId = $(button).hasClass("btn-secondary")
-    ? $(button).data("feed-uid")
-    : null
+  let selectedChannelId = $(button).hasClass("btn-secondary") ? $(button).data("feed-uid") : null
   $(".yourss-filter").each(function () {
     if ($(this).data("feed-uid") === selectedChannelId) {
       $(this).addClass("btn-primary")
@@ -99,30 +96,6 @@ function toggle_filter(button) {
     }
   })
 }
-
-/**
- * Handle mark as read
- */
-function mark_as_read(date) {
-  if (date) {
-    let markDate = new Date(date)
-    $(".yourss-filterable").each(function () {
-      let videoDate = new Date($(this).data("entry-published"))
-      let videoMark = $(this).find(".new-item")
-      if (videoDate > markDate) {
-        videoMark.addClass("bi-record-fill")
-        videoMark.removeClass("bi-record")
-      } else {
-        videoMark.addClass("bi-record")
-        videoMark.removeClass("bi-record-fill")
-      }
-    })
-    Cookies.set("mark-date:" + window.location.pathname, date)
-  }
-}
-$(document).ready(function () {
-  mark_as_read(Cookies.get("mark-date:" + window.location.pathname))
-})
 
 /**
  * Handle modal player
@@ -158,7 +131,6 @@ function openEmbedded(videoId) {
 
 function openTab(videoId) {
   closeAllPlayers()
-
   let videoUrl = getVideoPlayerUrl(videoId)
   window.open(videoUrl, "_blank")
 }
@@ -167,27 +139,19 @@ function openModal(videoId) {
   closeAllPlayers()
 
   let videoDiv = $(`#yourss-video-${videoId}`)
-  let channelId = videoDiv.data("feed-channel-id")
-  let feedTitle = videoDiv.data("feed-title")
-  let feedUrl = videoDiv.data("feed-url")
-  let entryTitle = videoDiv.data("entry-title")
+  let channelId = videoDiv.data("channel-id")
   let videoUrl = getVideoPlayerUrl(videoId)
 
-  $("#yourss-modal").data("video-id", videoId)
   $("#yourss-modal").find("iframe").attr("src", videoUrl)
-  $("#yourss-modal-channel-image").attr("src", `/proxy/avatar/${channelId}`)
-  $("#yourss-modal-feed-title").text(feedTitle)
-  $("#yourss-modal-video-title").text(entryTitle)
-  $("#yourss-modal-link-youtube").attr(
-    "href",
-    `https://www.youtube.com/watch?v=${videoId}`
-  )
+  $("#yourss-modal-link-youtube").attr("href", `https://www.youtube.com/watch?v=${videoId}`)
   $("#yourss-modal-link-tab").attr("href", videoUrl)
-  $("#yourss-modal-link-piped").attr(
-    "href",
-    `https://piped.kavin.rocks/watch?v=${videoId}`
-  )
-  $("#yourss-modal-link-rss").attr("href", `/proxy/rss/${channelId}`)
+  $("#yourss-modal-link-piped").attr("href", `https://piped.kavin.rocks/watch?v=${videoId}`)
+  if (channelId) {
+    $("#yourss-modal-link-rss").attr("href", `/proxy/rss/${channelId}`)
+    $("#yourss-modal-link-rss").css("display", "block")
+  } else {
+    $("#yourss-modal-link-rss").css("display", "none")
+  }
   $("#yourss-modal").modal("show")
 }
 $("#yourss-modal").on("hidden.bs.modal", function (e) {
