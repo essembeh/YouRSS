@@ -143,6 +143,7 @@ function openModal(videoId) {
   let videoUrl = getVideoPlayerUrl(videoId)
 
   $("#yourss-modal").find("iframe").attr("src", videoUrl)
+  $("#yourss-modal-video-title").html(videoDiv.find(".yourss-video-title").html())
   $("#yourss-modal-link-youtube").attr("href", `https://www.youtube.com/watch?v=${videoId}`)
   $("#yourss-modal-link-tab").attr("href", videoUrl)
   $("#yourss-modal-link-piped").attr("href", `https://piped.kavin.rocks/watch?v=${videoId}`)
