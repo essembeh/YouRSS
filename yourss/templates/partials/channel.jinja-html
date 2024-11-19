@@ -1,0 +1,39 @@
+<div class="d-flex justify-content-center align-items-center mt-4">
+  <img src="{{ channel.avatar }}" class="rounded-circle me-3 shadow" alt="{{ channel.name }}" width="100" height="100">
+  <div>
+    <h1 class="m-0 fw-bold">{{ channel.name }}</h1>
+    <a class="btn" href="{{ channel.home }}" target="_blank">
+      <i class="bi bi-youtube"></i>
+    </a>
+    <a class="btn" href="/proxy/rss/{{ channel.channel_id }}" target="_blank">
+      <i class="bi bi-rss"></i>
+    </a>
+    <a class="btn" onclick="navigator.clipboard.writeText('{{ channel.channel_id }}')">
+      <i class="bi bi-clipboard-check"></i>
+    </a>
+  </div>
+</div>
+
+<div id="spinner" class="d-flex justify-content-center mb-2">
+  <div class="spinner-border htmx-indicator" role="status">
+    <span class="visually-hidden">Loading...</span>
+  </div>
+</div>
+
+<ul class="nav nav-tabs justify-content-center">
+  <li class="nav-item">
+    <a class="nav-link active" data-bs-toggle="tab" hx-get="/htmx/rss/{{ channel.channel_id }}" hx-target="#tab-content" hx-swap="innerHTML" hx-indicator="#spinner">Recent</a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" data-bs-toggle="tab" hx-get="/htmx/videos/{{ channel.channel_id }}" hx-target="#tab-content" hx-swap="innerHTML" hx-indicator="#spinner">Videos</a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" data-bs-toggle="tab" hx-get="/htmx/shorts/{{ channel.channel_id }}" hx-target="#tab-content" hx-swap="innerHTML" hx-indicator="#spinner">Shorts</a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" data-bs-toggle="tab" hx-get="/htmx/streams/{{ channel.channel_id }}" hx-target="#tab-content" hx-swap="innerHTML" hx-indicator="#spinner">Streams</a>
+  </li>
+</ul>
+
+<div id="tab-content" class="mt-3" hx-get="/htmx/rss/{{ channel.channel_id }}" hx-trigger="load" hx-indicator="#spinner">
+</div>

@@ -1,6 +1,10 @@
+.yourss-link {
+  cursor: pointer;
+}
+
 #scroll-to-top {
-  width: 40px;
-  line-height: 40px;
+  width: 50px;
+  line-height: 50px;
   overflow: hidden;
   z-index: 999;
   display: none;
@@ -24,6 +28,7 @@
   background-color: #def;
   color: #000;
 }
+
 .htmx-indicator {
   opacity: 0;
   transition: opacity 500ms ease-in;

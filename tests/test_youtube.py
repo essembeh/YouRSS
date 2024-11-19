@@ -4,7 +4,7 @@ import pytest
 from bs4 import BeautifulSoup
 from httpx import AsyncClient, get
 
-from yourss.youtube import PageScrapper, VideoScrapper, YoutubeApi
+from yourss.youtube import YoutubeApi
 
 
 def is_rgpd_applicable():
@@ -64,33 +64,31 @@ async def test_rss_playlist():
 async def test_metadata_channel():
     api = YoutubeApi(AsyncClient(cookies=CookieJar()))
 
-    resp = await api.get_homepage("UCVooVnzQxPSTXTMzSi1s6uw")
-    page = PageScrapper.from_response(resp)
-    meta = page.get_metadata()
-    assert meta.title == "Jonny Giger"
-    assert meta.channel_id == "UCVooVnzQxPSTXTMzSi1s6uw"
-    assert meta.url == "https://www.youtube.com/channel/UCVooVnzQxPSTXTMzSi1s6uw"
-    assert meta.avatar_url is not None
+    page = await api.get_homepage("UCVooVnzQxPSTXTMzSi1s6uw")
+    channel = page.get_metadata()
+    assert channel.name == "Jonny Giger"
+    assert channel.channel_id == "UCVooVnzQxPSTXTMzSi1s6uw"
+    assert channel.home == "https://www.youtube.com/channel/UCVooVnzQxPSTXTMzSi1s6uw"
+    assert channel.avatar is not None
 
 
 @pytest.mark.asyncio(loop_scope="module")
 async def test_metadata_user():
     api = YoutubeApi(AsyncClient(cookies=CookieJar()))
 
-    resp = await api.get_homepage("@jonnygiger")
-    page = PageScrapper.from_response(resp)
-    meta = page.get_metadata()
-    assert meta.title == "Jonny Giger"
-    assert meta.channel_id == "UCVooVnzQxPSTXTMzSi1s6uw"
-    assert meta.url == "https://www.youtube.com/channel/UCVooVnzQxPSTXTMzSi1s6uw"
-    assert meta.avatar_url is not None
+    page = await api.get_homepage("@jonnygiger")
+    channel = page.get_metadata()
+    assert channel.name == "Jonny Giger"
+    assert channel.channel_id == "UCVooVnzQxPSTXTMzSi1s6uw"
+    assert channel.home == "https://www.youtube.com/channel/UCVooVnzQxPSTXTMzSi1s6uw"
+    assert channel.avatar is not None
 
 
 @pytest.mark.asyncio(loop_scope="module")
 async def test_scrap_videos():
-    scrapper = VideoScrapper()
+    api = YoutubeApi()
 
-    page_iterator = scrapper.iter_videos("UCVooVnzQxPSTXTMzSi1s6uw")
+    page_iterator = api.iter_videos("UCVooVnzQxPSTXTMzSi1s6uw")
     page1 = await anext(page_iterator)
     assert len(page1) == 30
     page2 = await anext(page_iterator)

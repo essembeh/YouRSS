@@ -1,13 +1,15 @@
+from asyncio import sleep
 from dataclasses import dataclass
-from typing import Annotated, Any, Dict, Literal
+from typing import Annotated, Any, AsyncIterator, Dict, List, Literal
 
-from httpx import Response
 from pydantic import TypeAdapter
 from rapid_api_client import Path, Query
 from rapid_api_client.annotations import JsonBody
 from rapid_api_client.async_ import AsyncRapidApi, get, post
 
+from .model import BrowseData, VideoDescription
 from .schema import Feed
+from .scrapper import PageScrapper
 from .utils import (
     is_channel_id,
     is_user,
@@ -44,9 +46,54 @@ class YoutubeApi(AsyncRapidApi):
 
     async def get_homepage(
         self, name: str, suffix: Literal["/videos", "/shorts", "/streams"] | None = None
-    ) -> Response:
+    ) -> PageScrapper:
         if is_channel_id(name):
-            return await self.get_html(f"/channel/{name}{suffix or ''}")
-        if is_user(name):
-            return await self.get_html(f"/{name}{suffix or ''}")
-        raise ValueError(f"Cannot find homepage for: {name}")
+            resp = await self.get_html(f"/channel/{name}{suffix or ''}")
+        elif is_user(name):
+            resp = await self.get_html(f"/{name}{suffix or ''}")
+        else:
+            raise ValueError(f"Cannot find homepage for: {name}")
+        return PageScrapper.from_response(resp)
+
+    async def iter_videos(
+        self, channel: str, *, delay: float = 0
+    ) -> AsyncIterator[List[VideoDescription]]:
+        homepage = await self.get_homepage(channel, suffix="/videos")
+        assert (client_data := homepage.find_client_data()) is not None
+        assert (browse_data := homepage.find_browse_data()) is not None
+        while True:
+            videos = list(browse_data.iter_videos())
+            if len(videos) > 0:
+                # yield all videos from the page
+                yield videos
+            else:
+                # could not find any video
+                break
+            if browse_data.continuation_token is None:
+                # no continuation token, stop
+                break
+            # get next page using json api
+            if delay > 0:
+                await sleep(delay)
+            browse_data = await self.get_next_page(
+                client_data,
+                browse_data.click_tracking_params,
+                browse_data.continuation_token,
+            )
+
+    async def get_next_page(
+        self,
+        client_data: Dict[str, Any],
+        click_tracking_params: str,
+        continuation_token: str,
+    ) -> BrowseData:
+        resp = await self.api_browse(
+            {
+                "context": {
+                    "clickTracking": {"clickTrackingParams": click_tracking_params},
+                    "client": client_data,
+                },
+                "continuation": continuation_token,
+            }
+        )
+        return BrowseData(resp)

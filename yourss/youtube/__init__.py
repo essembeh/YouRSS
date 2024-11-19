@@ -1,10 +1,9 @@
 from .client import YoutubeApi as YoutubeApi
 from .model import BrowseData as BrowseData
+from .model import ChannelDescription as ChannelDescription
 from .model import VideoDescription as VideoDescription
-from .model import YoutubeMetadata as YoutubeMetadata
 from .schema import Feed as Feed
 from .scrapper import PageScrapper as PageScrapper
-from .scrapper import VideoScrapper as VideoScrapper
 from .utils import is_channel_id as is_channel_id
 from .utils import is_playlist_id as is_playlist_id
 from .utils import is_user as is_user

@@ -21,7 +21,29 @@
   <script src="/static/yourss.js"></script>
 
   <main>
-    {% include "partials/channel.jinja-html" %}
+    <div class="d-flex justify-content-center align-items-center mb-4 container-sm">
+      <div class="dropdown-center w-100">
+        <button class="btn btn-outline-secondary dropdown-toggle w-100 bi bi-search" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+          Subscriptions
+        </button>
+        <ul class="dropdown-menu w-100">
+          {% for channel in channels %}
+          <li>
+            <a class="dropdown-item" href="#" hx-get="/htmx/channel/{{ channel.channel_id }}" hx-target="#yourss-content">
+              <img src="{{ channel.avatar }}" class="rounded-circle me-1" width="30" height="30">
+              {{ channel.name|escape }}
+            </a>
+          </li>
+          {% endfor %}
+        </ul>
+      </div>
+    </div>
+
+    {% include "partials/errors.jinja-html" %}
+
+    <div id="yourss-content">
+      {% include "partials/videos-container.jinja-html" %}
+    </div>
 
     {% include "partials/modal.jinja-html" %}
 

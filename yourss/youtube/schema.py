@@ -2,9 +2,12 @@ from __future__ import annotations
 
 from datetime import datetime
 from typing import List
+from urllib.parse import urlparse
 
 from pydantic import HttpUrl
 from pydantic_xml import BaseXmlModel, attr, element
+
+from yourss.youtube.utils import is_channel_id
 
 
 class AtomXmlModel(
@@ -74,13 +77,19 @@ class Feed(AtomXmlModel, tag="feed"):
         return self._find_link("alternate")
 
     @property
-    def channel_id(self) -> str | None:
-        return (
-            f"UC{self.channel_id_orig}"
-            if self.channel_id_orig is not None
-            and not self.channel_id_orig.startswith("UC")
-            else self.channel_id_orig
-        )
+    def channel_id(self) -> str:
+        if self.channel_id_orig is None:
+            out = urlparse(str(self.author.uri)).path.split("/")[-1]
+            if is_channel_id(out):
+                return out
+        else:
+            out = self.channel_id_orig
+            if is_channel_id(out):
+                return out
+            out = f"UC{out}"
+            if is_channel_id(out):
+                return out
+        raise ValueError(f"Invalid channel_id: {out}")
 
     @property
     def uid(self) -> str:

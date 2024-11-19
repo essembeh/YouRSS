@@ -1,0 +1,5 @@
+<div class="container-fluid mt-2">
+    <div class="row">
+        {% include "partials/videos.jinja-html" %}
+    </div>
+</div>

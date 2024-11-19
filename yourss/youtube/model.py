@@ -3,33 +3,22 @@ from collections import UserDict
 from dataclasses import dataclass
 from datetime import datetime
 from typing import Any, Iterator, Self
-from urllib.parse import urlparse
 
-from .utils import is_channel_id, json_first, json_iter
-
-ALLOWED_HOSTS = ["consent.youtube.com", "www.youtube.com", "youtube.com", "youtu.be"]
+from .utils import json_first, json_iter
 
 
-class YoutubeMetadata(UserDict[str, str]):
-    @property
-    def title(self) -> str:
-        return self["og:title"]
+@dataclass
+class ChannelDescription:
+    channel_id: str
+    name: str
+    avatar: str | None
+    home: str | None
 
-    @property
-    def avatar_url(self) -> str | None:
-        return self.get("og:image")
-
-    @property
-    def url(self) -> str:
-        return self["og:url"]
-
-    @property
-    def channel_id(self) -> str:
-        url = urlparse(self.url)
-        assert url.hostname in ALLOWED_HOSTS, f"Not a valid youtube url: {self.url}"
-        last_segment = url.path.split("/")[-1]
-        assert is_channel_id(last_segment), f"Invalid channel_id: {last_segment}"
-        return last_segment
+    def __post_init__(self):
+        if self.avatar is None:
+            self.avatar = f"/proxy/avatar/{self.channel_id}"
+        if self.home is None:
+            self.home = f"/proxy/home/{self.channel_id}"
 
 
 @dataclass
@@ -37,14 +26,12 @@ class VideoDescription:
     video_id: str
     title: str
     published: str | datetime
-    channel: str | None = None
-    channel_id: str | None = None
-    thumbnail: str | None = None
-    feed_uid: str | None = None
+    thumbnail: str | None
+    channel: ChannelDescription | None = None
 
     def __post_init__(self):
         if self.thumbnail is None:
-            self.thumbnail = f"https://i1.ytimg.com/vi/{self.video_id}/hqdefault.jpg"
+            self.thumbnail = f"/proxy/thumbnail/{self.video_id}"
 
 
 class BrowseData(UserDict[str, Any]):
@@ -54,7 +41,7 @@ class BrowseData(UserDict[str, Any]):
 
     def iter_videos(self, shorts: bool = False) -> Iterator[VideoDescription]:
         for item in json_iter(
-            f"$..{'videoRenderer' if not shorts else  'richItemRenderer'}", self.data
+            "$..richItemRenderer" if shorts else "$..videoRenderer", self.data
         ):
             if shorts:
                 yield VideoDescription(
@@ -72,6 +59,7 @@ class BrowseData(UserDict[str, Any]):
                     video_id=json_first("$.videoId", item, str),
                     title=json_first("$.title.runs[0].text", item, str),
                     published=json_first("$.publishedTimeText.simpleText", item, str),
+                    thumbnail=json_first("$.thumbnail.thumbnails[0].url", item, str),
                 )
 
     @property

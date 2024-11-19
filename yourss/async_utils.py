@@ -1,43 +1,59 @@
 import asyncio
-from typing import Dict, List
+from typing import Dict, List, Tuple
 
-from .youtube import (
-    Feed,
-    YoutubeApi,
-    is_channel_id,
-    is_playlist_id,
-    is_user,
-)
-from .youtube.scrapper import PageScrapper
+from .youtube import ChannelDescription, Feed, YoutubeApi, is_playlist_id
 
 
-async def _fetch_feed(name: str, *, api: YoutubeApi) -> Feed:
-    if is_playlist_id(name):
-        return await api.get_playlist_rss(name)
+async def async_fetch(
+    names: List[str], api: YoutubeApi
+) -> Tuple[Dict[str, ChannelDescription], List[Feed], List[BaseException]]:
+    async def fetch_metadata(name: str) -> ChannelDescription:
+        page = await api.get_homepage(name)
+        return page.get_metadata()
 
-    # if given id is a name, get the channel id
-    if is_user(name):
-        page = PageScrapper.from_response(await api.get_homepage(name))
-        meta = page.get_metadata()
-        name = meta.channel_id
+    channels = {}
+    feeds = []
+    errors = []
 
-    # check valid channel id
-    if not is_channel_id(name):
-        raise ValueError(f"Invalid channel id: {name}")
+    # first fetch user/channel_id metadata
+    for result in await asyncio.gather(
+        *[fetch_metadata(n) for n in names if not is_playlist_id(n)],
+        return_exceptions=True,
+    ):
+        if isinstance(result, ChannelDescription):
+            channels[result.channel_id] = result
+        else:
+            errors.append(result)
 
-    return await api.get_channel_rss(name)
+    # then fetch feeds
+    for result in await asyncio.gather(
+        *[api.get_channel_rss(n) for n in channels.keys()], return_exceptions=True
+    ):
+        if isinstance(result, Feed):
+            feeds.append(result)
+        else:
+            errors.append(result)
 
+    # fetch playlists
+    playlist_channels_id = []
+    for result in await asyncio.gather(
+        *[api.get_playlist_rss(n) for n in names if is_playlist_id(n)],
+        return_exceptions=True,
+    ):
+        if isinstance(result, Feed):
+            feeds.append(result)
+            if result.channel_id and result.channel_id not in channels:
+                playlist_channels_id.append(result.channel_id)
+        else:
+            errors.append(result)
 
-async def afetch_feeds(
-    names: List[str], *, api: YoutubeApi
-) -> Dict[str, Feed | BaseException]:
-    return {
-        name: task
-        for name, task in zip(
-            names,
-            await asyncio.gather(
-                *[_fetch_feed(name, api=api) for name in names],
-                return_exceptions=True,
-            ),
-        )
-    }
+    # fetch metadata for missing playlist channels
+    for result in await asyncio.gather(
+        *[fetch_metadata(n) for n in playlist_channels_id], return_exceptions=True
+    ):
+        if isinstance(result, ChannelDescription):
+            channels[result.channel_id] = result
+        else:
+            errors.append(result)
+
+    return channels, feeds, errors

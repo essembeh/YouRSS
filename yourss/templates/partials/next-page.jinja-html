@@ -1,6 +1,0 @@
-{% for video in videos %}
-{% if loop.last and next_page_url %}
-{% set lazy_loading_url = next_page_url %}
-{% endif %}
-{% include "partials/video.jinja-html" %}
-{% endfor %}

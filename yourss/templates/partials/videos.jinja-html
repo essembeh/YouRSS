@@ -1,0 +1,30 @@
+{% for video in videos %}
+{% if loop.last and next_page_url %}
+{% set lazy_loading_url = next_page_url %}
+{% endif %}
+<div id="yourss-video-{{ video.video_id }}" class="col-xxl-2 col-xl-3 col-lg-3 col-md-4 col-sm-6 mb-3 yourss-filterable" data-published="{{ video.published }}" {% if lazy_loading_url %} hx-get="{{ lazy_loading_url }}" hx-trigger="revealed" hx-swap="afterend" {% endif %}>
+    <div class="card h-100 shadow">
+        <img id="yourss-thumbnail-{{ video.video_id }}" class="card-img-top yourss-thumbnail yourss-link" src="{{ video.thumbnail }}" onclick="{{ config.open_primary }}('{{ video.video_id }}')" alt="{{ video.title|escape }}" />
+        <div id="yourss-player-{{ video.video_id }}" class="yourss-player-container" style="display: none"></div>
+        <div class="card-body d-flex flex-column">
+            {% if video.channel %}
+            <h5 class="card-title h5">
+                <img src="{{ video.channel.avatar }}" width="30" height="30" class="rounded-circle" />
+                <span class="fw-bold yourss-link" onclick="window.open('/c/{{ video.channel.channel_id }}')">
+                    {{ video.channel.name }}
+                </span>
+            </h5>
+            {% endif %}
+            <p class="card-text yourss-video-title">
+                {{ video.title|clean_title|escape }}
+            </p>
+            <p class="card-text mt-auto">
+                <small class="text-muted" title="{{ video.published }}">
+                    {{ video.published|date_humanize }}
+                </small>
+                <a class="bi bi-box-arrow-up-right" style="float: right" onclick="{{ config.open_secondary }}('{{ video.video_id }}')"></a>
+            </p>
+        </div>
+    </div>
+</div>
+{% endfor %}

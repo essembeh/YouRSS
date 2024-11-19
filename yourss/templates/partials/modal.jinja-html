@@ -28,3 +28,10 @@
         </div>
     </div>
 </div>
+<script>
+    $(document).ready(function () {
+        $("#yourss-modal").on("hidden.bs.modal", function (e) {
+            $("#yourss-modal").find("iframe").removeAttr("src")
+        })
+    })
+</script>

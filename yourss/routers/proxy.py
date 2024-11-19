@@ -4,7 +4,6 @@ from pydantic import PositiveInt
 from starlette.status import HTTP_404_NOT_FOUND
 
 from ..youtube import (
-    PageScrapper,
     YoutubeApi,
     is_channel_id,
     is_playlist_id,
@@ -23,9 +22,9 @@ async def rss_feed(name: UserId | ChannelId | Playlist_Id):
     feed = None
     # if a user is provided, get the channel id
     if is_user(name):
-        homepage = PageScrapper.from_response(await api.get_homepage(name))
-        meta = homepage.get_metadata()
-        name = meta.channel_id
+        homepage = await api.get_homepage(name)
+        desc = homepage.get_metadata()
+        name = desc.channel_id
 
     if is_channel_id(name):
         feed = await api.get_channel_rss(name)
@@ -43,10 +42,10 @@ async def rss_feed(name: UserId | ChannelId | Playlist_Id):
 async def avatar(name: UserId | ChannelId):
     api = YoutubeApi()
 
-    homepage = PageScrapper.from_response(await api.get_homepage(name))
-    meta = homepage.get_metadata()
+    homepage = await api.get_homepage(name)
+    desc = homepage.get_metadata()
 
-    if (url := meta.avatar_url) is None:
+    if (url := desc.avatar) is None:
         raise HTTPException(
             status_code=HTTP_404_NOT_FOUND, detail=f"Cannot find avatar for: {name}"
         )
@@ -57,10 +56,14 @@ async def avatar(name: UserId | ChannelId):
 async def home(name: UserId | ChannelId):
     api = YoutubeApi()
 
-    homepage = PageScrapper.from_response(await api.get_homepage(name))
-    meta = homepage.get_metadata()
+    homepage = await api.get_homepage(name)
+    desc = homepage.get_metadata()
 
-    return RedirectResponse(meta.url)
+    if (home := desc.home) is None:
+        raise HTTPException(
+            status_code=HTTP_404_NOT_FOUND, detail=f"Cannot find homepage for: {name}"
+        )
+    return RedirectResponse(home)
 
 
 @router.get("/thumbnail/{video_id}", response_class=RedirectResponse)

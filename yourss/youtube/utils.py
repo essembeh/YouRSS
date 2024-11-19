@@ -1,5 +1,5 @@
 import re
-from typing import Dict, Iterator, Type, TypeVar
+from typing import Any, Dict, Iterator, Type, TypeVar
 
 from jsonpath_ng import parse
 
@@ -40,3 +40,7 @@ def json_iter(path: str, payload: Dict, cls: Type[T] | None = None) -> Iterator[
 
 def json_first(path: str, payload: Dict, cls: Type[T] | None = None) -> T:
     return next(json_iter(path, payload, cls=cls))
+
+
+def filter_dict(d: Dict[str, Any], cls: Type[T]) -> Dict[str, T]:
+    return {k: v for k, v in d.items() if isinstance(v, cls)}
