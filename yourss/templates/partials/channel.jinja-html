@@ -22,16 +22,16 @@
 
 <ul class="nav nav-tabs justify-content-center">
   <li class="nav-item">
-    <a class="nav-link active" data-bs-toggle="tab" hx-get="/htmx/rss/{{ channel.channel_id }}" hx-target="#tab-content" hx-swap="innerHTML" hx-indicator="#spinner">Recent</a>
+    <a class="nav-link active yourss-link" data-bs-toggle="tab" hx-get="/htmx/rss/{{ channel.channel_id }}" hx-target="#tab-content" hx-swap="innerHTML" hx-indicator="#spinner">Recent</a>
   </li>
   <li class="nav-item">
-    <a class="nav-link" data-bs-toggle="tab" hx-get="/htmx/videos/{{ channel.channel_id }}" hx-target="#tab-content" hx-swap="innerHTML" hx-indicator="#spinner">Videos</a>
+    <a class="nav-link yourss-link" data-bs-toggle="tab" hx-get="/htmx/videos/{{ channel.channel_id }}" hx-target="#tab-content" hx-swap="innerHTML" hx-indicator="#spinner">Videos</a>
   </li>
   <li class="nav-item">
-    <a class="nav-link" data-bs-toggle="tab" hx-get="/htmx/shorts/{{ channel.channel_id }}" hx-target="#tab-content" hx-swap="innerHTML" hx-indicator="#spinner">Shorts</a>
+    <a class="nav-link yourss-link" data-bs-toggle="tab" hx-get="/htmx/shorts/{{ channel.channel_id }}" hx-target="#tab-content" hx-swap="innerHTML" hx-indicator="#spinner">Shorts</a>
   </li>
   <li class="nav-item">
-    <a class="nav-link" data-bs-toggle="tab" hx-get="/htmx/streams/{{ channel.channel_id }}" hx-target="#tab-content" hx-swap="innerHTML" hx-indicator="#spinner">Streams</a>
+    <a class="nav-link yourss-link" data-bs-toggle="tab" hx-get="/htmx/streams/{{ channel.channel_id }}" hx-target="#tab-content" hx-swap="innerHTML" hx-indicator="#spinner">Streams</a>
   </li>
 </ul>
 
