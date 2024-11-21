@@ -44,3 +44,7 @@ def json_first(path: str, payload: Dict, cls: Type[T] | None = None) -> T:
 
 def filter_dict(d: Dict[str, Any], cls: Type[T]) -> Dict[str, T]:
     return {k: v for k, v in d.items() if isinstance(v, cls)}
+
+
+def simple_url(url: str) -> str:
+    return url.split("?", 1)[0]

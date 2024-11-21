@@ -4,7 +4,7 @@ from dataclasses import dataclass
 from datetime import datetime
 from typing import Any, Iterator, Self
 
-from .utils import json_first, json_iter
+from .utils import json_first, json_iter, simple_url
 
 
 @dataclass
@@ -50,8 +50,8 @@ class BrowseData(UserDict[str, Any]):
                     ),
                     title=json_first("$.content..primaryText.content", item, str),
                     published=json_first("$.content..secondaryText.content", item, str),
-                    thumbnail=json_first(
-                        "$.content..thumbnail.sources[0].url", item, str
+                    thumbnail=simple_url(
+                        json_first("$.content..thumbnail.sources[0].url", item, str)
                     ),
                 )
             else:
@@ -59,7 +59,9 @@ class BrowseData(UserDict[str, Any]):
                     video_id=json_first("$.videoId", item, str),
                     title=json_first("$.title.runs[0].text", item, str),
                     published=json_first("$.publishedTimeText.simpleText", item, str),
-                    thumbnail=json_first("$.thumbnail.thumbnails[0].url", item, str),
+                    thumbnail=simple_url(
+                        json_first("$.thumbnail.thumbnails[0].url", item, str)
+                    ),
                 )
 
     @property
