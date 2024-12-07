@@ -114,7 +114,7 @@ To configure users:
 
 > Note: replace `yourss.local` with the URL of your *YouRSS* instance.
 
-# Extenal links
+# External links
 
 Special thanks to the amazing python frameworks: [FastAPI](https://fastapi.tiangolo.com/), [asyncio](https://docs.python.org/fr/3/library/asyncio.html), [httpx](https://www.python-httpx.org/) and [Pydantic](https://docs.pydantic.dev/) ♥️
 
