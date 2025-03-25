@@ -1,8 +1,6 @@
-from http.cookiejar import CookieJar
-
 import pytest
 from bs4 import BeautifulSoup
-from httpx import AsyncClient, get
+from httpx import get
 
 from yourss.youtube import YoutubeApi
 
@@ -62,7 +60,7 @@ async def test_rss_playlist():
 
 @pytest.mark.asyncio(loop_scope="module")
 async def test_metadata_channel():
-    api = YoutubeApi(AsyncClient(cookies=CookieJar()))
+    api = YoutubeApi()
 
     page = await api.get_homepage("UCVooVnzQxPSTXTMzSi1s6uw")
     channel = page.get_metadata()
@@ -74,7 +72,7 @@ async def test_metadata_channel():
 
 @pytest.mark.asyncio(loop_scope="module")
 async def test_metadata_user():
-    api = YoutubeApi(AsyncClient(cookies=CookieJar()))
+    api = YoutubeApi()
 
     page = await api.get_homepage("@jonnygiger")
     channel = page.get_metadata()

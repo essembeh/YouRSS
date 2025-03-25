@@ -1,11 +1,8 @@
 from asyncio import sleep
-from dataclasses import dataclass
 from typing import Annotated, Any, AsyncIterator, Dict, List, Literal
 
-from pydantic import TypeAdapter
-from rapid_api_client import Path, Query
-from rapid_api_client.annotations import JsonBody
-from rapid_api_client.async_ import AsyncRapidApi, get, post
+from httpx import Cookies
+from rapid_api_client import JsonBody, Path, Query, RapidApi, get, post, rapid
 
 from .model import BrowseData, VideoDescription
 from .schema import Feed
@@ -21,28 +18,32 @@ MOZILLA_USER_AGENT = (
 )
 
 
-@dataclass
-class YoutubeApi(AsyncRapidApi):
-    def __post_init__(self):
-        self.client.base_url = BASE_URL
-        self.client.follow_redirects = True
-        self.client.headers["user-agent"] = MOZILLA_USER_AGENT
-        self.client.headers["accept-language"] = "en"
-        self.client.cookies.set("CONSENT", "YES+cb", domain=".youtube.com")
+def _youtube_cookies() -> Cookies:
+    out = Cookies()
+    out.set("CONSENT", "YES+cb", domain=".youtube.com")
+    return out
 
-    @get("/feeds/videos.xml?channel_id={channel_id}", response_class=Feed)
-    async def get_channel_rss(self, channel_id: Annotated[str, Path()]): ...
 
-    @get("/feeds/videos.xml?playlist_id={playlist_id}", response_class=Feed)
-    async def get_playlist_rss(self, playlist_id: Annotated[str, Path()]): ...
+@rapid(
+    base_url=BASE_URL,
+    headers={"user-agent": MOZILLA_USER_AGENT, "accept-language": "en"},
+    follow_redirects=True,
+    cookies=_youtube_cookies(),
+)
+class YoutubeApi(RapidApi):
+    @get("/feeds/videos.xml")
+    async def get_channel_rss(self, channel_id: Annotated[str, Query()]) -> Feed: ...
+
+    @get("/feeds/videos.xml")
+    async def get_playlist_rss(self, playlist_id: Annotated[str, Query()]) -> Feed: ...
 
     @get("{path}")
     async def get_html(
         self, path: Annotated[str, Path()], ucbcb: Annotated[int, Query(default=1)]
     ): ...
 
-    @post("/youtubei/v1/browse", response_class=TypeAdapter(Dict[str, Any]))
-    async def api_browse(self, data: Annotated[dict, JsonBody()]): ...
+    @post("/youtubei/v1/browse")
+    async def api_browse(self, data: Annotated[dict, JsonBody()]) -> Dict[str, Any]: ...
 
     async def get_homepage(
         self, name: str, suffix: Literal["/videos", "/shorts", "/streams"] | None = None

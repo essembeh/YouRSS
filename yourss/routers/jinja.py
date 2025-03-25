@@ -33,8 +33,9 @@ TemplateResponse = jinja.TemplateResponse
 
 def template_page(request: Request, template_name: str, **kwargs) -> _TemplateResponse:
     return jinja.TemplateResponse(
+        request,
         template_name,
-        {
+        context={
             "request": request,
             "version": yourss.__version__,
             "config": current_config,
