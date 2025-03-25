@@ -5,6 +5,7 @@
 FROM python:3.12 as builder
 
 RUN pip3 install poetry
+RUN poetry self add poetry-plugin-export
 ADD . /app
 WORKDIR /app
 RUN poetry build
