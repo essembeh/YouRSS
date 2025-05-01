@@ -24,9 +24,7 @@ async def root():
 
 @router.get("/watch", response_class=RedirectResponse)
 async def watch(video: str = Query(alias="v", min_length=11, max_length=11)):
-    return RedirectResponse(
-        f"https://www.youtube-nocookie.com/embed/{video}?autoplay=1&control=2&rel=0"
-    )
+    return RedirectResponse(current_config.get_player_url(video))
 
 
 @router.get("/user/{username}", response_class=HTMLResponse)

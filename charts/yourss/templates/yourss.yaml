@@ -53,6 +53,10 @@ spec:
               value: "{{ .Values.yourss.openPrimary }}"
             - name: YOURSS_OPEN_SECONDARY
               value: "{{ .Values.yourss.openSecondary }}"
+            {{- if .Values.yourss.playerUrl }}
+            - name: YOURSS_PLAYER_URL
+              value: "{{ .Values.yourss.playerUrl }}"
+            {{- end }}
           ports:
             - name: http
               containerPort: 8000

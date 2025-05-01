@@ -30,15 +30,11 @@ function closeAllPlayers() {
   })
 }
 
-function getVideoPlayerUrl(videoId) {
-  return `https://www.youtube-nocookie.com/embed/${videoId}?autoplay=1&control=2&rel=0`
-}
-
 function openEmbedded(videoId) {
   closeAllPlayers()
 
   let height = $(`#yourss-thumbnail-${videoId}`).height()
-  let videoUrl = getVideoPlayerUrl(videoId)
+  let videoUrl = `/watch?v=${videoId}`
 
   $(`#yourss-thumbnail-${videoId}`).css("display", "none")
   $(`#yourss-player-${videoId}`).css("display", "block")
@@ -46,12 +42,12 @@ function openEmbedded(videoId) {
     <iframe src="${videoUrl}"
             width="100%" height="${height}"
             allow="autoplay; encrypted-media; picture-in-picture" 
-            allowfullscreen=""frameborder="0"></iframe>`)
+            allowfullscreen="" frameborder="0"></iframe>`)
 }
 
 function openTab(videoId) {
   closeAllPlayers()
-  let videoUrl = getVideoPlayerUrl(videoId)
+  let videoUrl = `/watch?v=${videoId}`
   window.open(videoUrl, "_blank")
 }
 
@@ -60,7 +56,7 @@ function openModal(videoId) {
 
   let videoDiv = $(`#yourss-video-${videoId}`)
   let channelId = videoDiv.data("channel-id")
-  let videoUrl = getVideoPlayerUrl(videoId)
+  let videoUrl = `/watch?v=${videoId}`
 
   $("#yourss-modal").find("iframe").attr("src", videoUrl)
   $("#yourss-modal-video-title").html(videoDiv.find(".yourss-video-title").html())

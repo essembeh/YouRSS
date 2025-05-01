@@ -25,14 +25,15 @@ class Theme(Enum):
 class AppSettings(BaseSettings):
     model_config = SettingsConfigDict(env_prefix="YOURSS_")
     default_channels: str = "@JonnyGiger"
-    redis_url: str | None = None
-    ttl_metadata: int = 24 * 3600
-    ttl_rss: int = 1 * 3600
     clean_titles: bool = False
     theme: Theme = Theme.LIGHT
     open_primary: OpenAction = OpenAction.MODAL
     open_secondary: OpenAction = OpenAction.TAB
     users_file: Path | None = None
+    player_url: str = r"https://www.youtube-nocookie.com/embed/{video_id}?autoplay=1"
+
+    def get_player_url(self, video_id: str) -> str:
+        return self.player_url.format(video_id=video_id)
 
 
 class PasswordMethod(Enum):

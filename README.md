@@ -83,12 +83,15 @@ Then visit [http://localhost:8000/](http://localhost:8000/)
 
 *YouRSS* can be configured using environment variables.
 
-- `YOURSS_DEFAULT_CHANNELS`: defines the default channels to display
-- `YOURSS_CLEAN_TITLES`: if set to `true`, videos titles are cleaned to prevent UPPERCASE TITLES 
-- `YOURSS_THEME`: choose between `dark` and `light` Bootstrap themes (default is `light`)
-- `YOURSS_OPEN_PRIMARY`: choose the action when you click on a thumbnail, can be `openEmbedded`, `openTab` or `openModal`, default is `openModal`
-- `YOURSS_OPEN_SECONDARY`: choose the action when you click on the bottom right icon, can be `openEmbedded`, `openTab` or `openModal`, default is `openTab`
-- `LOGURU_LEVEL` for logging level
+| VARIABLE | DEFAULT | DESCRIPTION |
+|----------|---------|-------------|
+| YOURSS_DEFAULT_CHANNELS | `@JonnyGiger` | Defines the default channels to display, you can set multiple channels using `,` as separator |
+| YOURSS_CLEAN_TITLES | `False` | If set to `true`, videos titles are cleaned to prevent UPPERCASE TITLES |
+| YOURSS_THEME | `light` | Choose between `dark` and `light` Bootstrap themes |
+| YOURSS_OPEN_PRIMARY | `openModal` | Choose the action when you click on a thumbnail, can be `openEmbedded`, `openTab` or `openModal` |
+| YOURSS_OPEN_SECONDARY | `openTab` | Choose the action when you click on the bottom right icon, can be `openEmbedded`, `openTab` or `openModal` |
+| YOURSS_USERS_FILE |  | You can declare user pages in a dedicated file |
+| YOURSS_PLAYER_URL | `https://www.youtube-nocookie.com/embed/{video_id}?autoplay=1` | The player URL, an URL containing {video_id} as a placeholder for the video ID |
 
 > Note: channels can be Youtube username (like `@JonnyGiger`) or directly a *channel_id* (24 alnum chars) like `UCa_Dlwrwv3ktrhCy91HpVRw`, to provide a list, use a coma between channels
 
