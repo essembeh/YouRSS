@@ -29,6 +29,9 @@
 
     <a id="scroll-to-top" title="Back to top" href="#">&#10148;</a>
   </main>
+  <script>
+    var userLang = new URLSearchParams(window.location.search).get('lang') || '{{ lang }}';
+  </script>
 </body>
 
 </html>

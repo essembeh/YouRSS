@@ -16,6 +16,7 @@ users:
       - "@jonnygiger"
       - "@berrics"
   - name: bob
+    lang: en
     theme: dark
     password:
       method: clear
@@ -24,6 +25,9 @@ users:
       - "@jonnygiger"
       - "@berrics"
   - name: demo
+    lang: en
     channels:
       - "@jonnygiger"
       - "@berrics"
+      - "@CardMagicByJason"
+      - UCusqjyLtS_hrcnfF98QbG2A

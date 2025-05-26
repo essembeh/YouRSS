@@ -12,7 +12,7 @@ from .jinja import (
 from .schema import ChannelId, UserId
 from .utils import next_page_url
 
-router = APIRouter()
+router = APIRouter(prefix="/htmx")
 
 
 @router.get("/channel/{channel}", response_class=HTMLResponse)

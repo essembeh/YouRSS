@@ -34,7 +34,7 @@ function openEmbedded(videoId) {
   closeAllPlayers()
 
   let height = $(`#yourss-thumbnail-${videoId}`).height()
-  let videoUrl = `/watch?v=${videoId}`
+  let videoUrl = `/proxy/player/${videoId}?lang=${userLang}`
 
   $(`#yourss-thumbnail-${videoId}`).css("display", "none")
   $(`#yourss-player-${videoId}`).css("display", "block")
@@ -47,7 +47,7 @@ function openEmbedded(videoId) {
 
 function openTab(videoId) {
   closeAllPlayers()
-  let videoUrl = `/watch?v=${videoId}`
+  let videoUrl = `/proxy/player/${videoId}?lang=${userLang}`
   window.open(videoUrl, "_blank")
 }
 
@@ -56,7 +56,7 @@ function openModal(videoId) {
 
   let videoDiv = $(`#yourss-video-${videoId}`)
   let channelId = videoDiv.data("channel-id")
-  let videoUrl = `/watch?v=${videoId}`
+  let videoUrl = `/proxy/player/${videoId}?lang=${userLang}`
 
   $("#yourss-modal").find("iframe").attr("src", videoUrl)
   $("#yourss-modal-video-title").html(videoDiv.find(".yourss-video-title").html())

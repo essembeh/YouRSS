@@ -1,7 +1,8 @@
 from enum import Enum
 from pathlib import Path
+from typing import Optional
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -29,11 +30,8 @@ class AppSettings(BaseSettings):
     theme: Theme = Theme.LIGHT
     open_primary: OpenAction = OpenAction.MODAL
     open_secondary: OpenAction = OpenAction.TAB
-    users_file: Path | None = None
-    player_url: str = r"https://www.youtube-nocookie.com/embed/{video_id}?autoplay=1"
-
-    def get_player_url(self, video_id: str) -> str:
-        return self.player_url.format(video_id=video_id)
+    users_file: Optional[Path] = None
+    player_nocookie: bool = True
 
 
 class PasswordMethod(Enum):
@@ -48,10 +46,11 @@ class Password(BaseModel):
 
 class User(BaseModel):
     name: str
-    password: Password | None = None
-    channels: list[str]
-    theme: Theme | None = None
+    password: Optional[Password] = None
+    channels: list[str] = Field(min_length=1)
+    theme: Optional[Theme] = None
+    lang: Optional[str] = None
 
 
 class UsersConfig(BaseModel):
-    users: list[User]
+    users: list[User] = Field(min_length=1)

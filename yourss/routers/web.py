@@ -9,6 +9,7 @@ from ..security import get_auth_user
 from ..settings import current_config
 from ..youtube import YoutubeApi
 from .jinja import template_page
+from .proxy import router as proxy_router
 from .schema import ChannelId, UserId
 from .utils import get_videos_from_feeds, parse_channel_names
 
@@ -24,7 +25,7 @@ async def root():
 
 @router.get("/watch", response_class=RedirectResponse)
 async def watch(video: str = Query(alias="v", min_length=11, max_length=11)):
-    return RedirectResponse(current_config.get_player_url(video))
+    return RedirectResponse(proxy_router.url_path_for("player", video_id=video))
 
 
 @router.get("/user/{username}", response_class=HTMLResponse)
@@ -41,6 +42,7 @@ async def user(request: Request, user: User = Depends(get_auth_user)):
         videos=videos,
         errors=errors,
         theme=user.theme,
+        lang=user.lang,
     )
 
 

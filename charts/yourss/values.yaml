@@ -16,14 +16,13 @@ yourss:
   # open actions can be: openModal, openTab or openEmbedded
   openPrimary: openModal
   openSecondary: openTab
-  # The player URL with {video_id} as a placeholder
-  # See Youtube documentation: https://developers.google.com/youtube/player_parameters
-  # playerUrl: "https://www.youtube.com/embed/{video_id}?autoplay=1"
   defaultChannels:
     - "@jonnygiger"
   users:
     []
     # - name: alice
+    #   # Optional: to force a lang in the youtube player
+    #   lang: fr
     #   # password is optional
     #   password:
     #     # supported methods are

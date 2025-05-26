@@ -91,7 +91,6 @@ Then visit [http://localhost:8000/](http://localhost:8000/)
 | YOURSS_OPEN_PRIMARY | `openModal` | Choose the action when you click on a thumbnail, can be `openEmbedded`, `openTab` or `openModal` |
 | YOURSS_OPEN_SECONDARY | `openTab` | Choose the action when you click on the bottom right icon, can be `openEmbedded`, `openTab` or `openModal` |
 | YOURSS_USERS_FILE |  | You can declare user pages in a dedicated file |
-| YOURSS_PLAYER_URL | `https://www.youtube-nocookie.com/embed/{video_id}?autoplay=1` | The player URL, an URL containing {video_id} as a placeholder for the video ID |
 
 > Note: channels can be Youtube username (like `@JonnyGiger`) or directly a *channel_id* (24 alnum chars) like `UCa_Dlwrwv3ktrhCy91HpVRw`, to provide a list, use a coma between channels
 

@@ -15,9 +15,7 @@ async def test_watch(client):
     resp = await client.get("/watch?v=q5IMA244HXw")
     assert resp.status_code == 307
 
-    from yourss.settings import current_config
-
-    assert resp.headers["Location"] == current_config.get_player_url("q5IMA244HXw")
+    assert resp.headers["Location"] == "/proxy/player/q5IMA244HXw"
 
 
 @pytest.mark.anyio
