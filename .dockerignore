@@ -1,0 +1,32 @@
+# Python
+__pycache__/
+*.py[cod]
+build/
+dist/
+
+# Tools
+.env
+.venv/
+.python-version
+
+# Tests and coverage
+.coverage
+.pytest_cache/
+.coverage.*
+coverage.xml
+
+# IDE
+.vscode/
+
+# Docker
+Dockerfile*
+.dockerignore
+docker-compose*.yml
+
+# Git
+.git
+.gitignore
+
+# CI/CD
+.github/
+.gitlab-ci.yml

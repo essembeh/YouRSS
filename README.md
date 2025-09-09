@@ -31,13 +31,13 @@ I simply wrote a minimal RSS client webapp for web browsers.
 
 ## From the source
 
-First, you need [Poetry](https://python-poetry.org/), see [installation documentation](https://python-poetry.org/docs/#installation):
+First, you need [uv](https://docs.astral.sh/uv/), see [installation documentation](https://docs.astral.sh/uv/getting-started/installation/):
 
 ```sh
 $ git clone https://github.com/essembeh/YouRSS
 $ cd YouRSS
-$ poetry install
-$ poetry run -- dotenv run fastapi dev yourss/main.py
+$ uv sync
+$ uv run -- dotenv run fastapi dev yourss/main.py
 
 # or if you use just
 $ just run
