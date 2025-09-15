@@ -21,6 +21,8 @@
   <script src="/static/yourss.js"></script>
 
   <main>
+    {% include "partials/lang-selector.jinja-html" %}
+    
     <div class="d-flex justify-content-center align-items-center mb-4 container-sm">
       <div class="dropdown-center w-100">
         <button class="btn btn-outline-secondary dropdown-toggle w-100 bi bi-search" type="button" data-bs-toggle="dropdown" aria-expanded="false">

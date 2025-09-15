@@ -42,7 +42,6 @@ async def user(request: Request, user: User = Depends(get_auth_user)):
         videos=videos,
         errors=errors,
         theme=user.theme,
-        lang=user.lang,
     )
 
 

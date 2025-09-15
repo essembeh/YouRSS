@@ -8,5 +8,5 @@ from .schema import AppSettings
 templates_folder = Path(app_root).parent / "templates"
 static_folder = Path(app_root).parent / "static"
 
-current_config = AppSettings()
+current_config = AppSettings.model_validate({})
 logger.debug("Loaded configuration: {}", current_config)

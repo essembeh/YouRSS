@@ -21,6 +21,8 @@
   <script src="/static/yourss.js"></script>
 
   <main>
+    {% include "partials/lang-selector.jinja-html" %}
+    
     {% include "partials/channel.jinja-html" %}
 
     {% include "partials/modal.jinja-html" %}

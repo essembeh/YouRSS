@@ -26,6 +26,7 @@ I simply wrote a minimal RSS client webapp for web browsers.
   - open a modal dialog with the player (default)
   - the player will replace the thumbnail
   - open a new tab with the video
+- language selector widget appears when custom languages are configured
 
 # Install
 
@@ -90,6 +91,7 @@ Then visit [http://localhost:8000/](http://localhost:8000/)
 | YOURSS_THEME | `light` | Choose between `dark` and `light` Bootstrap themes |
 | YOURSS_OPEN_PRIMARY | `openModal` | Choose the action when you click on a thumbnail, can be `openEmbedded`, `openTab` or `openModal` |
 | YOURSS_OPEN_SECONDARY | `openTab` | Choose the action when you click on the bottom right icon, can be `openEmbedded`, `openTab` or `openModal` |
+| YOURSS_CUSTOM_LANG |  | Space-separated list of language codes to enable the language selector widget (e.g., `FR EN ES`) |
 | YOURSS_USERS_FILE |  | You can declare user pages in a dedicated file |
 
 > Note: channels can be Youtube username (like `@JonnyGiger`) or directly a *channel_id* (24 alnum chars) like `UCa_Dlwrwv3ktrhCy91HpVRw`, to provide a list, use a coma between channels

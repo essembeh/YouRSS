@@ -16,13 +16,14 @@ yourss:
   # open actions can be: openModal, openTab or openEmbedded
   openPrimary: openModal
   openSecondary: openTab
+  # Space-separated list of language codes to enable the language selector widget
+  # Example: customLang: "FR EN ES"
+  customLang: ""
   defaultChannels:
     - "@jonnygiger"
   users:
     []
     # - name: alice
-    #   # Optional: to force a lang in the youtube player
-    #   lang: fr
     #   # password is optional
     #   password:
     #     # supported methods are
