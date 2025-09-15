@@ -12,7 +12,7 @@ release bump="patch":
     uv version --bump "{{bump}}"
     VERSION=`uv version --short` yq e '.version = strenv(VERSION)'    -i charts/yourss/Chart.yaml
     VERSION=`uv version --short` yq e '.appVersion = strenv(VERSION)' -i charts/yourss/Chart.yaml
-    git add pyproject.toml charts/yourss/Chart.yaml
+    git add pyproject.toml uv.lock charts/yourss/Chart.yaml
     git commit --message "🔖 New release: `uv version --short`"
     git tag "`uv version --short`"
 
