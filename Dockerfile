@@ -1,7 +1,7 @@
 #########################################
 ## Stage: base
 ##
-FROM python:3-slim as base
+FROM python:3.12-slim as base
 
 # Create dedicated user
 RUN groupadd -r app && useradd -r -d /app -g app -N app
