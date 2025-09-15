@@ -1,5 +1,5 @@
 /**
- * Scroll to top
+ * Scroll to top and auto-close embedded players
  */
 $(window).scroll(function () {
   let height = $(window).scrollTop()
@@ -8,6 +8,21 @@ $(window).scroll(function () {
   } else {
     $("#scroll-to-top").fadeOut()
   }
+  
+  // Auto-close embedded players when scrolled out of view
+  $(".yourss-player-container:visible").each(function () {
+    let playerElement = $(this)
+    let elementTop = playerElement.offset().top
+    let elementBottom = elementTop + playerElement.outerHeight()
+    let viewportTop = $(window).scrollTop()
+    let viewportBottom = viewportTop + $(window).height()
+    
+    // Check if player is completely out of viewport
+    if (elementBottom < viewportTop || elementTop > viewportBottom) {
+      closeAllPlayers()
+      return false // Exit the loop since all players are closed
+    }
+  })
 })
 $(document).ready(function () {
   $("#scroll-to-top").click(function (event) {
