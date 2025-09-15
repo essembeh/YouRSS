@@ -1,6 +1,6 @@
 [project]
 name = "yourss"
-version = "0.16.0"
+version = "0.16.1"
 description = "Simple Youtube browser based on RSS feeds"
 homepage = "https://github.com/essembeh/yourss"
 readme = "README.md"
