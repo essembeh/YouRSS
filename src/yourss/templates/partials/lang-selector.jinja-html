@@ -1,21 +1,10 @@
 {% if config.custom_langs %}
-<div class="dropdown position-fixed" style="top: 15px; right: 15px; z-index: 1030;">
-  <button class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" title="Change language">
-    <i class="bi bi-globe"></i>
-  </button>
-  <ul class="dropdown-menu dropdown-menu-end">
-    <li>
-      <a class="dropdown-item{% if not lang %} active{% endif %}" href="?">
-        <i class="bi bi-x-circle"></i> No language
-      </a>
-    </li>
+<div class="position-fixed" style="top: 15px; right: 15px; z-index: 1030;">
+  <select id="yourss-lang-selector" class="form-select form-select-sm" title="Change language" style="filter: grayscale(1);">
+    <option value="">🌐</option>
     {% for language in config.custom_langs %}
-    <li>
-      <a class="dropdown-item{% if lang == language %} active{% endif %}" href="?lang={{ language }}">
-        {{ language|upper }}
-      </a>
-    </li>
+    <option value="{{ language }}"{% if lang == language %} selected{% endif %}>{{ language|upper }}</option>
     {% endfor %}
-  </ul>
+  </select>
 </div>
 {% endif %}

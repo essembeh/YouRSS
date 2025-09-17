@@ -49,7 +49,11 @@ function openEmbedded(videoId) {
   closeAllPlayers()
 
   let height = $(`#yourss-thumbnail-${videoId}`).height()
-  let videoUrl = `/proxy/player/${videoId}?lang=${userLang}`
+  let selectedLang = $("#yourss-lang-selector").val() || ''
+  let videoUrl = `/proxy/player/${videoId}`
+  if (selectedLang) {
+    videoUrl += `?lang=${selectedLang}`
+  }
 
   $(`#yourss-thumbnail-${videoId}`).css("display", "none")
   $(`#yourss-player-${videoId}`).css("display", "block")
@@ -62,7 +66,11 @@ function openEmbedded(videoId) {
 
 function openTab(videoId) {
   closeAllPlayers()
-  let videoUrl = `/proxy/player/${videoId}?lang=${userLang}`
+  let selectedLang = $("#yourss-lang-selector").val() || ''
+  let videoUrl = `/proxy/player/${videoId}`
+  if (selectedLang) {
+    videoUrl += `?lang=${selectedLang}`
+  }
   window.open(videoUrl, "_blank")
 }
 
@@ -71,7 +79,11 @@ function openModal(videoId) {
 
   let videoDiv = $(`#yourss-video-${videoId}`)
   let channelId = videoDiv.data("channel-id")
-  let videoUrl = `/proxy/player/${videoId}?lang=${userLang}`
+  let selectedLang = $("#yourss-lang-selector").val() || ''
+  let videoUrl = `/proxy/player/${videoId}`
+  if (selectedLang) {
+    videoUrl += `?lang=${selectedLang}`
+  }
 
   $("#yourss-modal").find("iframe").attr("src", videoUrl)
   $("#yourss-modal-video-title").html(videoDiv.find(".yourss-video-title").html())
