@@ -1,7 +1,7 @@
 from asyncio import sleep
 from typing import Annotated, Any, AsyncIterator, Dict, List, Literal
 
-from httpx import Cookies
+from httpx import Cookies, Response
 from rapid_api_client import JsonBody, Path, Query, RapidApi, get, post, rapid
 
 from .model import BrowseData, VideoDescription
@@ -39,8 +39,8 @@ class YoutubeApi(RapidApi):
 
     @get("{path}")
     async def get_html(
-        self, path: Annotated[str, Path()], ucbcb: Annotated[int, Query(default=1)]
-    ): ...
+        self, path: Annotated[str, Path()], ucbcb: Annotated[int, Query()] = 1
+    ) -> Response: ...
 
     @post("/youtubei/v1/browse")
     async def api_browse(self, data: Annotated[dict, JsonBody()]) -> Dict[str, Any]: ...
