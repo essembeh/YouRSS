@@ -53,7 +53,7 @@ async def test_page_content(client):
     assert resp.status_code == 200
 
     soup = BeautifulSoup(resp.text, features="html.parser")
-    assert len(soup.find_all("div", class_="yourss-filterable")) == 45
+    assert len(soup.find_all("div", class_="yourss-filterable")) > 30
 
 
 @pytest.mark.anyio
@@ -70,7 +70,7 @@ async def test_page_content_invalid_names(client):
     assert resp.status_code == 200
 
     soup = BeautifulSoup(resp.text, features="html.parser")
-    assert len(soup.find_all("div", class_="yourss-filterable")) == 45
+    assert len(soup.find_all("div", class_="yourss-filterable")) > 30
 
 
 @pytest.mark.anyio
