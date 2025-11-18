@@ -30,6 +30,11 @@ $(document).ready(function () {
     $("html, body").animate({ scrollTop: 0 }, "slow")
     return false
   })
+
+  // Close all players when language changes
+  $("#yourss-lang-selector").change(function () {
+    closeAllPlayers()
+  })
 })
 
 /**
