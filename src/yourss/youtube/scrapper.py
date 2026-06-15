@@ -11,7 +11,7 @@ from .model import (
     BrowseData,
     ChannelDescription,
 )
-from .utils import is_channel_id, json_first
+from .utils import find_path, is_channel_id
 
 YTCFG_PATTERN = r"ytcfg\.set\((?P<json>(?:\"[^\"]*\"|'[^']*'|[^()])*)\)"
 YTINITIALDATA_PATTERN = r"ytInitialData = (?P<json>{.*?});"
@@ -63,4 +63,4 @@ class PageScrapper:
                 and (m := re.search(YTCFG_PATTERN, script, re.DOTALL)) is not None
             ):
                 payload = json.loads(m.group("json"))
-                return json_first("$.INNERTUBE_CONTEXT.client", payload)
+                return find_path("INNERTUBE_CONTEXT.client", payload)

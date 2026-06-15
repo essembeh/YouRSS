@@ -1,7 +1,7 @@
 import re
 from typing import Any, Dict, Iterator, Type, TypeVar
 
-from jsonpath_ng import parse
+from glom import Path, PathAccessError, glom
 
 T = TypeVar("T")
 
@@ -31,15 +31,39 @@ def is_user(text: str) -> bool:
     return bool(re.fullmatch(USER_PATTERN, text, flags=re.IGNORECASE))
 
 
-def json_iter(path: str, payload: Dict, cls: Type[T] | None = None) -> Iterator[T]:
-    for match in parse(path).find(payload):
-        out = match.value
-        if out is not None and (cls is None or isinstance(out, cls)):
-            yield out
+def iter_key(
+    key: str, payload: Any, cls: Type[T] | None = None
+) -> Iterator[T]:
+    """
+    Recursively yield every value stored under ``key`` anywhere in ``payload``
+    (the equivalent of a ``$..key`` jsonpath descent), optionally filtered by
+    type. Traversal is depth-first; a matching value is yielded before its own
+    children are explored.
+    """
+    if isinstance(payload, dict):
+        for k, value in payload.items():
+            if k == key and value is not None and (cls is None or isinstance(value, cls)):
+                yield value
+            yield from iter_key(key, value, cls)
+    elif isinstance(payload, list):
+        for item in payload:
+            yield from iter_key(key, item, cls)
 
 
-def json_first(path: str, payload: Dict, cls: Type[T] | None = None) -> T:
-    return next(json_iter(path, payload, cls=cls))
+def find_key(key: str, payload: Any, cls: Type[T] | None = None) -> T | None:
+    """First value found under ``key`` anywhere in ``payload``, else ``None``."""
+    return next(iter_key(key, payload, cls), None)
+
+
+def find_path(path: str, payload: Any, default: Any = None) -> Any:
+    """
+    Read a fixed dotted ``path`` (e.g. ``"a.b.c"``) from ``payload`` via glom,
+    returning ``default`` when any segment is missing.
+    """
+    try:
+        return glom(payload, Path(*path.split(".")))
+    except PathAccessError:
+        return default
 
 
 def filter_dict(d: Dict[str, Any], cls: Type[T]) -> Dict[str, T]:

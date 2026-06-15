@@ -2,6 +2,7 @@ from .client import YoutubeApi as YoutubeApi
 from .model import BrowseData as BrowseData
 from .model import ChannelDescription as ChannelDescription
 from .model import VideoDescription as VideoDescription
+from .parser import ScrapingError as ScrapingError
 from .schema import Feed as Feed
 from .scrapper import PageScrapper as PageScrapper
 from .utils import is_channel_id as is_channel_id

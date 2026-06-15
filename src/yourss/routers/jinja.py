@@ -16,7 +16,9 @@ def clean_title(text: str) -> str:
     return text
 
 
-def date_humanize(date: datetime | str) -> str:
+def date_humanize(date: datetime | str | None) -> str:
+    if date is None:
+        return ""
     if isinstance(date, str):
         return date
     return arrow.get(date).humanize()
