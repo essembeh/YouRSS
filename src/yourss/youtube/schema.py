@@ -6,12 +6,14 @@ from urllib.parse import urlparse
 
 from pydantic import HttpUrl
 from pydantic_xml import BaseXmlModel, attr, element
+from rapid_api_client import ResponseModel
 
 from yourss.youtube.utils import is_channel_id
 
 
 class AtomXmlModel(
     BaseXmlModel,
+    ResponseModel,
     nsmap={
         "": "http://www.w3.org/2005/Atom",
         "yt": "http://www.youtube.com/xml/schemas/2015",

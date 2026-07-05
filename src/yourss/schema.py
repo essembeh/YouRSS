@@ -1,3 +1,4 @@
+from datetime import timedelta
 from enum import Enum
 from pathlib import Path
 from typing import List, Optional
@@ -33,6 +34,8 @@ class AppSettings(BaseSettings):
     users_file: Optional[Path] = None
     player_nocookie: bool = True
     custom_lang: Optional[str] = None
+    cache_folder: Optional[Path] = None
+    cache_max_age: timedelta = timedelta(hours=24)
 
     @property
     def custom_langs(self) -> Optional[List[str]]:

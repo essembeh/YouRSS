@@ -314,7 +314,9 @@ def test_parser_legacy_shorts_fallback():
                         "primaryText": {"content": "Old short"},
                         "secondaryText": {"content": "10K views"},
                     },
-                    "thumbnail": {"sources": [{"url": "https://i.ytimg.com/s.jpg?a=1"}]},
+                    "thumbnail": {
+                        "sources": [{"url": "https://i.ytimg.com/s.jpg?a=1"}]
+                    },
                 }
             }
         }
@@ -343,9 +345,7 @@ def test_parser_shorts_lockup():
                 "image": {"sources": [{"url": "https://i.ytimg.com/s.jpg?bar=2"}]}
             },
             "onTap": {
-                "innertubeCommand": {
-                    "reelWatchEndpoint": {"videoId": "abc12345678"}
-                }
+                "innertubeCommand": {"reelWatchEndpoint": {"videoId": "abc12345678"}}
             },
         }
     }

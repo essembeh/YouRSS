@@ -35,8 +35,12 @@ TemplateResponse = jinja.TemplateResponse
 
 def template_page(request: Request, template_name: str, **kwargs) -> _TemplateResponse:
     # Get language from query parameters
-    lang = request.query_params.get("lang") if request.query_params.get("lang") in (current_config.custom_langs or []) else None
-    
+    lang = (
+        request.query_params.get("lang")
+        if request.query_params.get("lang") in (current_config.custom_langs or [])
+        else None
+    )
+
     return jinja.TemplateResponse(
         request,
         template_name,

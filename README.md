@@ -93,6 +93,8 @@ Then visit [http://localhost:8000/](http://localhost:8000/)
 | YOURSS_OPEN_SECONDARY | `openTab` | Choose the action when you click on the bottom right icon, can be `openEmbedded`, `openTab` or `openModal` |
 | YOURSS_CUSTOM_LANG |  | Space-separated list of language codes to enable the language selector widget (e.g., `FR EN ES`) |
 | YOURSS_USERS_FILE |  | You can declare user pages in a dedicated file |
+| YOURSS_CACHE_FOLDER |  | If set, the last successful RSS response is stored on disk in this folder (created at startup) to survive Youtube's daily transient `404` windows. Feeds are **always** fetched live; this is a fallback, not a cache. If unset, a `404` is propagated as-is |
+| YOURSS_CACHE_MAX_AGE | `PT24H` | Max age of the fallback file served when Youtube returns a `404` (ISO-8601 duration, e.g. `PT24H`, or a number of seconds). Older files are deleted and the `404` is propagated |
 
 > Note: channels can be Youtube username (like `@JonnyGiger`) or directly a *channel_id* (24 alnum chars) like `UCa_Dlwrwv3ktrhCy91HpVRw`, to provide a list, use a coma between channels
 

@@ -38,9 +38,9 @@ class PageScrapper:
         home = meta["og:url"]
         url = urlparse(home)
         assert url.hostname in ALLOWED_HOSTS, f"Not a valid youtube url: {home}"
-        assert is_channel_id(
-            channel_id := url.path.split("/")[-1]
-        ), f"Invalid channel_id: {channel_id}"
+        assert is_channel_id(channel_id := url.path.split("/")[-1]), (
+            f"Invalid channel_id: {channel_id}"
+        )
 
         return ChannelDescription(
             channel_id=channel_id, name=name, avatar=avatar, home=home
