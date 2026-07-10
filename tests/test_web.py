@@ -1,3 +1,5 @@
+import re
+
 import pytest
 from bs4 import BeautifulSoup
 from httpx import BasicAuth
@@ -15,7 +17,10 @@ async def test_watch(client):
     resp = await client.get("/watch?v=q5IMA244HXw")
     assert resp.status_code == 307
 
-    assert resp.headers["Location"] == "/proxy/player/q5IMA244HXw"
+    assert (
+        resp.headers["Location"]
+        == "https://www.youtube-nocookie.com/embed/q5IMA244HXw?autoplay=1"
+    )
 
 
 @pytest.mark.anyio
@@ -53,7 +58,7 @@ async def test_page_content(client):
     assert resp.status_code == 200
 
     soup = BeautifulSoup(resp.text, features="html.parser")
-    assert len(soup.find_all("div", class_="yourss-filterable")) > 30
+    assert len(soup.find_all("div", id=re.compile(r"^yourss-video-"))) > 30
 
 
 @pytest.mark.anyio
@@ -70,7 +75,7 @@ async def test_page_content_invalid_names(client):
     assert resp.status_code == 200
 
     soup = BeautifulSoup(resp.text, features="html.parser")
-    assert len(soup.find_all("div", class_="yourss-filterable")) > 30
+    assert len(soup.find_all("div", id=re.compile(r"^yourss-video-"))) > 30
 
 
 @pytest.mark.anyio

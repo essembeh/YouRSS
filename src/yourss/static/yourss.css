@@ -2,12 +2,90 @@
   cursor: pointer;
 }
 
+/* Active density button: subtle neutral highlight, works in light & dark */
+.yourss-density-option.active {
+  background-color: var(--bs-secondary-bg);
+  border-color: var(--bs-secondary-color);
+  color: var(--bs-body-color);
+}
+
+/* Video grid — column count driven by the density setting on <body> */
+.yourss-videos-grid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(var(--yourss-cols), minmax(0, 1fr));
+}
+
+/* Default / normal density, responsive column count */
+body,
+body.density-normal {
+  --yourss-cols: 1;
+}
+@media (min-width: 576px) {
+  body,
+  body.density-normal {
+    --yourss-cols: 3;
+  }
+}
+@media (min-width: 992px) {
+  body,
+  body.density-normal {
+    --yourss-cols: 4;
+  }
+}
+@media (min-width: 1400px) {
+  body,
+  body.density-normal {
+    --yourss-cols: 6;
+  }
+}
+
+body.density-compact {
+  --yourss-cols: 2;
+}
+@media (min-width: 576px) {
+  body.density-compact {
+    --yourss-cols: 4;
+  }
+}
+@media (min-width: 992px) {
+  body.density-compact {
+    --yourss-cols: 6;
+  }
+}
+@media (min-width: 1400px) {
+  body.density-compact {
+    --yourss-cols: 8;
+  }
+}
+
+body.density-large {
+  --yourss-cols: 1;
+}
+@media (min-width: 576px) {
+  body.density-large {
+    --yourss-cols: 2;
+  }
+}
+@media (min-width: 992px) {
+  body.density-large {
+    --yourss-cols: 3;
+  }
+}
+@media (min-width: 1400px) {
+  body.density-large {
+    --yourss-cols: 4;
+  }
+}
+
 #scroll-to-top {
   width: 50px;
   line-height: 50px;
   overflow: hidden;
   z-index: 999;
-  display: none;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 400ms ease-in-out, visibility 400ms ease-in-out;
   cursor: pointer;
   -moz-transform: rotate(270deg);
   -webkit-transform: rotate(270deg);
@@ -22,6 +100,11 @@
   text-align: center;
   font-size: 30px;
   text-decoration: none;
+}
+
+#scroll-to-top.visible {
+  opacity: 1;
+  visibility: visible;
 }
 
 #scroll-to-top:hover {

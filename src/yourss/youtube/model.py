@@ -32,7 +32,8 @@ class VideoDescription:
 
     def __post_init__(self):
         if self.thumbnail is None:
-            self.thumbnail = f"/proxy/thumbnail/{self.video_id}"
+            # Derived directly from the video_id, no need for a proxy redirect.
+            self.thumbnail = f"https://i.ytimg.com/vi/{self.video_id}/hqdefault.jpg"
 
 
 class BrowseData(UserDict[str, Any]):

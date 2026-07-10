@@ -16,8 +16,8 @@
 </div>
 
 <script>
-    $(document).ready(function () {
-        $('.toast').toast('show');
+    document.querySelectorAll('.toast').forEach(function (el) {
+        bootstrap.Toast.getOrCreateInstance(el).show()
     })
 </script>
 {% endif %}

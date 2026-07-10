@@ -2,7 +2,7 @@
 {% if loop.last and next_page_url %}
 {% set lazy_loading_url = next_page_url %}
 {% endif %}
-<div id="yourss-video-{{ video.video_id }}" class="col-xxl-2 col-xl-3 col-lg-3 col-md-4 col-sm-6 mb-3 yourss-filterable" data-published="{{ video.published }}" {% if lazy_loading_url %} hx-get="{{ lazy_loading_url }}" hx-trigger="revealed" hx-swap="afterend" {% endif %}>
+<div id="yourss-video-{{ video.video_id }}"{% if video.channel %} data-channel-id="{{ video.channel.channel_id }}"{% endif %} {% if lazy_loading_url %} hx-get="{{ lazy_loading_url }}" hx-trigger="revealed" hx-swap="afterend" {% endif %}>
     <div class="card h-100 shadow">
         <img id="yourss-thumbnail-{{ video.video_id }}" class="card-img-top yourss-thumbnail yourss-link" src="{{ video.thumbnail }}" onclick="{{ config.open_primary }}('{{ video.video_id }}')" alt="{{ video.title|escape }}" />
         <div id="yourss-player-{{ video.video_id }}" class="yourss-player-container" style="display: none"></div>

@@ -1,7 +1,7 @@
 from datetime import timedelta
 from enum import Enum
 from pathlib import Path
-from typing import List, Optional
+from typing import Optional
 
 from pydantic import BaseModel, Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -33,13 +33,8 @@ class AppSettings(BaseSettings):
     open_secondary: OpenAction = OpenAction.TAB
     users_file: Optional[Path] = None
     player_nocookie: bool = True
-    custom_lang: Optional[str] = None
     cache_folder: Optional[Path] = None
     cache_max_age: timedelta = timedelta(hours=24)
-
-    @property
-    def custom_langs(self) -> Optional[List[str]]:
-        return self.custom_lang.split() if self.custom_lang else None
 
 
 class PasswordMethod(Enum):

@@ -1,4 +1,4 @@
-<div id="yourss-modal" class="modal fade modal-dark" tabindex="-1">
+<div id="yourss-modal" class="modal fade" tabindex="-1">
     <div class="modal-dialog modal-fullscreen">
         <div class="modal-content">
             <div class="modal-header">
@@ -6,19 +6,19 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <iframe width="100%" height="100%" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen="" frameborder="0"></iframe>
+                <div id="yourss-modal-player" style="width: 100%; height: 100%"></div>
             </div>
             <div class="modal-footer">
                 <a id="yourss-modal-link-rss" class="btn btn-warning" target="_blank">
                     <i class="bi bi-rss-fill" style="color: white"></i>
                 </a>
-                <a id="yourss-modal-link-piped" class="btn btn-success" target="_blank" onclick="$('#yourss-modal').modal('hide')">
+                <a id="yourss-modal-link-piped" class="btn btn-success yourss-modal-external" target="_blank" rel="noopener">
                     <i class="bi bi-incognito"></i>
                 </a>
-                <a id="yourss-modal-link-youtube" class="btn btn-danger" target="_blank" onclick="$('#yourss-modal').modal('hide')">
+                <a id="yourss-modal-link-youtube" class="btn btn-danger yourss-modal-external" target="_blank" rel="noopener">
                     <i class="bi bi-youtube"></i>
                 </a>
-                <a id="yourss-modal-link-tab" class="btn btn-primary" target="_blank" onclick="$('#yourss-modal').modal('hide')">
+                <a id="yourss-modal-link-tab" class="btn btn-primary yourss-modal-external" target="_blank" rel="noopener">
                     <i class="bi bi-fullscreen"></i>
                 </a>
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
@@ -28,10 +28,3 @@
         </div>
     </div>
 </div>
-<script>
-    $(document).ready(function () {
-        $("#yourss-modal").on("hidden.bs.modal", function (e) {
-            $("#yourss-modal").find("iframe").removeAttr("src")
-        })
-    })
-</script>

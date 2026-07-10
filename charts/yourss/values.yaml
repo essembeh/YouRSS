@@ -16,9 +16,6 @@ yourss:
   # open actions can be: openModal, openTab or openEmbedded
   openPrimary: openModal
   openSecondary: openTab
-  # Space-separated list of language codes to enable the language selector widget
-  # Example: customLang: "FR EN ES"
-  customLang: ""
   # Keep the last successful RSS response on disk (/tmp/yourss-cache) to survive
   # Youtube's daily transient 404 windows. Feeds are always fetched live; this
   # is only a fallback served on a 404, not a performance cache.

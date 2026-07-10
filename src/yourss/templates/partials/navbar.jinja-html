@@ -1,0 +1,56 @@
+<nav class="navbar navbar-expand-lg bg-body-tertiary border-bottom sticky-top shadow-sm">
+  <div class="container-fluid">
+    <a class="navbar-brand d-flex align-items-center gap-2 fw-bold" href="/">
+      <img src="/static/yourss.png" width="28" height="28" alt="YouRSS" />
+      YouRSS
+    </a>
+
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#yourss-navbar"
+      aria-controls="yourss-navbar" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" id="yourss-navbar">
+      <div class="d-flex flex-row align-items-center w-100 gap-3 py-2 py-lg-0">
+      {% if channels %}
+      <ul class="navbar-nav me-auto mb-0">
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle bi bi-search" href="#" role="button" data-bs-toggle="dropdown"
+            aria-expanded="false">
+            Subscriptions
+          </a>
+          <ul class="dropdown-menu">
+            {% for channel in channels %}
+            <li>
+              <a class="dropdown-item d-flex align-items-center gap-2" href="#"
+                hx-get="/htmx/channel/{{ channel.channel_id }}" hx-target="#yourss-content">
+                <img src="{{ channel.avatar }}" class="rounded-circle" width="30" height="30">
+                {{ channel.name|escape }}
+              </a>
+            </li>
+            {% endfor %}
+          </ul>
+        </li>
+      </ul>
+      {% endif %}
+
+      <div class="d-flex align-items-center gap-3 ms-auto">
+        <div class="btn-group btn-group-sm" role="group" aria-label="Video density">
+          <button type="button" class="btn btn-outline-secondary yourss-density-option" data-density="compact"
+            title="Compact" aria-label="Compact density">
+            <i class="bi bi-grid-3x3-gap-fill"></i>
+          </button>
+          <button type="button" class="btn btn-outline-secondary yourss-density-option" data-density="normal"
+            title="Normal" aria-label="Normal density">
+            <i class="bi bi-grid-fill"></i>
+          </button>
+          <button type="button" class="btn btn-outline-secondary yourss-density-option" data-density="large"
+            title="Large" aria-label="Large density">
+            <i class="bi bi-square-fill"></i>
+          </button>
+        </div>
+      </div>
+      </div>
+    </div>
+  </div>
+</nav>

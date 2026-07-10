@@ -53,10 +53,6 @@ spec:
               value: "{{ .Values.yourss.openPrimary }}"
             - name: YOURSS_OPEN_SECONDARY
               value: "{{ .Values.yourss.openSecondary }}"
-            {{- if .Values.yourss.customLang }}
-            - name: YOURSS_CUSTOM_LANG
-              value: "{{ .Values.yourss.customLang }}"
-            {{- end }}
             {{- if .Values.yourss.cacheEnabled }}
             - name: YOURSS_CACHE_FOLDER
               value: /tmp/yourss-cache
