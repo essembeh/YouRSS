@@ -25,7 +25,7 @@ class PageScrapper:
     @classmethod
     def from_response(cls, resp: Response) -> Self:
         resp.raise_for_status()
-        return cls(soup=BeautifulSoup(resp.text, features="html.parser"))
+        return cls(soup=BeautifulSoup(resp.content, features="html.parser"))
 
     def get_metadata(self) -> ChannelDescription:
         meta = {
