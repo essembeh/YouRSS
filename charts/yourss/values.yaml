@@ -114,7 +114,7 @@ resources:
     memory: 128Mi
   limits:
     # no cpu limit on purpose (avoid throttling a bursty I/O-bound app)
-    memory: 256Mi
+    memory: 512Mi
 
 autoscaling:
   enabled: false
