@@ -49,10 +49,6 @@ spec:
               value: "{{ .Values.yourss.cleanTitles }}"
             - name: YOURSS_THEME
               value: "{{ .Values.yourss.theme }}"
-            - name: YOURSS_OPEN_PRIMARY
-              value: "{{ .Values.yourss.openPrimary }}"
-            - name: YOURSS_OPEN_SECONDARY
-              value: "{{ .Values.yourss.openSecondary }}"
             {{- if .Values.yourss.cacheEnabled }}
             - name: YOURSS_CACHE_FOLDER
               value: /tmp/yourss-cache

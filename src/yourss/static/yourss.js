@@ -102,11 +102,6 @@ function openEmbedded(videoId) {
   })
 }
 
-function openTab(videoId) {
-  closeAllPlayers()
-  window.open(`https://www.youtube-nocookie.com/embed/${videoId}?autoplay=1`, "_blank")
-}
-
 function openModal(videoId) {
   closeAllPlayers()
 

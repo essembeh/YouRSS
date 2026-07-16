@@ -7,15 +7,6 @@ from pydantic import BaseModel, Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
-class OpenAction(Enum):
-    MODAL = "openModal"
-    TAB = "openTab"
-    EMBED = "openEmbedded"
-
-    def __str__(self) -> str:
-        return self.value
-
-
 class Theme(Enum):
     LIGHT = "light"
     DARK = "dark"
@@ -29,8 +20,6 @@ class AppSettings(BaseSettings):
     default_channels: str = "@JonnyGiger"
     clean_titles: bool = False
     theme: Theme = Theme.LIGHT
-    open_primary: OpenAction = OpenAction.MODAL
-    open_secondary: OpenAction = OpenAction.TAB
     users_file: Optional[Path] = None
     player_nocookie: bool = True
     cache_folder: Optional[Path] = None

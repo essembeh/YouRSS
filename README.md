@@ -88,8 +88,6 @@ Then visit [http://localhost:8000/](http://localhost:8000/)
 | YOURSS_DEFAULT_CHANNELS | `@JonnyGiger` | Defines the default channels to display, you can set multiple channels using `,` as separator |
 | YOURSS_CLEAN_TITLES | `False` | If set to `true`, videos titles are cleaned to prevent UPPERCASE TITLES |
 | YOURSS_THEME | `light` | Choose between `dark` and `light` Bootstrap themes |
-| YOURSS_OPEN_PRIMARY | `openModal` | Choose the action when you click on a thumbnail, can be `openEmbedded`, `openTab` or `openModal` |
-| YOURSS_OPEN_SECONDARY | `openTab` | Choose the action when you click on the bottom right icon, can be `openEmbedded`, `openTab` or `openModal` |
 | YOURSS_USERS_FILE |  | You can declare user pages in a dedicated file |
 | YOURSS_CACHE_FOLDER |  | If set, the last successful RSS response is stored on disk in this folder (created at startup) to survive Youtube's daily transient `404` windows. Feeds are **always** fetched live; this is a fallback, not a cache. If unset, a `404` is propagated as-is |
 | YOURSS_CACHE_MAX_AGE | `PT24H` | Max age of the fallback file served when Youtube returns a `404` (ISO-8601 duration, e.g. `PT24H`, or a number of seconds). Older files are deleted and the `404` is propagated |
