@@ -2,16 +2,12 @@
 name = "yourss"
 version = "0.17.1"
 description = "Simple Youtube browser based on RSS feeds"
-homepage = "https://github.com/essembeh/yourss"
 readme = "README.md"
-authors = [
-    { name = "Sébastien MB", email = "seb@essembeh.org" }
-]
+authors = [{ name = "Sébastien MB", email = "seb@essembeh.org" }]
 license = "Apache-2.0"
 classifiers = [
     "Development Status :: 4 - Beta",
-    "License :: OSI Approved :: Apache Software License",
-    "Topic :: Utilities"
+    "Topic :: Utilities",
 ]
 requires-python = ">=3.12"
 dependencies = [
@@ -28,6 +24,11 @@ dependencies = [
     "rapid-api-client>=0.9.0",
 ]
 
+[project.urls]
+Homepage = "https://github.com/essembeh/YouRSS"
+Repository = "https://github.com/essembeh/YouRSS"
+Issues = "https://github.com/essembeh/YouRSS/issues"
+
 [dependency-groups]
 dev = [
     "beautifulsoup4>=4.15.0",
@@ -41,7 +42,9 @@ dev = [
 ]
 
 [build-system]
-requires = ["uv_build>=0.7.22,<0.8"]
+# The range must contain the uv version in use (UV_VERSION of the Dockerfile, CI image):
+# uv only builds with its embedded backend in that case.
+requires = ["uv_build>=0.9,<0.12"]
 build-backend = "uv_build"
 
 [tool.ruff]
