@@ -3,8 +3,7 @@ import re
 from datetime import timedelta
 from typing import Any
 
-import pytest
-from pytest import MonkeyPatch
+from pytest import MonkeyPatch, raises
 
 from yourss.settings import current_config
 from yourss.youtube import ChannelDescription, Continuation, ScrapingError
@@ -76,7 +75,7 @@ def test_extract_initial_data_variants() -> None:
         "<script>window['ytInitialData'] = JSON.parse(ytDataEl.textContent);</script>"
     )
     assert extract_initial_data(json_element) == {"a": 3}
-    with pytest.raises(ScrapingError, match=r"JSON\.parse"):
+    with raises(ScrapingError, match=r"JSON\.parse"):
         extract_initial_data("<script>var ytInitialData = JSON.parse('...');</script>")
 
 
@@ -136,9 +135,9 @@ def test_channel_page_without_client_version_cannot_continue() -> None:
 
 
 def test_channel_page_breakage_is_detected() -> None:
-    with pytest.raises(ScrapingError):
+    with raises(ScrapingError):
         parse_channel_page("<html>no data</html>")
-    with pytest.raises(ScrapingError):
+    with raises(ScrapingError):
         parse_channel_page(_page({"metadata": {"somethingElse": {}}}))
 
 
@@ -184,7 +183,6 @@ def test_channel_cache_can_be_disabled(monkeypatch: MonkeyPatch) -> None:
     assert len(cache) == 0
 
 
-@pytest.mark.anyio
 async def test_channel_page_is_retried_once(monkeypatch: MonkeyPatch) -> None:
     from yourss.youtube import YoutubeApi
 
@@ -202,5 +200,5 @@ async def test_channel_page_is_retried_once(monkeypatch: MonkeyPatch) -> None:
 
     # Two unreadable pages in a row are a real breakage
     pages.extend(["<html>nothing</html>", "<html>nothing</html>"])
-    with pytest.raises(ScrapingError):
+    with raises(ScrapingError):
         await api.get_channel_page(CHANNEL_ID)

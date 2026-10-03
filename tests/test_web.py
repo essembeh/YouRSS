@@ -1,18 +1,16 @@
 import re
 
-import pytest
 from bs4 import BeautifulSoup
 from httpx import AsyncClient, BasicAuth
+from pytest import mark
 
 
-@pytest.mark.anyio
 async def test_default(client: AsyncClient) -> None:
     resp = await client.get("/")
     assert resp.status_code == 307
     assert resp.headers["Location"] == "/@CardMagicByJason,@JonnyGiger"
 
 
-@pytest.mark.anyio
 async def test_watch(client: AsyncClient) -> None:
     resp = await client.get("/watch?v=q5IMA244HXw")
     assert resp.status_code == 307
@@ -20,7 +18,6 @@ async def test_watch(client: AsyncClient) -> None:
     assert resp.headers["Location"] == "https://www.youtube-nocookie.com/embed/q5IMA244HXw?autoplay=1"
 
 
-@pytest.mark.anyio
 async def test_user(client: AsyncClient) -> None:
     # Alice's password is bar
     resp = await client.get("/u/alice")
@@ -44,7 +41,6 @@ async def test_user(client: AsyncClient) -> None:
     assert resp.status_code == 404
 
 
-@pytest.mark.anyio
 async def test_page_content(client: AsyncClient) -> None:
     names = [
         "PLw-vK1_d04zZCal3yMX_T23h5nDJ2toTk",  # a playlist
@@ -58,7 +54,6 @@ async def test_page_content(client: AsyncClient) -> None:
     assert len(soup.find_all("div", id=re.compile(r"^yourss-video-"))) > 30
 
 
-@pytest.mark.anyio
 async def test_page_content_invalid_names(client: AsyncClient) -> None:
     names = [
         "PLw-vK1_d04zZCal3yMX_T23h5nDJ2toTk",  # a playlist
@@ -75,8 +70,7 @@ async def test_page_content_invalid_names(client: AsyncClient) -> None:
     assert len(soup.find_all("div", id=re.compile(r"^yourss-video-"))) > 30
 
 
-@pytest.mark.anyio
-@pytest.mark.parametrize(
+@mark.parametrize(
     "name,http_status",
     [
         ("UCVooVnzQxPSTXTMzSi1s6uw", 200),  # a channel
@@ -91,7 +85,6 @@ async def test_single_channel(client: AsyncClient, name: str, http_status: int) 
     assert resp.status_code == http_status
 
 
-@pytest.mark.anyio
 async def test_htmx_channel_tabs(client: AsyncClient) -> None:
     # @JonnyGiger publishes videos and shorts but has no live stream tab
     channel = "UCVooVnzQxPSTXTMzSi1s6uw"

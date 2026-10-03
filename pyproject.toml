@@ -86,6 +86,8 @@ warn_redundant_casts = true
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+asyncio_mode = "auto"                          # no @mark.asyncio on every test
+asyncio_default_fixture_loop_scope = "module"
 env_files = [".env"]
 
 [tool.coverage.run]

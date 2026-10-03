@@ -1,8 +1,8 @@
 from typing import Any
 
-import pytest
 from bs4 import BeautifulSoup
 from httpx import get
+from pytest import mark, raises
 
 from yourss.youtube import ScrapingError, YoutubeApi
 from yourss.youtube.cache import channel_cache
@@ -18,8 +18,7 @@ def is_rgpd_applicable() -> bool:
     return resp.status_code == 200 and resp.text.strip() == "FR"
 
 
-@pytest.mark.skipif(not is_rgpd_applicable(), reason="Not applicable outside Europe")
-@pytest.mark.asyncio(loop_scope="module")
+@mark.skipif(not is_rgpd_applicable(), reason="Not applicable outside Europe")
 async def test_rgpd() -> None:
     api = YoutubeApi()
 
@@ -50,7 +49,6 @@ async def test_rgpd() -> None:
     )
 
 
-@pytest.mark.asyncio(loop_scope="module")
 async def test_rss_channel() -> None:
     api = YoutubeApi()
 
@@ -58,7 +56,6 @@ async def test_rss_channel() -> None:
     assert feed.title == "Jonny Giger"
 
 
-@pytest.mark.asyncio(loop_scope="module")
 async def test_rss_playlist() -> None:
     api = YoutubeApi()
 
@@ -66,8 +63,7 @@ async def test_rss_playlist() -> None:
     assert feed.title == "IMPOSSIBLE TRICKS OF RODNEY MULLEN"
 
 
-@pytest.mark.asyncio(loop_scope="module")
-@pytest.mark.parametrize("name", [CHANNEL, "@jonnygiger"])
+@mark.parametrize("name", [CHANNEL, "@jonnygiger"])
 async def test_channel_page(name: str) -> None:
     api = YoutubeApi()
 
@@ -81,7 +77,6 @@ async def test_channel_page(name: str) -> None:
     assert page.tabs == ["videos", "shorts"]
 
 
-@pytest.mark.asyncio(loop_scope="module")
 async def test_channel_cached() -> None:
     api = YoutubeApi()
     channel_cache.clear()
@@ -94,7 +89,6 @@ async def test_channel_cached() -> None:
     assert await api.get_channel(CHANNEL) is channel
 
 
-@pytest.mark.asyncio(loop_scope="module")
 async def test_scrap_videos() -> None:
     api = YoutubeApi()
 
@@ -106,7 +100,6 @@ async def test_scrap_videos() -> None:
     assert page1 != page2
 
 
-@pytest.mark.asyncio(loop_scope="module")
 async def test_scrap_videos_fields() -> None:
     api = YoutubeApi()
 
@@ -126,7 +119,6 @@ async def test_scrap_videos_fields() -> None:
         assert video.thumbnail
 
 
-@pytest.mark.asyncio(loop_scope="module")
 async def test_scrap_shorts() -> None:
     api = YoutubeApi()
 
@@ -143,7 +135,6 @@ async def test_scrap_shorts() -> None:
         assert short.thumbnail
 
 
-@pytest.mark.asyncio(loop_scope="module")
 async def test_scrap_streams() -> None:
     api = YoutubeApi()
 
@@ -158,7 +149,6 @@ async def test_scrap_streams() -> None:
         assert stream.thumbnail
 
 
-@pytest.mark.asyncio(loop_scope="module")
 async def test_scrap_missing_tab() -> None:
     api = YoutubeApi()
 
@@ -186,7 +176,7 @@ def test_parser_detects_breakage() -> None:
     # A payload that clearly holds video nodes but in an unknown shape must
     # raise ScrapingError instead of silently returning an empty list.
     broken = {"videoRenderer": {"unexpectedField": "no videoId here"}}
-    with pytest.raises(ScrapingError):
+    with raises(ScrapingError):
         parse_items(broken, VIDEO_PARSERS)
 
 

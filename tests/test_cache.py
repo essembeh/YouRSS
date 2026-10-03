@@ -2,9 +2,8 @@ import os
 from datetime import timedelta
 from pathlib import Path
 
-import pytest
 from httpx import HTTPStatusError, Request, Response
-from pytest import MonkeyPatch
+from pytest import MonkeyPatch, fixture, raises
 
 from yourss.settings import current_config
 from yourss.youtube.cache import read_stale_feed
@@ -23,12 +22,12 @@ def _http_404() -> HTTPStatusError:
     return HTTPStatusError("404", request=request, response=Response(404, request=request))
 
 
-@pytest.fixture
+@fixture
 def sample_bytes() -> bytes:
     return (SAMPLES_FOLDER / f"{CHANNEL_ID}.xml").read_bytes()
 
 
-@pytest.fixture
+@fixture
 def api(monkeypatch: MonkeyPatch, tmp_path: Path, sample_bytes: bytes) -> ApiFixture:
     """A YoutubeApi whose raw fetch is mocked, with a call counter.
 
@@ -52,7 +51,6 @@ def api(monkeypatch: MonkeyPatch, tmp_path: Path, sample_bytes: bytes) -> ApiFix
     return instance, calls, tmp_path
 
 
-@pytest.mark.anyio
 async def test_always_fetches_and_stores_fallback(api: ApiFixture) -> None:
     instance, calls, tmp_path = api
 
@@ -65,7 +63,6 @@ async def test_always_fetches_and_stores_fallback(api: ApiFixture) -> None:
     assert (tmp_path / f"{CHANNEL_ID}.rss").is_file()
 
 
-@pytest.mark.anyio
 async def test_disabled_fetches_without_file(monkeypatch: MonkeyPatch, api: ApiFixture) -> None:
     instance, calls, tmp_path = api
     monkeypatch.setattr(current_config, "cache_folder", None)
@@ -76,7 +73,6 @@ async def test_disabled_fetches_without_file(monkeypatch: MonkeyPatch, api: ApiF
     assert not any(tmp_path.iterdir())
 
 
-@pytest.mark.anyio
 async def test_404_serves_stale_fallback(monkeypatch: MonkeyPatch, api: ApiFixture) -> None:
     instance, calls, tmp_path = api
     path = tmp_path / f"{CHANNEL_ID}.rss"
@@ -97,7 +93,6 @@ async def test_404_serves_stale_fallback(monkeypatch: MonkeyPatch, api: ApiFixtu
     assert path.is_file()  # kept
 
 
-@pytest.mark.anyio
 async def test_404_drops_dead_fallback_and_raises(monkeypatch: MonkeyPatch, api: ApiFixture) -> None:
     instance, _calls, tmp_path = api
     path = tmp_path / f"{CHANNEL_ID}.rss"
@@ -112,13 +107,12 @@ async def test_404_drops_dead_fallback_and_raises(monkeypatch: MonkeyPatch, api:
 
     monkeypatch.setattr(instance, "_get_channel_rss_raw", fetch_404)
 
-    with pytest.raises(HTTPStatusError):
+    with raises(HTTPStatusError):
         await instance.get_channel_rss(CHANNEL_ID)
 
     assert not path.is_file()  # dead fallback dropped
 
 
-@pytest.mark.anyio
 async def test_404_without_fallback_raises(monkeypatch: MonkeyPatch, api: ApiFixture) -> None:
     instance, _calls, _tmp_path = api
 
@@ -127,11 +121,10 @@ async def test_404_without_fallback_raises(monkeypatch: MonkeyPatch, api: ApiFix
 
     monkeypatch.setattr(instance, "_get_channel_rss_raw", fetch_404)
 
-    with pytest.raises(HTTPStatusError):
+    with raises(HTTPStatusError):
         await instance.get_channel_rss(CHANNEL_ID)
 
 
-@pytest.mark.anyio
 async def test_non_404_error_propagates(monkeypatch: MonkeyPatch, api: ApiFixture) -> None:
     instance, _calls, _tmp_path = api
 
@@ -144,7 +137,7 @@ async def test_non_404_error_propagates(monkeypatch: MonkeyPatch, api: ApiFixtur
 
     monkeypatch.setattr(instance, "_get_channel_rss_raw", fetch_500)
 
-    with pytest.raises(HTTPStatusError):
+    with raises(HTTPStatusError):
         await instance.get_channel_rss(CHANNEL_ID)
 
 

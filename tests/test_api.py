@@ -1,13 +1,11 @@
 import re
 
-import pytest
 from httpx import AsyncClient
 
 from yourss import __name__ as app_name
 from yourss import __version__ as app_version
 
 
-@pytest.mark.anyio
 async def test_version(client: AsyncClient) -> None:
     resp = await client.get("/api/version")
     resp.raise_for_status()
@@ -17,7 +15,6 @@ async def test_version(client: AsyncClient) -> None:
     assert payload.get("version") == app_version
 
 
-@pytest.mark.anyio
 async def test_proxy_rss(client: AsyncClient) -> None:
     channel = await client.get("/proxy/rss/UCVooVnzQxPSTXTMzSi1s6uw")
     user = await client.get("/proxy/rss/@jonnygiger")
@@ -35,7 +32,6 @@ async def test_proxy_rss(client: AsyncClient) -> None:
     )
 
 
-@pytest.mark.anyio
 async def test_proxy_avatar(client: AsyncClient) -> None:
     channel = await client.get("/proxy/avatar/UCVooVnzQxPSTXTMzSi1s6uw")
     user = await client.get("/proxy/avatar/@jonnygiger")
@@ -45,7 +41,6 @@ async def test_proxy_avatar(client: AsyncClient) -> None:
     assert re.fullmatch(r"^https://yt[0-9]+\.googleusercontent\.com/.*$", user.headers["Location"])
 
 
-@pytest.mark.anyio
 async def test_proxy_home(client: AsyncClient) -> None:
     channel = await client.get("/proxy/home/UCVooVnzQxPSTXTMzSi1s6uw")
     user = await client.get("/proxy/home/@jonnygiger")
