@@ -33,6 +33,20 @@ jobs:
       - run: uv sync --locked
       - run: uv run --no-sync -- pytest --cov=yourss --cov-report=term-missing
 
+  # Same command as `just audit`
+  python-audit:
+    name: Dependency audit
+    runs-on: ubuntu-latest
+    # Informative for now: a new advisory must not block a release by itself
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: astral-sh/setup-uv@c18668ad3cf93ea998bef934396af7bb5c839dc7 # v10.2.0
+        with:
+          enable-cache: true
+      - run: uv sync --locked
+      - run: uv run --no-sync -- pip-audit
+
   docker-build:
     name: Build docker image
     needs: [python-check, python-test]

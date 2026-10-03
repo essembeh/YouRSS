@@ -2,7 +2,7 @@ from datetime import timedelta
 from enum import Enum
 from pathlib import Path
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, SecretStr
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -33,7 +33,7 @@ class PasswordMethod(Enum):
 
 class Password(BaseModel):
     method: PasswordMethod
-    value: str
+    value: SecretStr
 
 
 class User(BaseModel):

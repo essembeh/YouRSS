@@ -121,7 +121,7 @@ def test_channel_page_videos_and_continuation() -> None:
     videos = page.videos()
     assert [v.video_id for v in videos.videos] == ["aaaaaaaaaaa", "bbbbbbbbbbb"]
     assert videos.videos[0].thumbnail == "https://i.ytimg.com/vi/aaaaaaaaaaa/hqdefault.jpg"
-    assert videos.continuation == Continuation(token="TOKEN", client_version="2.20260101.00.00")
+    assert videos.continuation == Continuation(token="TOKEN", client_version="2.20260101.00.00")  # noqa: S106  # a continuation token is not a secret
 
 
 def test_channel_page_without_client_version_cannot_continue() -> None:
@@ -143,11 +143,11 @@ def test_channel_page_breakage_is_detected() -> None:
 
 
 def test_parse_continuation() -> None:
-    previous = Continuation(token="TOKEN", client_version="2.20260101.00.00")
+    previous = Continuation(token="TOKEN", client_version="2.20260101.00.00")  # noqa: S106  # a continuation token is not a secret
     payload = {"items": [_lockup("ccccccccccc"), {"continuationCommand": {"token": "NEXT"}}]}
     page = parse_continuation(payload, previous)
     assert [v.video_id for v in page.videos] == ["ccccccccccc"]
-    assert page.continuation == Continuation(token="NEXT", client_version="2.20260101.00.00")
+    assert page.continuation == Continuation(token="NEXT", client_version="2.20260101.00.00")  # noqa: S106  # a continuation token is not a secret
     assert parse_continuation({"items": [_lockup("ddddddddddd")]}, previous).continuation is None
 
 

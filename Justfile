@@ -18,6 +18,10 @@ test-html pytest_args="":
     uv run -- pytest --cov=yourss --cov-report=html {{pytest_args}}
     xdg-open htmlcov/index.html
 
+# Known vulnerabilities in the dependencies actually installed (from uv.lock)
+audit:
+    uv run --no-sync -- pip-audit
+
 # Format and fix what can be fixed automatically
 format:
     uv run ruff format src tests

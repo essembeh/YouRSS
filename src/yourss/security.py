@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from secrets import compare_digest
+
 from argon2 import PasswordHasher
 from fastapi import Depends, HTTPException, Request
 from fastapi.security import HTTPBasic
@@ -17,10 +19,11 @@ def verify_password(user: User, value: str) -> bool:
     if user.password is None:
         return False
     if user.password.method == PasswordMethod.CLEAR:
-        return user.password.value == value
+        # Bytes, not str: compare_digest refuses non-ASCII strings
+        return compare_digest(user.password.value.get_secret_value().encode(), value.encode())
     if user.password.method == PasswordMethod.ARGON2:
         try:
-            return argon2hasher.verify(user.password.value, value)
+            return argon2hasher.verify(user.password.value.get_secret_value(), value)
         except Exception:
             return False
 

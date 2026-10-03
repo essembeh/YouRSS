@@ -9,7 +9,6 @@ _OLDEST = datetime.min.replace(tzinfo=UTC)
 
 
 def force_https(url: str) -> str:
-    assert isinstance(url, str)
     if url.startswith("http:"):
         return url.replace("http:", "https:", 1)
     return url

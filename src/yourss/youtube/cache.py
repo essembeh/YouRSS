@@ -16,7 +16,8 @@ from .schema import Feed
 def cache_path(cache_folder: Path, key: str) -> Path:
     """Return the fallback file path for a given key, sanitizing the key."""
     name = Path(key).name
-    assert name, f"Invalid cache key: {key!r}"
+    if not name:
+        raise ValueError(f"Invalid cache key: {key!r}")
     return cache_folder / f"{name}.rss"
 
 
