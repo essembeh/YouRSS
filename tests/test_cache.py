@@ -95,7 +95,7 @@ async def test_404_serves_stale_fallback(monkeypatch, api):
 
 @pytest.mark.anyio
 async def test_404_drops_dead_fallback_and_raises(monkeypatch, api):
-    instance, calls, tmp_path = api
+    instance, _calls, tmp_path = api
     path = tmp_path / f"{CHANNEL_ID}.rss"
 
     await instance.get_channel_rss(CHANNEL_ID)
@@ -116,7 +116,7 @@ async def test_404_drops_dead_fallback_and_raises(monkeypatch, api):
 
 @pytest.mark.anyio
 async def test_404_without_fallback_raises(monkeypatch, api):
-    instance, calls, tmp_path = api
+    instance, _calls, _tmp_path = api
 
     async def fetch_404(channel_id: str) -> Feed:
         raise _http_404()
@@ -129,7 +129,7 @@ async def test_404_without_fallback_raises(monkeypatch, api):
 
 @pytest.mark.anyio
 async def test_non_404_error_propagates(monkeypatch, api):
-    instance, calls, tmp_path = api
+    instance, _calls, _tmp_path = api
 
     # a fallback file exists but non-404 errors must not use it
     await instance.get_channel_rss(CHANNEL_ID)

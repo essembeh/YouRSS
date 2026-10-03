@@ -49,7 +49,7 @@ async def page(request: Request, names: str):
     return template_page(
         request,
         "pages/view.jinja-html",
-        title=", ".join(sorted(map(lambda x: x.name, channels.values()), key=str.lower)),
+        title=", ".join(sorted((c.name for c in channels.values()), key=str.lower)),
         channels=sorted(channels.values(), key=lambda c: c.name.lower()),
         videos=videos,
         errors=errors,

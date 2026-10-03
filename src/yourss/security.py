@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-from typing import Optional
-
 from argon2 import PasswordHasher
 from fastapi import Depends, HTTPException, Request
 from fastapi.security import HTTPBasic
@@ -29,7 +27,7 @@ def verify_password(user: User, value: str) -> bool:
     raise ValueError("Invalid password method")
 
 
-def find_user(username: str) -> Optional[User]:
+def find_user(username: str) -> User | None:
     from .settings import current_config
 
     if current_config.users_file is not None and current_config.users_file.exists():

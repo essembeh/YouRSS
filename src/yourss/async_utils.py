@@ -1,12 +1,11 @@
 import asyncio
-from typing import Dict, List, Tuple
 
 from .youtube import ChannelDescription, Feed, YoutubeApi, is_playlist_id
 
 
 async def async_fetch(
-    names: List[str], api: YoutubeApi
-) -> Tuple[Dict[str, ChannelDescription], List[Feed], List[BaseException]]:
+    names: list[str], api: YoutubeApi
+) -> tuple[dict[str, ChannelDescription], list[Feed], list[BaseException]]:
     channels = {}
     feeds = []
     errors = []
@@ -22,7 +21,7 @@ async def async_fetch(
             errors.append(result)
 
     # then fetch feeds
-    for result in await asyncio.gather(*[api.get_channel_rss(n) for n in channels.keys()], return_exceptions=True):
+    for result in await asyncio.gather(*[api.get_channel_rss(n) for n in channels], return_exceptions=True):
         if isinstance(result, Feed):
             feeds.append(result)
         else:

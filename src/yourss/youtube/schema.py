@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from datetime import datetime
-from typing import List
 from urllib.parse import urlparse
 
 from pydantic import HttpUrl
@@ -97,7 +96,7 @@ class Feed(AtomXmlModel, tag="feed"):
     author: FeedAuthor = element()
     published: datetime = element()
     links: list[Link] = element(tag="link")
-    entries: List[Entry] = element(tag="entry")
+    entries: list[Entry] = element(tag="entry")
 
     def _find_link(self, rel: str) -> HttpUrl | None:
         for link in self.links:

@@ -74,7 +74,7 @@ def test_extract_initial_data_variants():
         "<script>window['ytInitialData'] = JSON.parse(ytDataEl.textContent);</script>"
     )
     assert extract_initial_data(json_element) == {"a": 3}
-    with pytest.raises(ScrapingError, match="JSON.parse"):
+    with pytest.raises(ScrapingError, match=r"JSON\.parse"):
         extract_initial_data("<script>var ytInitialData = JSON.parse('...');</script>")
 
 

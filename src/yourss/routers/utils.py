@@ -1,4 +1,4 @@
-from typing import Any, Dict, List
+from typing import Any
 from urllib.parse import urlencode
 
 from ..youtube import ChannelDescription, Continuation, Feed, VideoDescription
@@ -11,11 +11,11 @@ def force_https(url: str) -> str:
     return url
 
 
-def parse_channel_names(text: str, delimiter: str = ",") -> List[str]:
+def parse_channel_names(text: str, delimiter: str = ",") -> list[str]:
     return list(set(filter(lambda s: len(s) > 0, map(str.strip, text.split(delimiter)))))
 
 
-def build_url(base_url: str, params: Dict[str, Any]) -> str:
+def build_url(base_url: str, params: dict[str, Any]) -> str:
     return base_url + "?" + urlencode(params)
 
 
@@ -33,7 +33,7 @@ def next_page_url(continuation: Continuation | None, *, shorts: bool) -> str | N
     )
 
 
-def get_videos_from_feeds(feeds: List[Feed], channels: Dict[str, ChannelDescription]) -> List[VideoDescription]:
+def get_videos_from_feeds(feeds: list[Feed], channels: dict[str, ChannelDescription]) -> list[VideoDescription]:
     """Every video of the feeds, newest first, each one attached to its channel."""
     out = []
     for feed in feeds:
