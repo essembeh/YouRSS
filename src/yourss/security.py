@@ -38,6 +38,7 @@ def find_user(username: str) -> User | None:
                     return user
         except Exception as error:
             logger.exception(error)
+    return None
 
 
 async def get_auth_user(request: Request, user: User | None = Depends(find_user)) -> User:

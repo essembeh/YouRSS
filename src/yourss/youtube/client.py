@@ -43,13 +43,15 @@ class YoutubeApi(RapidApi):
     job of the ``schema`` module (RSS) and of the ``scraping`` package (pages).
     """
 
+    # Endpoints declared with `...`: rapid-api-client implements them, hence the empty-body ignores
+
     # --- RSS feeds
 
     @get("/feeds/videos.xml")
-    async def _get_channel_rss_raw(self, channel_id: Annotated[str, Query()]) -> Feed: ...
+    async def _get_channel_rss_raw(self, channel_id: Annotated[str, Query()]) -> Feed: ...  # type: ignore[empty-body]
 
     @get("/feeds/videos.xml")
-    async def _get_playlist_rss_raw(self, playlist_id: Annotated[str, Query()]) -> Feed: ...
+    async def _get_playlist_rss_raw(self, playlist_id: Annotated[str, Query()]) -> Feed: ...  # type: ignore[empty-body]
 
     async def _fetch_rss(self, key: str, fetch: Callable[[str], Awaitable[Feed]]) -> Feed:
         """Always fetch the feed live. The on-disk copy is only a fallback used
@@ -79,10 +81,10 @@ class YoutubeApi(RapidApi):
     # --- pages and internal API, read by the scraping package
 
     @get("{path}")
-    async def get_html(self, path: Annotated[str, Path()], ucbcb: Annotated[int, Query()] = 1) -> Response: ...
+    async def get_html(self, path: Annotated[str, Path()], ucbcb: Annotated[int, Query()] = 1) -> Response: ...  # type: ignore[empty-body]
 
     @post("/youtubei/v1/browse")
-    async def api_browse(self, data: Annotated[dict, JsonBody()]) -> dict[str, Any]: ...
+    async def api_browse(self, data: Annotated[dict[str, Any], JsonBody()]) -> dict[str, Any]: ...  # type: ignore[empty-body]
 
     async def get_channel_page(self, name: str, tab: ChannelTab | None = None) -> ChannelPage:
         """Page of a channel (``UC…`` id or ``@handle``): its home, or one of its tabs."""

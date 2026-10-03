@@ -2,18 +2,18 @@ import re
 
 import pytest
 from bs4 import BeautifulSoup
-from httpx import BasicAuth
+from httpx import AsyncClient, BasicAuth
 
 
 @pytest.mark.anyio
-async def test_default(client):
+async def test_default(client: AsyncClient) -> None:
     resp = await client.get("/")
     assert resp.status_code == 307
     assert resp.headers["Location"] == "/@CardMagicByJason,@JonnyGiger"
 
 
 @pytest.mark.anyio
-async def test_watch(client):
+async def test_watch(client: AsyncClient) -> None:
     resp = await client.get("/watch?v=q5IMA244HXw")
     assert resp.status_code == 307
 
@@ -21,7 +21,7 @@ async def test_watch(client):
 
 
 @pytest.mark.anyio
-async def test_user(client):
+async def test_user(client: AsyncClient) -> None:
     # Alice's password is bar
     resp = await client.get("/u/alice")
     assert resp.status_code == 401
@@ -45,7 +45,7 @@ async def test_user(client):
 
 
 @pytest.mark.anyio
-async def test_page_content(client):
+async def test_page_content(client: AsyncClient) -> None:
     names = [
         "PLw-vK1_d04zZCal3yMX_T23h5nDJ2toTk",  # a playlist
         "UCVooVnzQxPSTXTMzSi1s6uw",  # a channel
@@ -59,7 +59,7 @@ async def test_page_content(client):
 
 
 @pytest.mark.anyio
-async def test_page_content_invalid_names(client):
+async def test_page_content_invalid_names(client: AsyncClient) -> None:
     names = [
         "PLw-vK1_d04zZCal3yMX_T23h5nDJ2toTk",  # a playlist
         "UCVooVnzQxPSTXTMzSi1s6uw",  # a channel
@@ -86,13 +86,13 @@ async def test_page_content_invalid_names(client):
         ("foo", 422),  # an invalid name
     ],
 )
-async def test_single_channel(client, name: str, http_status: int):
+async def test_single_channel(client: AsyncClient, name: str, http_status: int) -> None:
     resp = await client.get(f"/c/{name}")
     assert resp.status_code == http_status
 
 
 @pytest.mark.anyio
-async def test_htmx_channel_tabs(client):
+async def test_htmx_channel_tabs(client: AsyncClient) -> None:
     # @JonnyGiger publishes videos and shorts but has no live stream tab
     channel = "UCVooVnzQxPSTXTMzSi1s6uw"
 

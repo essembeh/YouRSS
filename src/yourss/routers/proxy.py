@@ -19,7 +19,7 @@ AVATAR_CACHE_HEADERS = {"Cache-Control": "public, max-age=86400"}
 
 
 @router.get("/rss/{name}", response_class=RedirectResponse)
-async def rss_feed(name: UserId | ChannelId | Playlist_Id):
+async def rss_feed(name: UserId | ChannelId | Playlist_Id) -> RedirectResponse:
     api = YoutubeApi()
 
     feed = None
@@ -39,7 +39,7 @@ async def rss_feed(name: UserId | ChannelId | Playlist_Id):
 
 
 @router.get("/avatar/{name}", response_class=RedirectResponse)
-async def avatar(name: UserId | ChannelId):
+async def avatar(name: UserId | ChannelId) -> RedirectResponse:
     api = YoutubeApi()
 
     desc = await api.get_channel(name)
@@ -50,7 +50,7 @@ async def avatar(name: UserId | ChannelId):
 
 
 @router.get("/home/{name}", response_class=RedirectResponse)
-async def home(name: UserId | ChannelId):
+async def home(name: UserId | ChannelId) -> RedirectResponse:
     api = YoutubeApi()
 
     desc = await api.get_channel(name)

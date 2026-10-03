@@ -1,12 +1,14 @@
 import re
 
 import pytest
+from httpx import AsyncClient
 
-from yourss.main import app_name, app_version
+from yourss import __name__ as app_name
+from yourss import __version__ as app_version
 
 
 @pytest.mark.anyio
-async def test_version(client):
+async def test_version(client: AsyncClient) -> None:
     resp = await client.get("/api/version")
     resp.raise_for_status()
 
@@ -16,7 +18,7 @@ async def test_version(client):
 
 
 @pytest.mark.anyio
-async def test_proxy_rss(client):
+async def test_proxy_rss(client: AsyncClient) -> None:
     channel = await client.get("/proxy/rss/UCVooVnzQxPSTXTMzSi1s6uw")
     user = await client.get("/proxy/rss/@jonnygiger")
     playlist = await client.get("/proxy/rss/PLw-vK1_d04zZCal3yMX_T23h5nDJ2toTk")
@@ -34,7 +36,7 @@ async def test_proxy_rss(client):
 
 
 @pytest.mark.anyio
-async def test_proxy_avatar(client):
+async def test_proxy_avatar(client: AsyncClient) -> None:
     channel = await client.get("/proxy/avatar/UCVooVnzQxPSTXTMzSi1s6uw")
     user = await client.get("/proxy/avatar/@jonnygiger")
 
@@ -44,7 +46,7 @@ async def test_proxy_avatar(client):
 
 
 @pytest.mark.anyio
-async def test_proxy_home(client):
+async def test_proxy_home(client: AsyncClient) -> None:
     channel = await client.get("/proxy/home/UCVooVnzQxPSTXTMzSi1s6uw")
     user = await client.get("/proxy/home/@jonnygiger")
 

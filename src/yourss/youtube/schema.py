@@ -102,6 +102,7 @@ class Feed(AtomXmlModel, tag="feed"):
         for link in self.links:
             if link.rel == rel:
                 return link.href
+        return None
 
     def get_url(self) -> HttpUrl | None:
         return self._find_link("self")
@@ -126,19 +127,4 @@ class Feed(AtomXmlModel, tag="feed"):
 
     @property
     def uid(self) -> str:
-        if self.playlist_id is not None:
-            return self.playlist_id
-
-        if self.channel_id is not None:
-            return self.channel_id
-
-        if (url := self.get_url()) is not None:
-            for key, value in url.query_params():
-                if key == "channel_id":
-                    return value
-
-        for entry in self.entries:
-            if entry.channel_id is not None:
-                return entry.channel_id
-
-        return str(hash(self))
+        return self.playlist_id if self.playlist_id is not None else self.channel_id

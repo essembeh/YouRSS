@@ -5,7 +5,7 @@ from collections.abc import Iterator
 from dataclasses import dataclass, field
 from typing import Any, Literal, get_args
 
-from glom import Coalesce, glom
+from glom import Coalesce, glom  # type: ignore[import-untyped]  # glom has no type hints
 from pydantic import BaseModel
 
 from ..model import ChannelDescription, VideoDescription
@@ -70,7 +70,7 @@ def _parse_channel(data: dict[str, Any]) -> ChannelDescription:
         channel_id=meta["externalId"],
         name=meta["title"],
         # The page advertises a 900 px avatar, far more than what the UI displays
-        avatar=_AVATAR_SIZE.sub(f"=s{AVATAR_SIZE}", avatar) if avatar else None,
+        avatar=_AVATAR_SIZE.sub(f"=s{AVATAR_SIZE}", avatar) if avatar else "",
         home=meta.get("channelUrl") or f"https://www.youtube.com/channel/{meta['externalId']}",
     )
 

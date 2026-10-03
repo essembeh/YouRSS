@@ -16,18 +16,18 @@ router = APIRouter()
 
 
 @router.get("/", response_class=RedirectResponse)
-async def root():
+async def root() -> RedirectResponse:
     return RedirectResponse(router.url_path_for("page", names=current_config.default_channels))
 
 
 @router.get("/watch", response_class=RedirectResponse)
-async def watch(video: str = Query(alias="v", min_length=11, max_length=11)):
+async def watch(video: str = Query(alias="v", min_length=11, max_length=11)) -> RedirectResponse:
     return RedirectResponse(f"https://www.youtube-nocookie.com/embed/{video}?autoplay=1")
 
 
 @router.get("/user/{username}", response_class=HTMLResponse)
 @router.get("/u/{username}", response_class=HTMLResponse)
-async def user(request: Request, user: User = Depends(get_auth_user)):
+async def user(request: Request, user: User = Depends(get_auth_user)) -> HTMLResponse:
     api = YoutubeApi()
     channels, feeds, errors = await async_fetch(user.channels, api=api)
     videos = get_videos_from_feeds(feeds, channels)
@@ -42,7 +42,7 @@ async def user(request: Request, user: User = Depends(get_auth_user)):
 
 
 @router.get("/{names}", response_class=HTMLResponse)
-async def page(request: Request, names: str):
+async def page(request: Request, names: str) -> HTMLResponse:
     api = YoutubeApi()
     channels, feeds, errors = await async_fetch(parse_channel_names(names), api=api)
     videos = get_videos_from_feeds(feeds, channels)
@@ -58,7 +58,7 @@ async def page(request: Request, names: str):
 
 @router.get("/channel/{channel}", response_class=HTMLResponse)
 @router.get("/c/{channel}", response_class=HTMLResponse)
-async def channel(request: Request, channel: ChannelId | UserId):
+async def channel(request: Request, channel: ChannelId | UserId) -> HTMLResponse:
     try:
         page = await YoutubeApi().get_channel_page(channel)
     except Exception as e:

@@ -1,4 +1,5 @@
 from datetime import datetime
+from typing import Any
 
 import arrow
 from fastapi import Request
@@ -40,7 +41,7 @@ jinja_env.globals["static_url"] = static_url
 jinja = Jinja2Templates(env=jinja_env)
 
 
-def template_page(request: Request, template_name: str, **kwargs) -> _TemplateResponse:
+def template_page(request: Request, template_name: str, **kwargs: Any) -> _TemplateResponse:
     return jinja.TemplateResponse(
         request,
         template_name,

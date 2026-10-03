@@ -8,8 +8,8 @@ class ChannelDescription(BaseModel, frozen=True):
     channel_id: str
     name: str
     # Absolute Youtube URLs when known, else application routes which resolve them on demand
-    avatar: str
-    home: str
+    avatar: str = ""
+    home: str = ""
 
     @model_validator(mode="before")
     @classmethod
@@ -30,7 +30,7 @@ class VideoDescription(BaseModel, frozen=True):
 
     video_id: str
     title: str
-    thumbnail: str
+    thumbnail: str = ""
     short: bool = False
     channel: ChannelDescription | None = None
     published_at: datetime | None = None

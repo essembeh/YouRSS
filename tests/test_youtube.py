@@ -1,3 +1,5 @@
+from typing import Any
+
 import pytest
 from bs4 import BeautifulSoup
 from httpx import get
@@ -11,14 +13,14 @@ CHANNEL = "UCVooVnzQxPSTXTMzSi1s6uw"
 STREAMING_CHANNEL = "UCQgWpmt02UtJkyO32HGUASQ"
 
 
-def is_rgpd_applicable():
+def is_rgpd_applicable() -> bool:
     resp = get("https://ifconfig.io/country_code")
     return resp.status_code == 200 and resp.text.strip() == "FR"
 
 
 @pytest.mark.skipif(not is_rgpd_applicable(), reason="Not applicable outside Europe")
 @pytest.mark.asyncio(loop_scope="module")
-async def test_rgpd():
+async def test_rgpd() -> None:
     api = YoutubeApi()
 
     url = "/@jonnygiger"
@@ -49,7 +51,7 @@ async def test_rgpd():
 
 
 @pytest.mark.asyncio(loop_scope="module")
-async def test_rss_channel():
+async def test_rss_channel() -> None:
     api = YoutubeApi()
 
     feed = await api.get_channel_rss("UCVooVnzQxPSTXTMzSi1s6uw")
@@ -57,7 +59,7 @@ async def test_rss_channel():
 
 
 @pytest.mark.asyncio(loop_scope="module")
-async def test_rss_playlist():
+async def test_rss_playlist() -> None:
     api = YoutubeApi()
 
     feed = await api.get_playlist_rss("PLw-vK1_d04zZCal3yMX_T23h5nDJ2toTk")
@@ -66,7 +68,7 @@ async def test_rss_playlist():
 
 @pytest.mark.asyncio(loop_scope="module")
 @pytest.mark.parametrize("name", [CHANNEL, "@jonnygiger"])
-async def test_channel_page(name: str):
+async def test_channel_page(name: str) -> None:
     api = YoutubeApi()
 
     page = await api.get_channel_page(name)
@@ -80,7 +82,7 @@ async def test_channel_page(name: str):
 
 
 @pytest.mark.asyncio(loop_scope="module")
-async def test_channel_cached():
+async def test_channel_cached() -> None:
     api = YoutubeApi()
     channel_cache.clear()
 
@@ -93,7 +95,7 @@ async def test_channel_cached():
 
 
 @pytest.mark.asyncio(loop_scope="module")
-async def test_scrap_videos():
+async def test_scrap_videos() -> None:
     api = YoutubeApi()
 
     page_iterator = api.iter_videos(CHANNEL)
@@ -105,7 +107,7 @@ async def test_scrap_videos():
 
 
 @pytest.mark.asyncio(loop_scope="module")
-async def test_scrap_videos_fields():
+async def test_scrap_videos_fields() -> None:
     api = YoutubeApi()
 
     page = await api.get_channel_page(CHANNEL, "videos")
@@ -125,7 +127,7 @@ async def test_scrap_videos_fields():
 
 
 @pytest.mark.asyncio(loop_scope="module")
-async def test_scrap_shorts():
+async def test_scrap_shorts() -> None:
     api = YoutubeApi()
 
     page = await api.get_channel_page(CHANNEL, "shorts")
@@ -142,7 +144,7 @@ async def test_scrap_shorts():
 
 
 @pytest.mark.asyncio(loop_scope="module")
-async def test_scrap_streams():
+async def test_scrap_streams() -> None:
     api = YoutubeApi()
 
     page = await api.get_channel_page(STREAMING_CHANNEL, "streams")
@@ -157,7 +159,7 @@ async def test_scrap_streams():
 
 
 @pytest.mark.asyncio(loop_scope="module")
-async def test_scrap_missing_tab():
+async def test_scrap_missing_tab() -> None:
     api = YoutubeApi()
 
     # Youtube serves the channel home when the tab does not exist
@@ -166,7 +168,7 @@ async def test_scrap_missing_tab():
     assert "streams" not in page.tabs
 
 
-def test_date_humanize_handles_none():
+def test_date_humanize_handles_none() -> None:
     # A missing publish date must render as empty, never crash the template.
     from yourss.routers.jinja import date_humanize
 
@@ -174,13 +176,13 @@ def test_date_humanize_handles_none():
     assert date_humanize("4 weeks ago") == "4 weeks ago"
 
 
-def test_parser_empty_payload_returns_empty():
+def test_parser_empty_payload_returns_empty() -> None:
     # A payload with no video-like node should yield nothing, not raise.
     assert parse_items({"foo": "bar"}, VIDEO_PARSERS) == []
     assert parse_items({"foo": "bar"}, SHORTS_PARSERS) == []
 
 
-def test_parser_detects_breakage():
+def test_parser_detects_breakage() -> None:
     # A payload that clearly holds video nodes but in an unknown shape must
     # raise ScrapingError instead of silently returning an empty list.
     broken = {"videoRenderer": {"unexpectedField": "no videoId here"}}
@@ -188,7 +190,7 @@ def test_parser_detects_breakage():
         parse_items(broken, VIDEO_PARSERS)
 
 
-def test_parser_legacy_video_fallback():
+def test_parser_legacy_video_fallback() -> None:
     # Legacy videoRenderer payloads must still parse via the fallback parser.
     legacy = {
         "videoRenderer": {
@@ -210,7 +212,7 @@ def test_parser_legacy_video_fallback():
     ]
 
 
-def test_parser_lockup_video():
+def test_parser_lockup_video() -> None:
     # Minimal reproduction of the current lockupViewModel video shape.
     lockup = {
         "lockupViewModel": {
@@ -253,7 +255,7 @@ def test_parser_lockup_video():
     ]
 
 
-def _lockup_with_rows(rows):
+def _lockup_with_rows(rows: list[dict[str, Any]]) -> dict[str, Any]:
     return {
         "lockupViewModel": {
             "contentType": "LOCKUP_CONTENT_TYPE_VIDEO",
@@ -268,10 +270,10 @@ def _lockup_with_rows(rows):
     }
 
 
-def test_parser_published_compact_with_icon():
+def test_parser_published_compact_with_icon() -> None:
     # Compact layout: the view counter carries a leadingIcon AND a "views"
     # accessibility label, the date carries its own label. Must pick the date.
-    rows = [
+    rows: list[dict[str, Any]] = [
         {
             "metadataParts": [
                 {
@@ -288,9 +290,9 @@ def test_parser_published_compact_with_icon():
     assert item["views_text"] == "1.1 million views"
 
 
-def test_parser_published_members_only():
+def test_parser_published_members_only() -> None:
     # Members-only video: a single date part (no view counter) plus a badge row.
-    rows = [
+    rows: list[dict[str, Any]] = [
         {"metadataParts": [{"text": {"content": "2 days ago"}, "accessibilityLabel": "2 days ago"}]},
         {"badges": [{"badgeViewModel": {"badgeText": "Members only"}}]},
     ]
@@ -299,9 +301,9 @@ def test_parser_published_members_only():
     assert item["views_text"] is None
 
 
-def test_parser_published_missing_is_none():
+def test_parser_published_missing_is_none() -> None:
     # No date part at all (e.g. only a view counter) must yield None, not crash.
-    rows = [
+    rows: list[dict[str, Any]] = [
         {
             "metadataParts": [
                 {
@@ -316,7 +318,7 @@ def test_parser_published_missing_is_none():
     assert item["published_text"] is None
 
 
-def test_parser_legacy_shorts_fallback():
+def test_parser_legacy_shorts_fallback() -> None:
     # Legacy richItemRenderer shorts must still parse via the fallback parser.
     legacy = {
         "richItemRenderer": {
@@ -344,7 +346,7 @@ def test_parser_legacy_shorts_fallback():
     ]
 
 
-def test_parser_shorts_lockup():
+def test_parser_shorts_lockup() -> None:
     # Minimal reproduction of the current shortsLockupViewModel shape.
     shorts = {
         "shortsLockupViewModel": {

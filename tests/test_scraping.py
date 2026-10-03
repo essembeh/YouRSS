@@ -1,8 +1,10 @@
 import json
 import re
 from datetime import timedelta
+from typing import Any
 
 import pytest
+from pytest import MonkeyPatch
 
 from yourss.settings import current_config
 from yourss.youtube import ChannelDescription, Continuation, ScrapingError
@@ -17,7 +19,7 @@ from yourss.youtube.scraping.extract import (
 CHANNEL_ID = "UCVooVnzQxPSTXTMzSi1s6uw"
 
 
-def _tab(name: str, selected: bool = False) -> dict:
+def _tab(name: str, selected: bool = False) -> dict[str, Any]:
     url = f"/channel/{CHANNEL_ID}/{name}"
     return {
         "tabRenderer": {
@@ -27,7 +29,7 @@ def _tab(name: str, selected: bool = False) -> dict:
     }
 
 
-def _lockup(video_id: str) -> dict:
+def _lockup(video_id: str) -> dict[str, Any]:
     return {
         "lockupViewModel": {
             "contentType": "LOCKUP_CONTENT_TYPE_VIDEO",
@@ -37,12 +39,12 @@ def _lockup(video_id: str) -> dict:
     }
 
 
-def _page(data: dict, version: str | None = "2.20260101.00.00") -> str:
+def _page(data: dict[str, Any], version: str | None = "2.20260101.00.00") -> str:
     config = f'<script>ytcfg.set({{"INNERTUBE_CLIENT_VERSION":"{version}"}});</script>' if version else ""
     return f"<html><head>{config}<script>var ytInitialData = {json.dumps(data)};</script></head><body>}};</body></html>"
 
 
-def _channel_data(*tabs: dict, contents: list | None = None) -> dict:
+def _channel_data(*tabs: dict[str, Any], contents: list[Any] | None = None) -> dict[str, Any]:
     return {
         "metadata": {
             "channelMetadataRenderer": {
@@ -56,7 +58,7 @@ def _channel_data(*tabs: dict, contents: list | None = None) -> dict:
     }
 
 
-def test_extract_json():
+def test_extract_json() -> None:
     pattern = re.compile(r"marker = (?={)")
     html = 'before marker = {"a": {"b": "};"}, "c": [1, 2]}; after'
     assert extract_json(html, pattern) == {"a": {"b": "};"}, "c": [1, 2]}
@@ -66,7 +68,7 @@ def test_extract_json():
     assert extract_json('marker = {broken; marker = {"ok": 1}', pattern) == {"ok": 1}
 
 
-def test_extract_initial_data_variants():
+def test_extract_initial_data_variants() -> None:
     assert extract_initial_data('<script>var ytInitialData = {"a": 1};</script>') == {"a": 1}
     assert extract_initial_data('<script>window["ytInitialData"] = {"a": 2};</script>') == {"a": 2}
     json_element = (
@@ -78,12 +80,12 @@ def test_extract_initial_data_variants():
         extract_initial_data("<script>var ytInitialData = JSON.parse('...');</script>")
 
 
-def test_extract_client_version():
+def test_extract_client_version() -> None:
     assert extract_client_version(_page({})) == "2.20260101.00.00"
     assert extract_client_version("<html></html>") is None
 
 
-def test_channel_page_metadata_and_tabs():
+def test_channel_page_metadata_and_tabs() -> None:
     page = parse_channel_page(
         _page(
             _channel_data(
@@ -103,13 +105,13 @@ def test_channel_page_metadata_and_tabs():
     assert page.selected_tab == "videos"
 
 
-def test_channel_page_missing_tab_falls_back_to_home():
+def test_channel_page_missing_tab_falls_back_to_home() -> None:
     page = parse_channel_page(_page(_channel_data(_tab("featured", selected=True), _tab("videos"))))
     assert page.tabs == ["videos"]
     assert page.selected_tab is None
 
 
-def test_channel_page_videos_and_continuation():
+def test_channel_page_videos_and_continuation() -> None:
     contents = [
         _lockup("aaaaaaaaaaa"),
         _lockup("bbbbbbbbbbb"),
@@ -122,7 +124,7 @@ def test_channel_page_videos_and_continuation():
     assert videos.continuation == Continuation(token="TOKEN", client_version="2.20260101.00.00")
 
 
-def test_channel_page_without_client_version_cannot_continue():
+def test_channel_page_without_client_version_cannot_continue() -> None:
     contents = [_lockup("aaaaaaaaaaa"), {"continuationCommand": {"token": "TOKEN"}}]
     page = parse_channel_page(
         _page(
@@ -133,14 +135,14 @@ def test_channel_page_without_client_version_cannot_continue():
     assert page.videos().continuation is None
 
 
-def test_channel_page_breakage_is_detected():
+def test_channel_page_breakage_is_detected() -> None:
     with pytest.raises(ScrapingError):
         parse_channel_page("<html>no data</html>")
     with pytest.raises(ScrapingError):
         parse_channel_page(_page({"metadata": {"somethingElse": {}}}))
 
 
-def test_parse_continuation():
+def test_parse_continuation() -> None:
     previous = Continuation(token="TOKEN", client_version="2.20260101.00.00")
     payload = {"items": [_lockup("ccccccccccc"), {"continuationCommand": {"token": "NEXT"}}]}
     page = parse_continuation(payload, previous)
@@ -153,7 +155,7 @@ def _channel(index: int) -> ChannelDescription:
     return ChannelDescription(channel_id=f"UC{index:022d}", name=f"Channel {index}")
 
 
-def test_channel_cache_is_bounded(monkeypatch):
+def test_channel_cache_is_bounded(monkeypatch: MonkeyPatch) -> None:
     monkeypatch.setattr(current_config, "channel_cache_ttl", timedelta(hours=1))
     cache = ChannelCache(max_size=4)
     for index in range(10):
@@ -165,7 +167,7 @@ def test_channel_cache_is_bounded(monkeypatch):
     assert cache.get(_channel(9).channel_id) == _channel(9)
 
 
-def test_channel_cache_expires(monkeypatch):
+def test_channel_cache_expires(monkeypatch: MonkeyPatch) -> None:
     monkeypatch.setattr(current_config, "channel_cache_ttl", timedelta(hours=1))
     cache = ChannelCache()
     cache.put("@channel1", _channel(1))
@@ -175,7 +177,7 @@ def test_channel_cache_expires(monkeypatch):
     assert len(cache) == 1  # the other key is dropped when it is read
 
 
-def test_channel_cache_can_be_disabled(monkeypatch):
+def test_channel_cache_can_be_disabled(monkeypatch: MonkeyPatch) -> None:
     monkeypatch.setattr(current_config, "channel_cache_ttl", timedelta(0))
     cache = ChannelCache()
     cache.put("@channel1", _channel(1))
@@ -183,7 +185,7 @@ def test_channel_cache_can_be_disabled(monkeypatch):
 
 
 @pytest.mark.anyio
-async def test_channel_page_is_retried_once(monkeypatch):
+async def test_channel_page_is_retried_once(monkeypatch: MonkeyPatch) -> None:
     from yourss.youtube import YoutubeApi
 
     good = _page(_channel_data(_tab("videos", selected=True)))

@@ -10,7 +10,7 @@ SAMPLES_FOLDER = Path(__file__).parent / "data"
 FEEDS_FILE = Path(__file__).parent / "feeds.txt"
 
 
-def test_feed_channel_xml():
+def test_feed_channel_xml() -> None:
     xmlfile = SAMPLES_FOLDER / "UCVooVnzQxPSTXTMzSi1s6uw.xml"
     assert xmlfile.exists()
 
@@ -35,7 +35,7 @@ def test_feed_channel_xml():
     assert str(entry.media_info.thumbnail.url) == "https://i1.ytimg.com/vi/dfxLY1EayNA/hqdefault.jpg"
 
 
-def test_feed_playlist_xml():
+def test_feed_playlist_xml() -> None:
     xmlfile = SAMPLES_FOLDER / "PLw-vK1_d04zZCal3yMX_T23h5nDJ2toTk.xml"
     assert xmlfile.exists()
 
@@ -59,7 +59,7 @@ def test_feed_playlist_xml():
 
 
 @mark.skipif(not FEEDS_FILE.exists(), reason="Missing feeds urls")
-def test_multiple_feeds():
+def test_multiple_feeds() -> None:
     client = Client(timeout=5)
     count = 0
     for url in FEEDS_FILE.read_text().splitlines():
@@ -75,7 +75,7 @@ def test_multiple_feeds():
     assert count > 0
 
 
-def test_feed_entry_to_video():
+def test_feed_entry_to_video() -> None:
     from yourss.youtube import ChannelDescription
 
     rss = Feed.from_xml((SAMPLES_FOLDER / "UCVooVnzQxPSTXTMzSi1s6uw.xml").read_text())

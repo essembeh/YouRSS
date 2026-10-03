@@ -24,7 +24,7 @@ from abc import ABC, abstractmethod
 from collections.abc import Iterator
 from typing import Any
 
-from glom import Coalesce, GlomError, glom
+from glom import Coalesce, GlomError, glom  # type: ignore[import-untyped]  # glom has no type hints
 
 from ..model import VideoDescription
 from .errors import ScrapingError
@@ -80,8 +80,8 @@ def _published_from_metadata_rows(rows: Any) -> str | None:
         return None
     for part in candidates:
         if part.get("accessibilityLabel"):
-            return part["accessibilityLabel"]
-    return candidates[-1]["text"]["content"]
+            return str(part["accessibilityLabel"])
+    return str(candidates[-1]["text"]["content"])
 
 
 def _views_from_metadata_rows(rows: Any) -> str | None:

@@ -7,5 +7,5 @@ router = APIRouter(prefix="/api")
 
 
 @router.get("/version")
-async def version():
+async def version() -> dict[str, str]:
     return {"name": app_name, "version": app_version}

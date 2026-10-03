@@ -1,7 +1,11 @@
+from datetime import UTC, datetime
 from typing import Any
 from urllib.parse import urlencode
 
 from ..youtube import ChannelDescription, Continuation, Feed, VideoDescription
+
+# Sort key of a video without a date (never the case for an RSS entry)
+_OLDEST = datetime.min.replace(tzinfo=UTC)
 
 
 def force_https(url: str) -> str:
@@ -44,4 +48,4 @@ def get_videos_from_feeds(feeds: list[Feed], channels: dict[str, ChannelDescript
                 home=str(entry.author.uri),
             )
             out.append(entry.to_video(channel))
-    return sorted(out, key=lambda v: v.published_at, reverse=True)
+    return sorted(out, key=lambda v: v.published_at or _OLDEST, reverse=True)

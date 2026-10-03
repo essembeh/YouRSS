@@ -6,45 +6,45 @@ from .youtube import ChannelDescription, Feed, YoutubeApi, is_playlist_id
 async def async_fetch(
     names: list[str], api: YoutubeApi
 ) -> tuple[dict[str, ChannelDescription], list[Feed], list[BaseException]]:
-    channels = {}
-    feeds = []
-    errors = []
+    channels: dict[str, ChannelDescription] = {}
+    feeds: list[Feed] = []
+    errors: list[BaseException] = []
 
     # first fetch user/channel_id metadata
-    for result in await asyncio.gather(
+    for channel in await asyncio.gather(
         *[api.get_channel(n) for n in names if not is_playlist_id(n)],
         return_exceptions=True,
     ):
-        if isinstance(result, ChannelDescription):
-            channels[result.channel_id] = result
+        if isinstance(channel, BaseException):
+            errors.append(channel)
         else:
-            errors.append(result)
+            channels[channel.channel_id] = channel
 
     # then fetch feeds
-    for result in await asyncio.gather(*[api.get_channel_rss(n) for n in channels], return_exceptions=True):
-        if isinstance(result, Feed):
-            feeds.append(result)
+    for feed in await asyncio.gather(*[api.get_channel_rss(n) for n in channels], return_exceptions=True):
+        if isinstance(feed, BaseException):
+            errors.append(feed)
         else:
-            errors.append(result)
+            feeds.append(feed)
 
     # fetch playlists
-    playlist_channels_id = []
-    for result in await asyncio.gather(
+    playlist_channels_id: list[str] = []
+    for feed in await asyncio.gather(
         *[api.get_playlist_rss(n) for n in names if is_playlist_id(n)],
         return_exceptions=True,
     ):
-        if isinstance(result, Feed):
-            feeds.append(result)
-            if result.channel_id and result.channel_id not in channels:
-                playlist_channels_id.append(result.channel_id)
+        if isinstance(feed, BaseException):
+            errors.append(feed)
         else:
-            errors.append(result)
+            feeds.append(feed)
+            if feed.channel_id and feed.channel_id not in channels:
+                playlist_channels_id.append(feed.channel_id)
 
     # fetch metadata for missing playlist channels
-    for result in await asyncio.gather(*[api.get_channel(n) for n in playlist_channels_id], return_exceptions=True):
-        if isinstance(result, ChannelDescription):
-            channels[result.channel_id] = result
+    for channel in await asyncio.gather(*[api.get_channel(n) for n in playlist_channels_id], return_exceptions=True):
+        if isinstance(channel, BaseException):
+            errors.append(channel)
         else:
-            errors.append(result)
+            channels[channel.channel_id] = channel
 
     return channels, feeds, errors
