@@ -17,10 +17,7 @@ async def test_watch(client):
     resp = await client.get("/watch?v=q5IMA244HXw")
     assert resp.status_code == 307
 
-    assert (
-        resp.headers["Location"]
-        == "https://www.youtube-nocookie.com/embed/q5IMA244HXw?autoplay=1"
-    )
+    assert resp.headers["Location"] == "https://www.youtube-nocookie.com/embed/q5IMA244HXw?autoplay=1"
 
 
 @pytest.mark.anyio

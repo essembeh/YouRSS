@@ -22,9 +22,7 @@ async def async_fetch(
             errors.append(result)
 
     # then fetch feeds
-    for result in await asyncio.gather(
-        *[api.get_channel_rss(n) for n in channels.keys()], return_exceptions=True
-    ):
+    for result in await asyncio.gather(*[api.get_channel_rss(n) for n in channels.keys()], return_exceptions=True):
         if isinstance(result, Feed):
             feeds.append(result)
         else:
@@ -44,9 +42,7 @@ async def async_fetch(
             errors.append(result)
 
     # fetch metadata for missing playlist channels
-    for result in await asyncio.gather(
-        *[api.get_channel(n) for n in playlist_channels_id], return_exceptions=True
-    ):
+    for result in await asyncio.gather(*[api.get_channel(n) for n in playlist_channels_id], return_exceptions=True):
         if isinstance(result, ChannelDescription):
             channels[result.channel_id] = result
         else:

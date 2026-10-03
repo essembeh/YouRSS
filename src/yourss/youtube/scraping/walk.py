@@ -13,11 +13,7 @@ def iter_key[T](key: str, payload: Any, cls: type[T] | None = None) -> Iterator[
     """
     if isinstance(payload, dict):
         for k, value in payload.items():
-            if (
-                k == key
-                and value is not None
-                and (cls is None or isinstance(value, cls))
-            ):
+            if k == key and value is not None and (cls is None or isinstance(value, cls)):
                 yield value
             yield from iter_key(key, value, cls)
     elif isinstance(payload, list):

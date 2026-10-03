@@ -16,11 +16,7 @@ class CachedStaticFiles(StaticFiles):
         out = await super().get_response(path, scope)
         # A versioned URL (?v=<mtime>, see static_url) never changes: cache it for good
         versioned = b"v=" in scope.get("query_string", b"")
-        out.headers["Cache-Control"] = (
-            "public, max-age=31536000, immutable"
-            if versioned
-            else "public, max-age=3600"
-        )
+        out.headers["Cache-Control"] = "public, max-age=31536000, immutable" if versioned else "public, max-age=3600"
         return out
 
 

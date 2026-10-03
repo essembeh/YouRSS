@@ -16,9 +16,7 @@ CHANNEL_ID = "UCVooVnzQxPSTXTMzSi1s6uw"
 
 def _http_404() -> HTTPStatusError:
     request = Request("GET", "https://www.youtube.com/feeds/videos.xml")
-    return HTTPStatusError(
-        "404", request=request, response=Response(404, request=request)
-    )
+    return HTTPStatusError("404", request=request, response=Response(404, request=request))
 
 
 @pytest.fixture
@@ -138,9 +136,7 @@ async def test_non_404_error_propagates(monkeypatch, api):
 
     async def fetch_500(channel_id: str) -> Feed:
         request = Request("GET", "https://x")
-        raise HTTPStatusError(
-            "500", request=request, response=Response(500, request=request)
-        )
+        raise HTTPStatusError("500", request=request, response=Response(500, request=request))
 
     monkeypatch.setattr(instance, "_get_channel_rss_raw", fetch_500)
 

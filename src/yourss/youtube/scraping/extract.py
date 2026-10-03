@@ -34,14 +34,8 @@ def extract_initial_data(html: str) -> dict[str, Any]:
     if out is None:
         # Quote what the page holds instead: this is what a fix will be written from
         position = html.find("ytInitialData")
-        context = (
-            html[max(0, position - 20) : position + 80]
-            if position >= 0
-            else "no occurrence"
-        )
-        raise ScrapingError(
-            f"Cannot read ytInitialData in a Youtube page of {len(html)} chars: {context!r}"
-        )
+        context = html[max(0, position - 20) : position + 80] if position >= 0 else "no occurrence"
+        raise ScrapingError(f"Cannot read ytInitialData in a Youtube page of {len(html)} chars: {context!r}")
     return out
 
 

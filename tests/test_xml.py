@@ -17,14 +17,8 @@ def test_feed_channel_xml():
     rss = Feed.from_xml(xmlfile.read_text())
     assert rss.title == "Jonny Giger"
     assert rss.uid == "UCVooVnzQxPSTXTMzSi1s6uw"
-    assert (
-        str(rss.get_url())
-        == "http://www.youtube.com/feeds/videos.xml?channel_id=UCVooVnzQxPSTXTMzSi1s6uw"
-    )
-    assert (
-        str(rss.get_link())
-        == "https://www.youtube.com/channel/UCVooVnzQxPSTXTMzSi1s6uw"
-    )
+    assert str(rss.get_url()) == "http://www.youtube.com/feeds/videos.xml?channel_id=UCVooVnzQxPSTXTMzSi1s6uw"
+    assert str(rss.get_link()) == "https://www.youtube.com/channel/UCVooVnzQxPSTXTMzSi1s6uw"
     assert len(rss.entries) == 15
 
     for entry in rss.entries:
@@ -38,10 +32,7 @@ def test_feed_channel_xml():
     assert entry.title == "IMPOSSIBLE TRICKS OF DAEWON SONG"
     assert len(entry.media_info.description) == 796
     assert entry.video_id == "dfxLY1EayNA"
-    assert (
-        str(entry.media_info.thumbnail.url)
-        == "https://i1.ytimg.com/vi/dfxLY1EayNA/hqdefault.jpg"
-    )
+    assert str(entry.media_info.thumbnail.url) == "https://i1.ytimg.com/vi/dfxLY1EayNA/hqdefault.jpg"
 
 
 def test_feed_playlist_xml():
@@ -53,8 +44,7 @@ def test_feed_playlist_xml():
     assert rss.uid == "PLw-vK1_d04zZCal3yMX_T23h5nDJ2toTk"
     assert rss.channel_id == "UCVooVnzQxPSTXTMzSi1s6uw"
     assert (
-        str(rss.get_url())
-        == "http://www.youtube.com/feeds/videos.xml?playlist_id=PLw-vK1_d04zZCal3yMX_T23h5nDJ2toTk"
+        str(rss.get_url()) == "http://www.youtube.com/feeds/videos.xml?playlist_id=PLw-vK1_d04zZCal3yMX_T23h5nDJ2toTk"
     )
     assert len(rss.entries) == 15
 
@@ -65,10 +55,7 @@ def test_feed_playlist_xml():
     assert entry.updated == datetime.fromisoformat("2023-06-08T23:26:41+00:00")
     assert entry.video_id == "Ol_D2iPR9so"
     assert entry.channel_id == "UCVooVnzQxPSTXTMzSi1s6uw"
-    assert (
-        str(entry.media_info.thumbnail.url)
-        == "https://i4.ytimg.com/vi/Ol_D2iPR9so/hqdefault.jpg"
-    )
+    assert str(entry.media_info.thumbnail.url) == "https://i4.ytimg.com/vi/Ol_D2iPR9so/hqdefault.jpg"
 
 
 @mark.skipif(not FEEDS_FILE.exists(), reason="Missing feeds urls")

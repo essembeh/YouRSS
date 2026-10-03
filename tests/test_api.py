@@ -40,9 +40,7 @@ async def test_proxy_avatar(client):
 
     assert user.status_code == channel.status_code == 307
     assert user.headers["Location"] == user.headers["Location"]
-    assert re.fullmatch(
-        r"^https://yt[0-9]+\.googleusercontent\.com/.*$", user.headers["Location"]
-    )
+    assert re.fullmatch(r"^https://yt[0-9]+\.googleusercontent\.com/.*$", user.headers["Location"])
 
 
 @pytest.mark.anyio

@@ -34,9 +34,7 @@ async def rss_feed(name: UserId | ChannelId | Playlist_Id):
         feed = await api.get_playlist_rss(name)
 
     if feed is None:
-        raise HTTPException(
-            status_code=HTTP_404_NOT_FOUND, detail=f"Cannot find rss for: {name}"
-        )
+        raise HTTPException(status_code=HTTP_404_NOT_FOUND, detail=f"Cannot find rss for: {name}")
     return RedirectResponse(force_https(str(feed.get_url())), headers=CACHE_HEADERS)
 
 
@@ -47,9 +45,7 @@ async def avatar(name: UserId | ChannelId):
     desc = await api.get_channel(name)
 
     if (url := desc.avatar) is None:
-        raise HTTPException(
-            status_code=HTTP_404_NOT_FOUND, detail=f"Cannot find avatar for: {name}"
-        )
+        raise HTTPException(status_code=HTTP_404_NOT_FOUND, detail=f"Cannot find avatar for: {name}")
     return RedirectResponse(url, headers=AVATAR_CACHE_HEADERS)
 
 
@@ -60,7 +56,5 @@ async def home(name: UserId | ChannelId):
     desc = await api.get_channel(name)
 
     if (home := desc.home) is None:
-        raise HTTPException(
-            status_code=HTTP_404_NOT_FOUND, detail=f"Cannot find homepage for: {name}"
-        )
+        raise HTTPException(status_code=HTTP_404_NOT_FOUND, detail=f"Cannot find homepage for: {name}")
     return RedirectResponse(home, headers=CACHE_HEADERS)

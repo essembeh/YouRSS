@@ -74,9 +74,7 @@ class Entry(AtomXmlModel):
     @property
     def views(self) -> int | None:
         community = self.media_info.community
-        return (
-            community.statistics.views if community and community.statistics else None
-        )
+        return community.statistics.views if community and community.statistics else None
 
     def to_video(self, channel: ChannelDescription | None = None) -> VideoDescription:
         """The only place where an RSS entry becomes a video of the application."""

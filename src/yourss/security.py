@@ -34,9 +34,7 @@ def find_user(username: str) -> Optional[User]:
 
     if current_config.users_file is not None and current_config.users_file.exists():
         try:
-            config = parse_yaml_raw_as(
-                UsersConfig, current_config.users_file.read_bytes()
-            )
+            config = parse_yaml_raw_as(UsersConfig, current_config.users_file.read_bytes())
             for user in config.users:
                 if user.name == username:
                     return user
@@ -44,9 +42,7 @@ def find_user(username: str) -> Optional[User]:
             logger.exception(error)
 
 
-async def get_auth_user(
-    request: Request, user: User | None = Depends(find_user)
-) -> User:
+async def get_auth_user(request: Request, user: User | None = Depends(find_user)) -> User:
     """
     See https://fastapi.tiangolo.com/advanced/security/http-basic-auth/
     """
@@ -56,12 +52,8 @@ async def get_auth_user(
     if user.password is not None:
         logger.debug("User needs a password: {}", user.name)
         if (credentials := await security(request)) is None:
-            raise HTTPException(
-                status_code=HTTP_401_UNAUTHORIZED, detail="Missing credentials"
-            )
+            raise HTTPException(status_code=HTTP_401_UNAUTHORIZED, detail="Missing credentials")
         if not verify_password(user, credentials.password):
-            raise HTTPException(
-                status_code=HTTP_401_UNAUTHORIZED, detail="Invalid credentials"
-            )
+            raise HTTPException(status_code=HTTP_401_UNAUTHORIZED, detail="Invalid credentials")
 
     return user

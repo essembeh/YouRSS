@@ -162,8 +162,7 @@ class LockupVideoParser(ItemParser):
         default=None,
     )
     _METADATA_ROWS = Coalesce(
-        "metadata.lockupMetadataViewModel.metadata"
-        ".contentMetadataViewModel.metadataRows",
+        "metadata.lockupMetadataViewModel.metadata.contentMetadataViewModel.metadataRows",
         default=None,
     )
 
@@ -288,9 +287,7 @@ def _looks_like_video_payload(payload: Dict[str, Any]) -> bool:
     return False
 
 
-def parse_items(
-    payload: Dict[str, Any], parsers: List[ItemParser]
-) -> List[Dict[str, Any]]:
+def parse_items(payload: Dict[str, Any], parsers: List[ItemParser]) -> List[Dict[str, Any]]:
     """
     Run ``parsers`` in order and return the first non-empty result.
 
@@ -302,15 +299,12 @@ def parse_items(
             return items
     if _looks_like_video_payload(payload):
         raise ScrapingError(
-            "Youtube payload contains video-like nodes but none could be "
-            "parsed: the page structure has likely changed."
+            "Youtube payload contains video-like nodes but none could be parsed: the page structure has likely changed."
         )
     return []
 
 
-def parse_videos(
-    payload: Dict[str, Any], *, shorts: bool = False
-) -> List[VideoDescription]:
+def parse_videos(payload: Dict[str, Any], *, shorts: bool = False) -> List[VideoDescription]:
     """Videos (or shorts) found anywhere in ``payload``, in page order."""
     parsers = SHORTS_PARSERS if shorts else VIDEO_PARSERS
     return [VideoDescription(**item) for item in parse_items(payload, parsers)]

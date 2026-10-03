@@ -17,16 +17,12 @@ router = APIRouter()
 
 @router.get("/", response_class=RedirectResponse)
 async def root():
-    return RedirectResponse(
-        router.url_path_for("page", names=current_config.default_channels)
-    )
+    return RedirectResponse(router.url_path_for("page", names=current_config.default_channels))
 
 
 @router.get("/watch", response_class=RedirectResponse)
 async def watch(video: str = Query(alias="v", min_length=11, max_length=11)):
-    return RedirectResponse(
-        f"https://www.youtube-nocookie.com/embed/{video}?autoplay=1"
-    )
+    return RedirectResponse(f"https://www.youtube-nocookie.com/embed/{video}?autoplay=1")
 
 
 @router.get("/user/{username}", response_class=HTMLResponse)
@@ -53,9 +49,7 @@ async def page(request: Request, names: str):
     return template_page(
         request,
         "pages/view.jinja-html",
-        title=", ".join(
-            sorted(map(lambda x: x.name, channels.values()), key=str.lower)
-        ),
+        title=", ".join(sorted(map(lambda x: x.name, channels.values()), key=str.lower)),
         channels=sorted(channels.values(), key=lambda c: c.name.lower()),
         videos=videos,
         errors=errors,

@@ -14,9 +14,7 @@ router = APIRouter(prefix="/htmx")
 @router.get("/channel/{channel}", response_class=HTMLResponse)
 async def htmx_channel(request: Request, channel: ChannelId | UserId):
     page = await YoutubeApi().get_channel_page(channel)
-    return template_page(
-        request, "partials/channel.jinja-html", channel=page.channel, tabs=page.tabs
-    )
+    return template_page(request, "partials/channel.jinja-html", channel=page.channel, tabs=page.tabs)
 
 
 @router.get("/rss/{channel}", response_class=HTMLResponse)

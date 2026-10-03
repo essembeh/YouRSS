@@ -32,19 +32,13 @@ def _lockup(video_id: str) -> dict:
         "lockupViewModel": {
             "contentType": "LOCKUP_CONTENT_TYPE_VIDEO",
             "contentId": video_id,
-            "metadata": {
-                "lockupMetadataViewModel": {"title": {"content": f"Title {video_id}"}}
-            },
+            "metadata": {"lockupMetadataViewModel": {"title": {"content": f"Title {video_id}"}}},
         }
     }
 
 
 def _page(data: dict, version: str | None = "2.20260101.00.00") -> str:
-    config = (
-        f'<script>ytcfg.set({{"INNERTUBE_CLIENT_VERSION":"{version}"}});</script>'
-        if version
-        else ""
-    )
+    config = f'<script>ytcfg.set({{"INNERTUBE_CLIENT_VERSION":"{version}"}});</script>' if version else ""
     return f"<html><head>{config}<script>var ytInitialData = {json.dumps(data)};</script></head><body>}};</body></html>"
 
 
@@ -55,13 +49,7 @@ def _channel_data(*tabs: dict, contents: list | None = None) -> dict:
                 "title": "Jonny Giger",
                 "externalId": CHANNEL_ID,
                 "channelUrl": f"https://www.youtube.com/channel/{CHANNEL_ID}",
-                "avatar": {
-                    "thumbnails": [
-                        {
-                            "url": "https://yt3.googleusercontent.com/abc=s900-c-k-c0x00ffffff-no-rj"
-                        }
-                    ]
-                },
+                "avatar": {"thumbnails": [{"url": "https://yt3.googleusercontent.com/abc=s900-c-k-c0x00ffffff-no-rj"}]},
             }
         },
         "contents": {"tabs": list(tabs), "items": contents or []},
@@ -79,12 +67,8 @@ def test_extract_json():
 
 
 def test_extract_initial_data_variants():
-    assert extract_initial_data('<script>var ytInitialData = {"a": 1};</script>') == {
-        "a": 1
-    }
-    assert extract_initial_data(
-        '<script>window["ytInitialData"] = {"a": 2};</script>'
-    ) == {"a": 2}
+    assert extract_initial_data('<script>var ytInitialData = {"a": 1};</script>') == {"a": 1}
+    assert extract_initial_data('<script>window["ytInitialData"] = {"a": 2};</script>') == {"a": 2}
     json_element = (
         '<script id="yt-initial-data" type="application/json" nonce="x">{"a": 3}</script>'
         "<script>window['ytInitialData'] = JSON.parse(ytDataEl.textContent);</script>"
@@ -114,18 +98,13 @@ def test_channel_page_metadata_and_tabs():
     assert page.channel.name == "Jonny Giger"
     assert page.channel.home == f"https://www.youtube.com/channel/{CHANNEL_ID}"
     # The advertised avatar is resized to what the UI needs
-    assert (
-        page.channel.avatar
-        == "https://yt3.googleusercontent.com/abc=s176-c-k-c0x00ffffff-no-rj"
-    )
+    assert page.channel.avatar == "https://yt3.googleusercontent.com/abc=s176-c-k-c0x00ffffff-no-rj"
     assert page.tabs == ["videos", "shorts"]
     assert page.selected_tab == "videos"
 
 
 def test_channel_page_missing_tab_falls_back_to_home():
-    page = parse_channel_page(
-        _page(_channel_data(_tab("featured", selected=True), _tab("videos")))
-    )
+    page = parse_channel_page(_page(_channel_data(_tab("featured", selected=True), _tab("videos"))))
     assert page.tabs == ["videos"]
     assert page.selected_tab is None
 
@@ -136,17 +115,11 @@ def test_channel_page_videos_and_continuation():
         _lockup("bbbbbbbbbbb"),
         {"continuationCommand": {"token": "TOKEN"}},
     ]
-    page = parse_channel_page(
-        _page(_channel_data(_tab("videos", selected=True), contents=contents))
-    )
+    page = parse_channel_page(_page(_channel_data(_tab("videos", selected=True), contents=contents)))
     videos = page.videos()
     assert [v.video_id for v in videos.videos] == ["aaaaaaaaaaa", "bbbbbbbbbbb"]
-    assert (
-        videos.videos[0].thumbnail == "https://i.ytimg.com/vi/aaaaaaaaaaa/hqdefault.jpg"
-    )
-    assert videos.continuation == Continuation(
-        token="TOKEN", client_version="2.20260101.00.00"
-    )
+    assert videos.videos[0].thumbnail == "https://i.ytimg.com/vi/aaaaaaaaaaa/hqdefault.jpg"
+    assert videos.continuation == Continuation(token="TOKEN", client_version="2.20260101.00.00")
 
 
 def test_channel_page_without_client_version_cannot_continue():
@@ -169,18 +142,11 @@ def test_channel_page_breakage_is_detected():
 
 def test_parse_continuation():
     previous = Continuation(token="TOKEN", client_version="2.20260101.00.00")
-    payload = {
-        "items": [_lockup("ccccccccccc"), {"continuationCommand": {"token": "NEXT"}}]
-    }
+    payload = {"items": [_lockup("ccccccccccc"), {"continuationCommand": {"token": "NEXT"}}]}
     page = parse_continuation(payload, previous)
     assert [v.video_id for v in page.videos] == ["ccccccccccc"]
-    assert page.continuation == Continuation(
-        token="NEXT", client_version="2.20260101.00.00"
-    )
-    assert (
-        parse_continuation({"items": [_lockup("ddddddddddd")]}, previous).continuation
-        is None
-    )
+    assert page.continuation == Continuation(token="NEXT", client_version="2.20260101.00.00")
+    assert parse_continuation({"items": [_lockup("ddddddddddd")]}, previous).continuation is None
 
 
 def _channel(index: int) -> ChannelDescription:

@@ -38,16 +38,12 @@ class VideoPage(BaseModel):
     continuation: Continuation | None = None
 
 
-def _video_page(
-    payload: dict[str, Any], client_version: str | None, shorts: bool
-) -> VideoPage:
+def _video_page(payload: dict[str, Any], client_version: str | None, shorts: bool) -> VideoPage:
     command = find_key("continuationCommand", payload, dict)
     token = command.get("token") if command else None
     return VideoPage(
         videos=parse_videos(payload, shorts=shorts),
-        continuation=Continuation(token=token, client_version=client_version)
-        if token and client_version
-        else None,
+        continuation=Continuation(token=token, client_version=client_version) if token and client_version else None,
     )
 
 
@@ -67,11 +63,7 @@ class ChannelPage:
 
 def _parse_channel(data: dict[str, Any]) -> ChannelDescription:
     meta = glom(data, _CHANNEL)
-    if (
-        not isinstance(meta, dict)
-        or not meta.get("externalId")
-        or not meta.get("title")
-    ):
+    if not isinstance(meta, dict) or not meta.get("externalId") or not meta.get("title"):
         raise ScrapingError("Cannot find the channel metadata in the Youtube page")
     avatar = glom(meta, _CHANNEL_AVATAR)
     return ChannelDescription(
@@ -79,8 +71,7 @@ def _parse_channel(data: dict[str, Any]) -> ChannelDescription:
         name=meta["title"],
         # The page advertises a 900 px avatar, far more than what the UI displays
         avatar=_AVATAR_SIZE.sub(f"=s{AVATAR_SIZE}", avatar) if avatar else None,
-        home=meta.get("channelUrl")
-        or f"https://www.youtube.com/channel/{meta['externalId']}",
+        home=meta.get("channelUrl") or f"https://www.youtube.com/channel/{meta['externalId']}",
     )
 
 
@@ -105,8 +96,6 @@ def parse_channel_page(html: str) -> ChannelPage:
     )
 
 
-def parse_continuation(
-    payload: dict[str, Any], continuation: Continuation, *, shorts: bool = False
-) -> VideoPage:
+def parse_continuation(payload: dict[str, Any], continuation: Continuation, *, shorts: bool = False) -> VideoPage:
     """Next page of a tab, from the response of the ``browse`` endpoint."""
     return _video_page(payload, continuation.client_version, shorts)

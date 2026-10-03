@@ -217,9 +217,7 @@ def test_parser_lockup_video():
             "contentType": "LOCKUP_CONTENT_TYPE_VIDEO",
             "contentId": "abc12345678",
             "contentImage": {
-                "thumbnailViewModel": {
-                    "image": {"sources": [{"url": "https://i.ytimg.com/x.jpg?foo=1"}]}
-                }
+                "thumbnailViewModel": {"image": {"sources": [{"url": "https://i.ytimg.com/x.jpg?foo=1"}]}}
             },
             "metadata": {
                 "lockupMetadataViewModel": {
@@ -293,11 +291,7 @@ def test_parser_published_compact_with_icon():
 def test_parser_published_members_only():
     # Members-only video: a single date part (no view counter) plus a badge row.
     rows = [
-        {
-            "metadataParts": [
-                {"text": {"content": "2 days ago"}, "accessibilityLabel": "2 days ago"}
-            ]
-        },
+        {"metadataParts": [{"text": {"content": "2 days ago"}, "accessibilityLabel": "2 days ago"}]},
         {"badges": [{"badgeViewModel": {"badgeText": "Members only"}}]},
     ]
     [item] = parse_items(_lockup_with_rows(rows), VIDEO_PARSERS)
@@ -333,9 +327,7 @@ def test_parser_legacy_shorts_fallback():
                         "primaryText": {"content": "Old short"},
                         "secondaryText": {"content": "10K views"},
                     },
-                    "thumbnail": {
-                        "sources": [{"url": "https://i.ytimg.com/s.jpg?a=1"}]
-                    },
+                    "thumbnail": {"sources": [{"url": "https://i.ytimg.com/s.jpg?a=1"}]},
                 }
             }
         }
@@ -361,12 +353,8 @@ def test_parser_shorts_lockup():
                 "primaryText": {"content": "Short title"},
                 "secondaryText": {"content": "532K views"},
             },
-            "thumbnailViewModel": {
-                "image": {"sources": [{"url": "https://i.ytimg.com/s.jpg?bar=2"}]}
-            },
-            "onTap": {
-                "innertubeCommand": {"reelWatchEndpoint": {"videoId": "abc12345678"}}
-            },
+            "thumbnailViewModel": {"image": {"sources": [{"url": "https://i.ytimg.com/s.jpg?bar=2"}]}},
+            "onTap": {"innertubeCommand": {"reelWatchEndpoint": {"videoId": "abc12345678"}}},
         }
     }
     items = parse_items(shorts, SHORTS_PARSERS)

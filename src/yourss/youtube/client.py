@@ -22,9 +22,7 @@ from .scraping import (
 from .utils import is_channel_id, is_user
 
 BASE_URL = "https://www.youtube.com"
-MOZILLA_USER_AGENT = (
-    "Mozilla/5.0 (X11; Linux x86_64; rv:109.0) Gecko/20100101 Firefox/117.0"
-)
+MOZILLA_USER_AGENT = "Mozilla/5.0 (X11; Linux x86_64; rv:109.0) Gecko/20100101 Firefox/117.0"
 
 
 def _youtube_cookies() -> Cookies:
@@ -48,18 +46,12 @@ class YoutubeApi(RapidApi):
     # --- RSS feeds
 
     @get("/feeds/videos.xml")
-    async def _get_channel_rss_raw(
-        self, channel_id: Annotated[str, Query()]
-    ) -> Feed: ...
+    async def _get_channel_rss_raw(self, channel_id: Annotated[str, Query()]) -> Feed: ...
 
     @get("/feeds/videos.xml")
-    async def _get_playlist_rss_raw(
-        self, playlist_id: Annotated[str, Query()]
-    ) -> Feed: ...
+    async def _get_playlist_rss_raw(self, playlist_id: Annotated[str, Query()]) -> Feed: ...
 
-    async def _fetch_rss(
-        self, key: str, fetch: Callable[[str], Awaitable[Feed]]
-    ) -> Feed:
+    async def _fetch_rss(self, key: str, fetch: Callable[[str], Awaitable[Feed]]) -> Feed:
         """Always fetch the feed live. The on-disk copy is only a fallback used
         when Youtube returns a transient 404 (it does so daily on all feeds)."""
         folder = current_config.cache_folder
@@ -87,16 +79,12 @@ class YoutubeApi(RapidApi):
     # --- pages and internal API, read by the scraping package
 
     @get("{path}")
-    async def get_html(
-        self, path: Annotated[str, Path()], ucbcb: Annotated[int, Query()] = 1
-    ) -> Response: ...
+    async def get_html(self, path: Annotated[str, Path()], ucbcb: Annotated[int, Query()] = 1) -> Response: ...
 
     @post("/youtubei/v1/browse")
     async def api_browse(self, data: Annotated[dict, JsonBody()]) -> dict[str, Any]: ...
 
-    async def get_channel_page(
-        self, name: str, tab: ChannelTab | None = None
-    ) -> ChannelPage:
+    async def get_channel_page(self, name: str, tab: ChannelTab | None = None) -> ChannelPage:
         """Page of a channel (``UC…`` id or ``@handle``): its home, or one of its tabs."""
         if is_channel_id(name):
             path = f"/channel/{name}"
@@ -126,9 +114,7 @@ class YoutubeApi(RapidApi):
             return cached
         return (await self.get_channel_page(name)).channel
 
-    async def get_more_videos(
-        self, continuation: Continuation, *, shorts: bool = False
-    ) -> VideoPage:
+    async def get_more_videos(self, continuation: Continuation, *, shorts: bool = False) -> VideoPage:
         """Next page of a channel tab."""
         payload = await self.api_browse(
             {
