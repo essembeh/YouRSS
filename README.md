@@ -36,7 +36,7 @@ First, you need [uv](https://docs.astral.sh/uv/), see [installation documentatio
 $ git clone https://github.com/essembeh/YouRSS
 $ cd YouRSS
 $ uv sync
-$ uv run -- dotenv run fastapi dev yourss/main.py
+$ uv run --env-file .env -- fastapi dev src/yourss/main.py
 
 # or if you use just
 $ just run
