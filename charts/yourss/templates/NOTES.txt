@@ -1,0 +1,16 @@
+YouRSS {{ .Chart.AppVersion }} is deployed.
+
+{{- if .Values.ingress.enabled }}
+Open it at:
+{{- range .Values.ingress.hosts }}
+  http{{ if $.Values.ingress.tls }}s{{ end }}://{{ .host }}/
+{{- end }}
+{{- else }}
+No Ingress is enabled, forward the service to reach it:
+  kubectl --namespace {{ .Release.Namespace }} port-forward service/{{ include "yourss.fullname" . }} 8000:http
+then open http://localhost:8000/
+{{- end }}
+{{- if .Values.yourss.users }}
+
+User pages: {{ range .Values.yourss.users }}/u/{{ .name }} {{ end }}
+{{- end }}

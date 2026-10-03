@@ -23,11 +23,12 @@ spec:
         {{- toYaml . | nindent 8 }}
         {{- end }}
     spec:
-      {{- with .Values.yourss.imagePullSecrets }}
+      {{- with .Values.imagePullSecrets }}
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       serviceAccountName: {{ include "yourss.serviceAccountName" . }}
+      automountServiceAccountToken: {{ .Values.serviceAccount.automount }}
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
       containers:
@@ -38,20 +39,29 @@ spec:
           imagePullPolicy: {{ .Values.yourss.image.pullPolicy }}
           env:
             - name: TZ
-              value: {{ .Values.yourss.timezone }}
+              value: {{ .Values.yourss.timezone | quote }}
             - name: LOGURU_LEVEL
-              value: {{ .Values.yourss.logLevel }}
+              value: {{ .Values.yourss.logLevel | quote }}
             - name: YOURSS_DEFAULT_CHANNELS
-              value: "{{ join "," .Values.yourss.defaultChannels }}"
-            - name: YOURSS_USERS_FILE
-              value: /yourss/users.yaml
+              value: {{ join "," .Values.yourss.defaultChannels | quote }}
+            - name: YOURSS_API_DOCS_ENABLED
+              value: {{ .Values.yourss.apiDocsEnabled | quote }}
             - name: YOURSS_CLEAN_TITLES
-              value: "{{ .Values.yourss.cleanTitles }}"
-            - name: YOURSS_THEME
-              value: "{{ .Values.yourss.theme }}"
+              value: {{ .Values.yourss.cleanTitles | quote }}
+            - name: YOURSS_CHANNEL_CACHE_TTL
+              value: {{ .Values.yourss.channelCacheTtl | quote }}
             {{- if .Values.yourss.cacheEnabled }}
             - name: YOURSS_CACHE_FOLDER
               value: /tmp/yourss-cache
+            - name: YOURSS_CACHE_MAX_AGE
+              value: {{ .Values.yourss.cacheMaxAge | quote }}
+            {{- end }}
+            {{- if .Values.yourss.users }}
+            - name: YOURSS_USERS_FILE
+              value: /yourss/users.yaml
+            {{- end }}
+            {{- with .Values.yourss.extraEnv }}
+            {{- toYaml . | nindent 12 }}
             {{- end }}
           ports:
             - name: http
@@ -68,17 +78,26 @@ spec:
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
           volumeMounts:
-            - name: yourss-config
+            - name: tmp
+              mountPath: /tmp
+            {{- if .Values.yourss.users }}
+            - name: users
               mountPath: /yourss
+              readOnly: true
+            {{- end }}
             {{- with .Values.volumeMounts }}
-              {{- toYaml . | nindent 12 }}
+            {{- toYaml . | nindent 12 }}
             {{- end }}
       volumes:
-        - name: yourss-config
-          configMap:
-            name: {{ include "yourss.fullname" . }}-config
+        - name: tmp
+          emptyDir: {}
+        {{- if .Values.yourss.users }}
+        - name: users
+          secret:
+            secretName: {{ include "yourss.fullname" . }}-users
+        {{- end }}
         {{- with .Values.volumes }}
-          {{- toYaml . | nindent 8 }}
+        {{- toYaml . | nindent 8 }}
         {{- end }}
       {{- with .Values.nodeSelector }}
       nodeSelector:
@@ -92,28 +111,3 @@ spec:
       tolerations:
         {{- toYaml . | nindent 8 }}
       {{- end }}
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: {{ include "yourss.fullname" . }}
-  labels:
-    {{- include "yourss.labels" . | nindent 4 }}
-spec:
-  type: {{ .Values.service.type }}
-  ports:
-    - port: {{ .Values.service.port }}
-      targetPort: http
-      protocol: TCP
-      name: http
-  selector:
-    {{- include "yourss.selectorLabels" . | nindent 4 }}
----
-kind: ConfigMap
-apiVersion: v1
-metadata:
-  name: {{ include "yourss.fullname" . }}-config
-data:
-  users.yaml: |
-    users:
-{{- toYaml .Values.yourss.users | nindent 6 }}

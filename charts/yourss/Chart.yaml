@@ -5,6 +5,10 @@ version: 0.17.1
 appVersion: 0.17.1
 description: Simple Youtube browser based on RSS feeds
 home: https://github.com/essembeh/YouRSS
+icon: https://raw.githubusercontent.com/essembeh/YouRSS/main/src/yourss/static/icons/icon-192.png
+keywords:
+  - youtube
+  - rss
 maintainers:
   - email: essembeh@users.noreply.github.com
     name: Sébastien MB

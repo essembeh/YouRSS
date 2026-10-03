@@ -1,6 +1,4 @@
 # Default values for yourss.
-# This is a YAML-formatted file.
-# Declare variables to be passed into your templates.
 
 replicaCount: 1
 
@@ -11,14 +9,26 @@ yourss:
     pullPolicy: IfNotPresent
   timezone: Europe/Paris
   logLevel: INFO
-  cleanTitles: true
-  theme: light
-  # Keep the last successful RSS response on disk (/tmp/yourss-cache) to survive
-  # Youtube's daily transient 404 windows. Feeds are always fetched live; this
-  # is only a fallback served on a 404, not a performance cache.
-  cacheEnabled: false
+
+  # --- Application settings: each value maps to one YOURSS_* environment variable
+
+  # YOURSS_DEFAULT_CHANNELS: channels of the home page
   defaultChannels:
     - "@jonnygiger"
+  # YOURSS_API_DOCS_ENABLED: serve the generated API documentation (/docs, /redoc, /openapi.json)
+  apiDocsEnabled: false
+  # YOURSS_CLEAN_TITLES: capitalize the titles to tame UPPERCASE ones
+  cleanTitles: false
+  # YOURSS_CACHE_FOLDER: keep the last successful RSS response on disk (an emptyDir) to
+  # survive Youtube's daily transient 404 windows. Feeds are always fetched live; this is
+  # only a fallback served on a 404, not a performance cache.
+  cacheEnabled: false
+  # YOURSS_CACHE_MAX_AGE: max age of that fallback (ISO-8601 duration or seconds)
+  cacheMaxAge: PT24H
+  # YOURSS_CHANNEL_CACHE_TTL: how long the name and avatar of a channel are kept in memory,
+  # 0 disables this cache
+  channelCacheTtl: PT1H
+  # YOURSS_USERS_FILE: user pages, stored in a Secret since they may hold passwords
   users:
     []
     # - name: alice
@@ -29,26 +39,21 @@ yourss:
     #     #  clear: password are store in plain text
     #     method: argon2
     #     value: "$argon2i$v=19$m=4096,t=3,p=1$c29tZXNhbHQ$y+awVl4ev1h6eG8IbOrPAAjANRIbraM51FL50Pcf/B8"
-    #   # override default app theme, supported values are 'light' and 'dark'
-    #   theme: light
     #   channels:
     #     # channels can be
     #     #  a channel_id (starting with UC) like UCVooVnzQxPSTXTMzSi1s6uw
     #     #  a user (starting with @) like @jonnygiger
     #     - "@jonnygiger"
     #     - "@berrics"
-    # - name: bob
-    #   theme: dark
-    #   password:
-    #     method: clear
-    #     value: "bar"
-    #   channels:
-    #     - "@jonnygiger"
-    #     - "@berrics"
     # - name: demo
     #   channels:
     #     - "@jonnygiger"
     #     - "@berrics"
+
+  # Additional environment variables for the container
+  extraEnv: []
+  # - name: HTTPS_PROXY
+  #   value: http://proxy:3128
 
 imagePullSecrets: []
 nameOverride: ""
@@ -57,8 +62,8 @@ fullnameOverride: ""
 serviceAccount:
   # Specifies whether a service account should be created
   create: false
-  # Automatically mount a ServiceAccount's API credentials?
-  automount: true
+  # The application never talks to the Kubernetes API
+  automount: false
   # Annotations to add to the service account
   annotations: {}
   # The name of the service account to use.
@@ -68,18 +73,21 @@ serviceAccount:
 podAnnotations: {}
 podLabels: {}
 
+# The image runs as an unprivileged user and only writes to /tmp (an emptyDir)
 podSecurityContext:
-  {}
-  # fsGroup: 2000
+  runAsNonRoot: true
+  runAsUser: 10001
+  runAsGroup: 10001
+  fsGroup: 10001
+  seccompProfile:
+    type: RuntimeDefault
 
 securityContext:
-  {}
-  # capabilities:
-  #   drop:
-  #   - ALL
-  # readOnlyRootFilesystem: true
-  # runAsNonRoot: true
-  # runAsUser: 1000
+  allowPrivilegeEscalation: false
+  readOnlyRootFilesystem: true
+  capabilities:
+    drop:
+      - ALL
 
 service:
   type: ClusterIP
@@ -90,13 +98,12 @@ ingress:
   className: ""
   annotations:
     {}
-    # kubernetes.io/ingress.class: nginx
     # kubernetes.io/tls-acme: "true"
   hosts:
     - host: chart-example.local
       paths:
         - path: /
-          pathType: ImplementationSpecific
+          pathType: Prefix
   tls: []
   #  - secretName: chart-example-tls
   #    hosts:
@@ -108,15 +115,16 @@ resources:
   # scale. YouRSS is I/O-bound (mostly waiting on Youtube), so requests are low.
   requests:
     cpu: 50m
-    memory: 128Mi
+    memory: 256Mi
   limits:
     # no cpu limit on purpose (avoid throttling a bursty I/O-bound app)
     memory: 512Mi
 
+# The pods share nothing: each one has its own RSS fallback and channel cache
 autoscaling:
   enabled: false
   minReplicas: 1
-  maxReplicas: 100
+  maxReplicas: 3
   targetCPUUtilizationPercentage: 80
   # targetMemoryUtilizationPercentage: 80
 
