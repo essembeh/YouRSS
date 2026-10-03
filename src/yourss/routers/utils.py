@@ -2,7 +2,8 @@ from datetime import UTC, datetime
 from typing import Any
 from urllib.parse import urlencode
 
-from ..youtube import ChannelDescription, Continuation, Feed, VideoDescription
+from ..youtube import ChannelDescription, Continuation, Feed, VideoDescription, is_user
+from ..youtube.cache import channel_cache
 
 # Sort key of a video without a date (never the case for an RSS entry)
 _OLDEST = datetime.min.replace(tzinfo=UTC)
@@ -15,7 +16,17 @@ def force_https(url: str) -> str:
 
 
 def parse_channel_names(text: str, delimiter: str = ",") -> list[str]:
-    return list(set(filter(lambda s: len(s) > 0, map(str.strip, text.split(delimiter)))))
+    """Names of an address, in their order, without duplicates."""
+    return list(dict.fromkeys(name for name in map(str.strip, text.split(delimiter)) if name))
+
+
+def canonical_names(names: list[str]) -> list[str]:
+    """Names for a generated address: the id of each handle the cache knows, the name as typed otherwise."""
+    out = []
+    for name in names:
+        cached = channel_cache.get(name) if is_user(name) else None
+        out.append(cached.channel_id if cached is not None else name)
+    return list(dict.fromkeys(out))
 
 
 def build_url(base_url: str, params: dict[str, Any]) -> str:

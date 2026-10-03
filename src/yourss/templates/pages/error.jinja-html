@@ -1,0 +1,7 @@
+{% extends "pages/base.jinja-html" %}
+{% block content %}
+<div class="yourss-empty" role="alert">
+  <strong>{{ title }}</strong>
+  <span>{{ message }}</span>
+</div>
+{% endblock %}

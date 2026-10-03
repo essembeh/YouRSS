@@ -1,0 +1,24 @@
+{% extends "pages/base.jinja-html" %}
+{% block content %}
+<section class="yourss-home">
+  <h1>Your Youtube channels, <em>without an account</em></h1>
+  <p class="yourss-home-lead">YouRSS shows the latest videos of the channels you choose, on one page, from the RSS feeds Youtube publishes. No registration, no ads, no recommendations.</p>
+  <a id="yourss-my-page" class="yourss-btn yourss-home-resume" hidden><svg><use href="#i-home" /></svg><span>Open my previous page</span></a>
+
+  <ol class="yourss-steps">
+    <li>
+      <strong>Add a first channel</strong>
+      <span>Type its handle (<code>@name</code>) or its <code>channel_id</code>, or paste the address of the channel or of one of its videos.</span>
+      {% include "partials/add-form.jinja-html" %}
+    </li>
+    <li>
+      <strong>Add the others</strong>
+      <span>With the <svg><use href="#i-plus" /></svg> of the sidebar, next to “Subscriptions”. Each channel goes in the address of the page, and can be removed from there.</span>
+    </li>
+    <li>
+      <strong>Bookmark your page</strong>
+      <span>Its address is your subscription list: nothing is stored on the server. Share it, or open it on another device.</span>
+    </li>
+  </ol>
+</section>
+{% endblock %}

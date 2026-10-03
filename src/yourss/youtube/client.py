@@ -19,7 +19,7 @@ from .scraping import (
     parse_channel_page,
     parse_continuation,
 )
-from .utils import is_channel_id, is_user
+from .utils import is_channel_id, is_user, parse_channel_reference
 
 BASE_URL = "https://www.youtube.com"
 MOZILLA_USER_AGENT = "Mozilla/5.0 (X11; Linux x86_64; rv:109.0) Gecko/20100101 Firefox/117.0"
@@ -77,6 +77,19 @@ class YoutubeApi(RapidApi):
 
     async def get_playlist_rss(self, playlist_id: str) -> Feed:
         return await self._fetch_rss(playlist_id, self._get_playlist_rss_raw)
+
+    # --- oEmbed, the public endpoint which names the channel of a video
+
+    @get("/oembed")
+    async def _get_oembed(self, url: Annotated[str, Query()]) -> dict[str, Any]: ...  # type: ignore[empty-body]
+
+    async def get_video_channel(self, video_id: str) -> str:
+        """Handle or id of the channel which published a video."""
+        embed = await self._get_oembed(f"{BASE_URL}/watch?v={video_id}")
+        out = parse_channel_reference(str(embed.get("author_url", "")))
+        if out is None:
+            raise ScrapingError(f"No channel in the oEmbed answer for video {video_id}: {embed!r}")
+        return out
 
     # --- pages and internal API, read by the scraping package
 

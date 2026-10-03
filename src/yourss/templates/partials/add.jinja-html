@@ -1,0 +1,10 @@
+<dialog id="yourss-add" class="yourss-settings">
+  <div class="yourss-settings-box">
+    <div class="yourss-settings-head">
+      <strong>Add a channel</strong>
+      <button type="button" class="yourss-icon-btn" data-action="close-dialog" aria-label="Close"><svg><use href="#i-close" /></svg></button>
+    </div>
+    {% include "partials/add-form.jinja-html" %}
+    <p class="yourss-settings-note">The channel goes in the address of this page: bookmark it again afterwards.</p>
+  </div>
+</dialog>

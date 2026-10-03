@@ -10,6 +10,8 @@ class ChannelDescription(BaseModel, frozen=True):
     # Absolute Youtube URLs when known, else application routes which resolve them on demand
     avatar: str = ""
     home: str = ""
+    # "@name", empty when unknown (a channel only known through its feed)
+    handle: str = ""
 
     @model_validator(mode="before")
     @classmethod

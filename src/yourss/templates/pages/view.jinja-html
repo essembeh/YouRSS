@@ -1,6 +1,14 @@
 {% extends "pages/base.jinja-html" %}
 {% block content %}
 {% include "partials/errors.jinja-html" %}
+{% if page_names is defined %}
+<div id="yourss-bookmark" class="yourss-notice" role="status" hidden>
+  <svg><use href="#i-bookmark" /></svg>
+  <span><strong>Bookmark this page.</strong> Its address holds your channels: nothing is stored on the server.</span>
+  <button type="button" class="yourss-btn" data-action="copy-link">Copy the address</button>
+  <button type="button" class="yourss-icon-btn is-small" data-action="dismiss" aria-label="Dismiss"><svg><use href="#i-close" /></svg></button>
+</div>
+{% endif %}
 <div id="yourss-content" hx-history-elt>
   {% include "partials/videos-container.jinja-html" %}
 </div>

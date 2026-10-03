@@ -7,6 +7,7 @@
   <label class="yourss-search" title="Filter the videos on this page (shortcut: /)">
     <svg><use href="#i-search" /></svg>
     <input id="yourss-search" type="search" placeholder="Filter videos" autocomplete="off" />
+    <button type="button" class="yourss-icon-btn is-small yourss-search-clear" data-action="clear-search" title="Clear the filter (Esc)" aria-label="Clear the filter" hidden><svg><use href="#i-close" /></svg></button>
   </label>
 
   <div class="yourss-segment yourss-filter" data-watched-feature role="group" aria-label="Videos shown">
@@ -25,6 +26,11 @@
     </div>
     <div class="yourss-section">
       <span class="yourss-label">Subscriptions</span>
+      {% if page_names is defined %}
+      <button type="button" class="yourss-icon-btn is-small yourss-row-btn" data-action="add-channel" title="Add a channel to this page (a)" aria-label="Add a channel"><svg><use href="#i-plus" /></svg></button>
+      {% elif copy_url is defined %}
+      <a class="yourss-icon-btn is-small yourss-row-btn yourss-copy-page" href="{{ copy_url }}" title="This page is read-only: customize a copy of it" aria-label="Customize a copy of this page"><svg><use href="#i-edit" /></svg></a>
+      {% endif %}
     </div>
     <ul class="yourss-channels">
       {% for channel in channels %}
@@ -35,6 +41,9 @@
           <span class="yourss-label">{{ channel.name }}</span>
           <span class="yourss-badge yourss-count" data-watched-feature data-channel-id="{{ channel.channel_id }}" hidden></span>
         </a>
+        {% if page_names is defined %}
+        <button type="button" class="yourss-icon-btn is-small yourss-row-btn yourss-remove-btn" data-action="remove-channel" data-name="{{ channel.name }}" title="Remove {{ channel.name }} from this page" aria-label="Remove {{ channel.name }}"><svg><use href="#i-close" /></svg></button>
+        {% endif %}
       </li>
       {% endfor %}
     </ul>

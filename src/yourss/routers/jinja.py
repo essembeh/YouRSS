@@ -4,6 +4,7 @@ from typing import Any
 import arrow
 from fastapi import Request
 from jinja2 import Environment, FileSystemLoader
+from starlette.status import HTTP_200_OK
 from starlette.templating import Jinja2Templates, _TemplateResponse
 
 from .. import __version__
@@ -40,7 +41,9 @@ jinja_env.globals["static_url"] = static_url
 jinja = Jinja2Templates(env=jinja_env)
 
 
-def template_page(request: Request, template_name: str, **kwargs: Any) -> _TemplateResponse:
+def template_page(
+    request: Request, template_name: str, *, status_code: int = HTTP_200_OK, **kwargs: Any
+) -> _TemplateResponse:
     return jinja.TemplateResponse(
         request,
         template_name,
@@ -49,4 +52,5 @@ def template_page(request: Request, template_name: str, **kwargs: Any) -> _Templ
             "version": __version__,
         }
         | {k: v for k, v in kwargs.items() if v is not None},
+        status_code=status_code,
     )

@@ -21,6 +21,10 @@
       <dd data-watched-feature>Show every video or only the new ones</dd>
       <dt><kbd>Shift</kbd><kbd>↑</kbd><kbd>↓</kbd></dt>
       <dd>Go to the previous / next channel</dd>
+      {% if page_names is defined %}
+      <dt><kbd>a</kbd></dt>
+      <dd>Add a channel to this page</dd>
+      {% endif %}
       <dt><kbd>/</kbd></dt>
       <dd>Filter the videos of the page</dd>
       <dt><kbd>Esc</kbd></dt>

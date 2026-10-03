@@ -12,9 +12,9 @@ yourss:
 
   # --- Application settings: each value maps to one YOURSS_* environment variable
 
-  # YOURSS_DEFAULT_CHANNELS: channels of the home page
-  defaultChannels:
-    - "@jonnygiger"
+  # YOURSS_CUSTOM_PAGES_ENABLED: let visitors build their own multi channel page. When false, only
+  # the user pages below and the single channel pages remain
+  customPagesEnabled: true
   # YOURSS_API_DOCS_ENABLED: serve the generated API documentation (/docs, /redoc, /openapi.json)
   apiDocsEnabled: false
   # YOURSS_CLEAN_TITLES: capitalize the titles to tame UPPERCASE ones

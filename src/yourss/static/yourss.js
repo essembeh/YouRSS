@@ -8,7 +8,9 @@
  *  - a channel avatar is `img.yourss-avatar` (retried when it fails to load)
  *  - `template#yourss-empty-template` holds the empty state shown when a tab request fails
  *  - dialogs: `#yourss-modal` (player, `#yourss-modal-player`, `#yourss-modal-video-title`,
- *    `#yourss-modal-link-{rss,youtube,tab}`), `#yourss-settings` and `#yourss-shortcuts`
+ *    `#yourss-modal-link-{rss,youtube,tab}`), `#yourss-settings`, `#yourss-shortcuts`, `#yourss-add`
+ *  - an editable page lists its channels in `<body data-page-names>`; channels are added with a
+ *    `form.yourss-add-form` (docs/specs/custom-pages.md)
  *
  * State classes: `is-playing`, `is-docked`, `is-watched`, `is-focused`, `is-filtered`,
  * `is-portrait` on a video; `rail`, `menu-open`, `hide-watched`, `no-watched`, `watched-ready`,
@@ -342,6 +344,10 @@
   /* ---------- search: filters the cards of the page by title and channel name ---------- */
   function applySearch() {
     const query = ($("#yourss-search")?.value || "").trim().toLowerCase()
+    const clear = $(".yourss-search-clear")
+    if (clear) {
+      clear.hidden = query === ""
+    }
     $$(".yourss-video").forEach((el) => {
       el.classList.toggle("is-filtered", query !== "" && !el.textContent.toLowerCase().includes(query))
     })
@@ -424,6 +430,113 @@
     markActiveChannel()
   }
 
+  /* ---------- editable page: its channels live in its address (docs/specs/custom-pages.md) ---------- */
+  const editable = "pageNames" in document.body.dataset
+  const pageNames = () => (document.body.dataset.pageNames || "").split(",").filter(Boolean)
+  const EDITED_FLAG = "yourss-edited"
+  const PAGE_PATH = /^\/(?:UC[\w-]{22}|PL[\w-]{32})(?:,(?:UC[\w-]{22}|PL[\w-]{32}))*$/
+
+  // Navigate to the page made of `names`. The next page asks for a new bookmark, or, when it is the
+  // first one built from the home page, shows how to add more subscriptions.
+  function goToPage(names) {
+    try {
+      sessionStorage.setItem(EDITED_FLAG, pageNames().length === 0 ? "first" : "1")
+    } catch {
+      /* private mode */
+    }
+    location.assign(names.length > 0 ? `/${names.join(",")}` : "/")
+  }
+
+  function removeChannel(el) {
+    const channelId = el.closest(".yourss-channel").dataset.channelId
+    if (confirm(`Remove ${el.dataset.name} from this page?`)) {
+      goToPage(pageNames().filter((name) => name !== channelId))
+    }
+  }
+
+  function showAddError(form, message) {
+    const error = $(".yourss-add-error", form)
+    error.textContent = message
+    error.hidden = message === ""
+  }
+
+  // The server resolves what was typed to a channel id, the browser builds the new address.
+  async function addChannel(form) {
+    const query = form.elements.q.value.trim()
+    if (query === "" || form.classList.contains("is-busy")) {
+      return
+    }
+    form.classList.add("is-busy")
+    showAddError(form, "")
+    try {
+      const response = await fetch(`/api/channel?q=${encodeURIComponent(query)}`)
+      const body = await response.json()
+      if (!response.ok) {
+        showAddError(form, typeof body.detail === "string" ? body.detail : "This channel cannot be added")
+      } else if (pageNames().includes(body.channel_id)) {
+        showAddError(form, `${body.name} is already on this page`)
+      } else {
+        goToPage([...pageNames(), body.channel_id])
+        return
+      }
+    } catch {
+      showAddError(form, "The server cannot be reached")
+    }
+    form.classList.remove("is-busy")
+  }
+
+  function openAddDialog() {
+    const dialog = $("#yourss-add")
+    if (dialog && $(".yourss-channels")) {
+      $$(".is-highlighted").forEach((el) => el.classList.remove("is-highlighted"))
+      dialog.showModal()
+      $("input", dialog).focus()
+    }
+  }
+
+  async function copyLink(el) {
+    const url = location.origin + location.pathname
+    try {
+      await navigator.clipboard.writeText(url)
+      el.textContent = "Address copied"
+    } catch {
+      // No clipboard access (plain http): let the visitor copy it by hand
+      prompt("Address of this page", url)
+    }
+  }
+
+  // Remember the page, offer it on the home page and ask for a bookmark after an edit.
+  function initEditablePage() {
+    if (editable && pageNames().length > 0) {
+      store.set("page", location.pathname)
+    }
+    // Offered only when this browser remembers a page, and one an address can still name (ids only)
+    const resume = $("#yourss-my-page")
+    const page = store.get("page")
+    if (resume && page && PAGE_PATH.test(page)) {
+      resume.href = page
+      resume.hidden = false
+    }
+    try {
+      const edited = sessionStorage.getItem(EDITED_FLAG)
+      sessionStorage.removeItem(EDITED_FLAG)
+      if (edited === "first" && $("#yourss-welcome") && $(".yourss-channels")) {
+        welcome()
+      } else if (edited && $("#yourss-bookmark")) {
+        $("#yourss-bookmark").hidden = false
+      }
+    } catch {
+      /* private mode */
+    }
+  }
+
+  // First page built from the home page: show where subscriptions are added, and keep the command
+  // highlighted (with the menu which holds it on phones) until it is used.
+  function welcome() {
+    $("#yourss-welcome").showModal()
+    $$('[data-action="add-channel"], .yourss-topbar [data-action="menu"]').forEach((el) => el.classList.add("is-highlighted"))
+  }
+
   /* ---------- images ---------- */
   // Portrait thumbnails (shorts) are flagged so that CSS can switch the aspect ratio.
   function flagPortrait(img) {
@@ -493,6 +606,25 @@
       }
     },
     dismiss: (el) => el.parentElement.remove(),
+    "clear-search": () => {
+      $("#yourss-search").value = ""
+      applySearch()
+      $("#yourss-search").focus()
+    },
+    "add-channel": openAddDialog,
+    "welcome-add": (el) => {
+      el.closest("dialog").close()
+      openAddDialog()
+    },
+    // An example of the add form goes in its field, ready to be submitted
+    "add-example": (el) => {
+      const form = el.closest("form")
+      form.elements.q.value = el.textContent.trim()
+      form.elements.q.focus()
+      showAddError(form, "")
+    },
+    "remove-channel": removeChannel,
+    "copy-link": copyLink,
     "scroll-top": () => window.scrollTo({ top: 0, behavior: "smooth" }),
   }
 
@@ -520,6 +652,18 @@
   on("input", (event) => {
     if (event.target.id === "yourss-search") {
       applySearch()
+    }
+    // Typing again clears the error of the previous attempt
+    const form = event.target.closest(".yourss-add-form")
+    if (form) {
+      showAddError(form, "")
+    }
+  })
+
+  on("submit", (event) => {
+    if (event.target.matches(".yourss-add-form")) {
+      event.preventDefault()
+      addChannel(event.target)
     }
   })
 
@@ -564,6 +708,7 @@
       o: () => video && openModal(video.dataset.videoId),
       w: () => video && setWatched([video.dataset.videoId], !video.classList.contains("is-watched")),
       h: () => flag("new-videos") && setSetting("hide-watched", flag("hide-watched") ? "0" : "1"),
+      a: openAddDialog,
       x: closePlayer,
     }
     if (event.key in shortcuts && shortcuts[event.key]() !== false) {
@@ -613,6 +758,7 @@
   })
   $("#yourss-modal").addEventListener("close", destroyModalPlayer)
   applySettings()
+  initEditablePage()
   captureFeed()
   syncChannelFromUrl()
   refresh()

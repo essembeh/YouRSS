@@ -124,6 +124,9 @@ html:has(dialog[open]) { overflow: hidden; }
 .yourss-search { display: flex; align-items: center; gap: .5rem; height: 38px; padding: 0 .75rem; border-radius: 10px; background: var(--bg-elev); color: var(--fg-muted); }
 .yourss-search input { flex: 1; min-width: 0; border: 0; background: transparent; color: var(--fg); outline: none; font: inherit; }
 .yourss-search:focus-within { outline: 2px solid var(--accent-soft); color: var(--fg); }
+/* The filter has its own clear command, the same in every browser */
+.yourss-search input::-webkit-search-cancel-button { display: none; }
+.yourss-search-clear { margin-right: -.45rem; }
 .yourss-nav { display: flex; flex-direction: column; gap: 2px; }
 .yourss-nav-item { display: flex; align-items: center; gap: .6rem; min-width: 0; height: 40px; padding: 0 .6rem; border-radius: 10px; color: var(--fg); }
 .yourss-nav-item:hover, .yourss-nav-item.active { background: var(--bg-hover); }
@@ -138,6 +141,12 @@ html:has(dialog[open]) { overflow: hidden; }
 .yourss-channels { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 2px; }
 .yourss-channel { display: flex; align-items: center; gap: 2px; }
 .yourss-channel .yourss-nav-item { flex: 1; }
+/* Removing a channel from an editable page: the command shows up on its row */
+.yourss-remove-btn { opacity: 0; }
+.yourss-channel:hover .yourss-remove-btn, .yourss-remove-btn:focus-visible { opacity: 1; }
+@media (hover: none) { .yourss-remove-btn { opacity: .55; } }
+.yourss-section .yourss-row-btn { margin: -.4rem -.25rem -.4rem 0; }
+.yourss-section .yourss-row-btn svg { width: 18px; height: 18px; }
 .yourss-sidebar-foot { margin-top: auto; display: flex; flex-direction: column; gap: .5rem; padding-top: .75rem; border-top: 1px solid var(--line); }
 .yourss-footer { display: flex; flex-direction: column; gap: .4rem; font-size: .8rem; color: var(--fg-muted); padding: .25rem .25rem 0; }
 .yourss-footer-row { display: flex; align-items: center; gap: .4rem; }
@@ -160,6 +169,56 @@ html:has(dialog[open]) { overflow: hidden; }
 .yourss-errors { display: flex; flex-direction: column; gap: .4rem; margin-bottom: 1rem; }
 .yourss-error { display: flex; align-items: center; gap: .75rem; padding: .5rem .5rem .5rem .9rem; border-radius: var(--radius); background: var(--err-bg); border: 1px solid var(--err-line); font-size: .9rem; }
 .yourss-error span { flex: 1; word-break: break-word; }
+
+/* ---- notice (bookmark reminder after an edit) ---- */
+.yourss-notice { display: flex; align-items: center; flex-wrap: wrap; gap: .5rem .75rem; margin-bottom: 1rem; padding: .6rem .6rem .6rem .9rem; border-radius: var(--radius); background: var(--accent-soft); border: 1px solid var(--accent); font-size: .9rem; }
+.yourss-notice > svg { width: 20px; height: 20px; color: var(--accent); }
+.yourss-notice > span { flex: 1 1 14rem; }
+
+/* ---- add a channel: form of the dialog and of the home page ---- */
+/* Wider than the other dialogs: the address of a video must fit in the field */
+#yourss-add { width: min(600px, calc(100vw - 24px)); }
+.yourss-add-form { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: .5rem; }
+.yourss-add-field { height: 40px; background: var(--bg); border: 1px solid var(--line); }
+.yourss-add-submit { height: 40px; border-radius: 10px; border-color: var(--accent); background: var(--accent-soft); color: var(--fg); font-weight: 600; }
+.yourss-add-form.is-busy { opacity: .6; pointer-events: none; }
+.yourss-add-error { grid-column: 1 / -1; margin: 0; font-size: .85rem; color: var(--accent); }
+.yourss-add-examples { grid-column: 1 / -1; display: grid; grid-template-columns: auto minmax(0, 1fr); gap: .3rem .75rem; align-items: start; margin: .25rem 0 0; font-size: .8rem; line-height: 1.5; color: var(--fg-muted); }
+.yourss-add-examples dd { margin: 0; min-width: 0; }
+/* Blocks which wrap anywhere: a long id or address never overflows nor overlaps the next line */
+.yourss-add-examples button { display: block; max-width: 100%; padding: 0; border: 0; background: none; color: var(--fg); font: inherit; line-height: inherit; text-align: left; white-space: normal; word-break: break-all; text-decoration: underline dotted var(--fg-muted); text-underline-offset: 3px; }
+.yourss-add-examples button:hover { color: var(--accent); text-decoration-color: currentColor; }
+@media (max-width: 559px) {
+  .yourss-add-examples { grid-template-columns: minmax(0, 1fr); gap: 0; }
+  .yourss-add-examples dd { margin-bottom: .4rem; }
+}
+
+/* ---- welcome dialog of a page just created, and the highlight of the command it points to ---- */
+.yourss-welcome-steps li { background: var(--bg); }
+.yourss-welcome-phone { display: none; }
+.yourss-welcome-actions { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: .5rem; }
+.yourss-welcome-actions .yourss-btn { height: 40px; border-radius: 10px; }
+.is-highlighted { color: var(--accent); animation: yourss-pulse 1.6s ease-out infinite; }
+.is-highlighted svg { color: var(--accent); }
+@keyframes yourss-pulse {
+  0% { box-shadow: 0 0 0 0 var(--accent); }
+  100% { box-shadow: 0 0 0 12px transparent; }
+}
+@media (prefers-reduced-motion: reduce) { .is-highlighted { animation: none; box-shadow: 0 0 0 2px var(--accent); } }
+@media (max-width: 899px) { .yourss-welcome-phone { display: inline; } }
+
+/* ---- home page: the tutorial ---- */
+.yourss-home { max-width: 44rem; margin: 0 auto; padding: 2rem 0; display: flex; flex-direction: column; gap: 1.25rem; }
+.yourss-home h1 { margin: 0; font-size: clamp(1.6rem, 5vw, 2.4rem); line-height: 1.15; letter-spacing: -.02em; }
+.yourss-home h1 em { font-style: normal; color: var(--accent); }
+.yourss-home-lead { margin: 0; font-size: 1.05rem; color: var(--fg-muted); }
+.yourss-home-resume { align-self: flex-start; height: 42px; padding: 0 1.1rem; border-color: var(--accent); color: var(--fg); font-weight: 600; }
+.yourss-steps { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: .75rem; counter-reset: step; }
+.yourss-steps li { counter-increment: step; position: relative; display: flex; flex-direction: column; gap: .5rem; padding: 1rem 1rem 1rem 3.6rem; background: var(--bg-elev); border: 1px solid var(--line); border-radius: var(--radius); }
+.yourss-steps li::before { content: counter(step); position: absolute; left: 1rem; top: 1rem; width: 1.9rem; height: 1.9rem; border-radius: 50%; display: grid; place-items: center; font-weight: 700; background: var(--accent-soft); color: var(--accent); border: 1px solid var(--accent); }
+.yourss-steps li > span { color: var(--fg-muted); }
+.yourss-steps li > span svg { vertical-align: -.2em; color: var(--fg); }
+.yourss-steps code { padding: .05rem .35rem; border-radius: 6px; background: var(--bg); border: 1px solid var(--line); color: var(--fg); }
 
 /* ---- grid ---- */
 /* Column count is derived from the available width: each density sets a minimum card width */
@@ -256,6 +315,7 @@ body.watched-ready .yourss-video:not(.is-watched):not(.is-playing) .yourss-new {
 .yourss-hero-avatar { width: 96px; height: 96px; border-radius: 50%; object-fit: cover; box-shadow: 0 10px 40px rgba(0,0,0,.5); flex: none; }
 .yourss-hero-info { min-width: 0; display: flex; flex-direction: column; gap: .5rem; }
 .yourss-hero h1 { margin: 0; font-size: 1.6rem; letter-spacing: -.02em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.yourss-hero-handle { margin-left: .35rem; font-size: .95rem; font-weight: 400; letter-spacing: 0; color: var(--fg-muted); }
 .yourss-hero-actions { display: flex; flex-wrap: wrap; gap: .5rem; }
 .yourss-tabs-bar { padding: .5rem 0; margin-bottom: 1rem; border-bottom: 1px solid var(--line); overflow-x: auto; scrollbar-width: none; }
 .yourss-tabs { display: inline-flex; gap: .25rem; background: var(--bg-elev); border-radius: 999px; padding: 4px; }
@@ -380,6 +440,9 @@ button.yourss-nav-item { width: 100%; border: 0; background: transparent; text-a
 [data-theme="neon"] #scroll-to-top { background: var(--bg-elev); color: var(--accent-text); border: 1px solid var(--accent); box-shadow: var(--accent-glow); }
 @media (max-width: 899px) { [data-theme="neon"] .yourss-sidebar { background: var(--bg-side); } }
 [data-theme="neon"] .yourss-video.is-watched [data-action="toggle-watched"] { color: var(--accent-text); }
+[data-theme="neon"] .yourss-home h1 em { background: linear-gradient(90deg, var(--accent) 0%, var(--cyan) 100%); -webkit-background-clip: text; background-clip: text; color: transparent; }
+[data-theme="neon"] .yourss-steps li::before, [data-theme="neon"] .yourss-add-error, [data-theme="neon"] .yourss-add-examples button:hover { color: var(--accent-text); }
+[data-theme="neon"] .yourss-steps li { background: rgba(18, 13, 36, .82); }
 [data-theme="neon"] .yourss-new { background: rgba(5, 3, 15, .78); color: var(--accent-text); border: 1px solid var(--accent); box-shadow: var(--accent-glow); }
 [data-theme="neon"] .yourss-reset-btn:hover { border-color: var(--err-line); background: var(--err-bg); color: var(--fg); }
 [data-theme="neon"] .yourss-settings-box { border-color: var(--accent); box-shadow: var(--accent-glow), 0 30px 90px rgba(0, 0, 0, .75); }

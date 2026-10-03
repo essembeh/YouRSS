@@ -11,8 +11,8 @@ class AppSettings(BaseSettings):
 
     model_config = SettingsConfigDict(env_prefix="YOURSS_")
 
-    # Channels of the home page, comma separated
-    default_channels: str = "@JonnyGiger"
+    # Let visitors build their own multi channel page; off, only user and channel pages remain
+    custom_pages_enabled: bool = True
     # Serve the generated API documentation (/docs, /redoc, /openapi.json); off outside development
     api_docs_enabled: bool = False
     # YAML file declaring the user pages

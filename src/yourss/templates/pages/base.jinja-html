@@ -25,7 +25,7 @@
   <meta name="theme-color" content="#0a0718" />
 </head>
 
-<body class="no-watched">
+<body class="no-watched"{% if page_names is defined %} data-page-names="{{ page_names|join(',') }}"{% endif %}>
   {% include "partials/icons.jinja-html" %}
 
   <div class="yourss-app">
@@ -51,6 +51,7 @@
   {% include "partials/modal.jinja-html" %}
   {% include "partials/settings.jinja-html" %}
   {% include "partials/shortcuts.jinja-html" %}
+  {% if page_names is defined %}{% include "partials/add.jinja-html" %}{% include "partials/welcome.jinja-html" %}{% endif %}
   <template id="yourss-empty-template">{% include "partials/empty.jinja-html" %}</template>
   <button id="scroll-to-top" type="button" data-action="scroll-top" title="Back to top"><svg><use href="#i-up" /></svg></button>
 

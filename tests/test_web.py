@@ -2,13 +2,57 @@ import re
 
 from bs4 import BeautifulSoup
 from httpx import AsyncClient, BasicAuth
-from pytest import mark
+from pytest import MonkeyPatch, mark
+
+from yourss.settings import current_config
+from yourss.youtube import YoutubeApi
 
 
-async def test_default(client: AsyncClient) -> None:
+async def test_home(client: AsyncClient) -> None:
+    # The home page is the tutorial: an editable page without any channel
     resp = await client.get("/")
-    assert resp.status_code == 307
-    assert resp.headers["Location"] == "/@CardMagicByJason,@JonnyGiger"
+    assert resp.status_code == 200
+    soup = BeautifulSoup(resp.text, features="html.parser")
+    assert soup.body is not None and soup.body["data-page-names"] == ""
+    assert soup.find("form", class_="yourss-add-form") is not None
+
+
+async def test_page_is_editable(client: AsyncClient) -> None:
+    # Duplicates are dropped, the order is kept and a resolved handle becomes its id
+    resp = await client.get("/@JonnyGiger,UCQsmxaMzYr76Yd1iqMEq8TA,@JonnyGiger")
+    assert resp.status_code == 200
+    soup = BeautifulSoup(resp.text, features="html.parser")
+    assert soup.body is not None
+    assert soup.body["data-page-names"] == "UCVooVnzQxPSTXTMzSi1s6uw,UCQsmxaMzYr76Yd1iqMEq8TA"
+    assert len(soup.find_all("button", attrs={"data-action": "remove-channel"})) == 2
+
+
+async def test_user_page_is_read_only(client: AsyncClient) -> None:
+    resp = await client.get("/u/demo")
+    assert resp.status_code == 200
+    soup = BeautifulSoup(resp.text, features="html.parser")
+    assert soup.body is not None and not soup.body.has_attr("data-page-names")
+    assert soup.find("button", attrs={"data-action": "remove-channel"}) is None
+    copy = soup.find("a", class_="yourss-copy-page")
+    assert copy is not None and str(copy["href"]).startswith("/UC")
+
+
+@mark.parametrize(
+    "query,http_status",
+    [
+        ("UCVooVnzQxPSTXTMzSi1s6uw", 200),  # a channel id
+        ("@JonnyGiger", 200),  # a handle
+        ("https://www.youtube.com/@JonnyGiger/videos", 200),  # the address of a channel
+        ("@UCAAAAAAAAAAAAAAAAAAAAAA", 404),  # an unknown handle
+        ("https://youtu.be/AAAAAAAAAAA", 404),  # an unknown video
+        ("jonny giger", 422),  # neither a handle, an id nor an address
+    ],
+)
+async def test_api_channel(client: AsyncClient, query: str, http_status: int) -> None:
+    resp = await client.get("/api/channel", params={"q": query})
+    assert resp.status_code == http_status
+    if http_status == 200:
+        assert resp.json() == {"channel_id": "UCVooVnzQxPSTXTMzSi1s6uw", "name": "Jonny Giger"}
 
 
 async def test_watch(client: AsyncClient) -> None:
@@ -108,3 +152,33 @@ async def test_htmx_channel_tabs(client: AsyncClient) -> None:
 
     resp = await client.get(f"/htmx/playlists/{channel}")
     assert resp.status_code == 422
+
+
+async def test_api_channel_from_video(client: AsyncClient) -> None:
+    channel = "UCVooVnzQxPSTXTMzSi1s6uw"
+    feed = await YoutubeApi().get_channel_rss(channel)
+    video_id = feed.entries[0].to_video().video_id
+
+    resp = await client.get("/api/channel", params={"q": f"https://www.youtube.com/watch?v={video_id}"})
+    assert resp.status_code == 200
+    assert resp.json()["channel_id"] == channel
+
+
+async def test_custom_pages_disabled(client: AsyncClient, monkeypatch: MonkeyPatch) -> None:
+    monkeypatch.setattr(current_config, "custom_pages_enabled", False)
+
+    # The home page and the multi channel pages are an error page
+    for path in ("/", "/UCVooVnzQxPSTXTMzSi1s6uw"):
+        resp = await client.get(path)
+        assert resp.status_code == 403
+        assert "Custom pages are disabled" in resp.text
+        assert "data-page-names" not in resp.text
+    resp = await client.get("/api/channel", params={"q": "UCVooVnzQxPSTXTMzSi1s6uw"})
+    assert resp.status_code == 403
+
+    # User pages and single channel pages remain, without the way to a custom copy
+    resp = await client.get("/u/demo")
+    assert resp.status_code == 200
+    assert "yourss-copy-page" not in resp.text
+    resp = await client.get("/c/UCVooVnzQxPSTXTMzSi1s6uw")
+    assert resp.status_code == 200

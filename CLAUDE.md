@@ -23,9 +23,11 @@ Principles, in order of importance when they conflict:
 5. **Stay light.** One small FastAPI application, server-rendered templates, htmx for the dynamic
    parts, vanilla CSS and JavaScript. No front-end framework, no build step.
 6. **Everything is a URL.** `/@a,@b` (channels in the URL), `/u/<name>` (a configured list),
-   `/c/<id>` (one channel). A page can be bookmarked and shared as is.
+   `/c/<id>` (one channel). A page can be bookmarked and shared as is. A visitor builds a page by
+   adding and removing channels: its address is the subscription list, the home page explains it.
 
-Not goals: accounts, comments, search, recommendations, downloads, relaying or storing media.
+Not goals: accounts, comments, searching videos, recommendations, downloads, relaying or storing
+media.
 
 ## Stack
 

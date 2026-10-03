@@ -9,6 +9,7 @@ from glom import Coalesce, glom  # type: ignore[import-untyped]  # glom has no t
 from pydantic import BaseModel
 
 from ..model import ChannelDescription, VideoDescription
+from ..utils import parse_channel_reference
 from .errors import ScrapingError
 from .extract import extract_client_version, extract_initial_data
 from .items import parse_videos
@@ -66,12 +67,15 @@ def _parse_channel(data: dict[str, Any]) -> ChannelDescription:
     if not isinstance(meta, dict) or not meta.get("externalId") or not meta.get("title"):
         raise ScrapingError("Cannot find the channel metadata in the Youtube page")
     avatar = glom(meta, _CHANNEL_AVATAR)
+    # The vanity address is youtube.com/@name, or the /channel/ one for a channel without a handle
+    handle = parse_channel_reference(str(meta.get("vanityChannelUrl") or "")) or ""
     return ChannelDescription(
         channel_id=meta["externalId"],
         name=meta["title"],
         # The page advertises a 900 px avatar, far more than what the UI displays
         avatar=_AVATAR_SIZE.sub(f"=s{AVATAR_SIZE}", avatar) if avatar else "",
         home=meta.get("channelUrl") or f"https://www.youtube.com/channel/{meta['externalId']}",
+        handle=handle if handle.startswith("@") else "",
     )
 
 

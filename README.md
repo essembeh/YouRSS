@@ -35,7 +35,7 @@ Youtube publishes an RSS feed for every channel. RSS is an open and stable way t
 
 ### One page for all your channels
 
-Add the channels you like to the URL (example https://yourss.domain.tld/@jonnygiger,@berrics) and get their last 15 videos, sorted by date. A *user* page gives a short name to a list of channels.
+The channels of a page are in its URL (example https://yourss.domain.tld/@jonnygiger,@berrics): you get their last 15 videos, sorted by date. Start from the home page, add channels by handle, *channel_id*, or by the address of a channel or of one of its videos, remove the ones you no longer want, then bookmark the page: its address is your subscription list, nothing is stored on the server. A *user* page gives a short name to a list of channels declared in the configuration.
 
 Turn on *Show new videos* in the settings and the videos you played for a few seconds are marked as watched: on the next visit a `NEW` marker and a counter per channel show what you have not seen yet. This is stored in your browser only.
 
@@ -113,7 +113,7 @@ Then visit [http://localhost:8000/](http://localhost:8000/)
 
 | VARIABLE | DEFAULT | HELM VALUE | DESCRIPTION |
 |----------|---------|------------|-------------|
-| YOURSS_DEFAULT_CHANNELS | `@JonnyGiger` | `yourss.defaultChannels` | Channels of the home page, you can set multiple channels using `,` as separator (a list in the Helm values) |
+| YOURSS_CUSTOM_PAGES_ENABLED | `True` | `yourss.customPagesEnabled` | Let visitors build their own page by putting channels in its URL. If set to `false`, the home page and the multi channel pages show an error (`403`), and only the *user* pages and the single channel pages remain |
 | YOURSS_API_DOCS_ENABLED | `False` | `yourss.apiDocsEnabled` | If set to `true`, the generated API documentation is served at `/docs`, `/redoc` and `/openapi.json`. Meant for development: it is off in the docker image and in the Helm chart |
 | YOURSS_USERS_FILE |  | `yourss.users` | You can declare user pages in a dedicated file (the Helm chart builds it from the values and stores it in a *Secret*) |
 | YOURSS_CLEAN_TITLES | `False` | `yourss.cleanTitles` | If set to `true`, videos titles are cleaned to prevent UPPERCASE TITLES |
@@ -135,8 +135,20 @@ To configure users:
 - see [sample `users.yaml`](./samples/users.yaml) for example
 - *user* page can be protected by a *password* (configurable using plain text passwords or argon2 hash)
 
+## Disable custom pages
+
+By default any visitor can build a page by putting channels in its URL, and the home page explains how.
+The administrator of an instance can turn this off, for example to keep the instance for the *user* pages declared in the configuration:
+
+- set `YOURSS_CUSTOM_PAGES_ENABLED=false`, or `yourss.customPagesEnabled: false` in the Helm values
+- the home page and the multi channel pages (`/@jonnygiger,@berrics`) then show an error (`403`), and channels can no longer be added
+- the *user* pages (`/u/<name>`) and the pages of a single channel (`/c/<channel>`) keep working
+
+> Note: this does not make the instance private, the page of any single channel can still be opened.
+
 # Usage
 
+- the home page `http://yourss.local/` explains how to build your own page and lets you add your first channel
 - you can browse a single channel with: `http://yourss.local/@jonnygiger`
 - you can browse multiple channels in a single page: `http://yourss.local/@jonnygiger,@berrics`
 - you can browse the homepage of a channel (recent videos, videos, shorts, streams): `http://yourss.local/c/@jonnygiger`

@@ -1,7 +1,7 @@
 <section class="yourss-hero" data-channel-page="{{ channel.channel_id }}">
   <img referrerpolicy="no-referrer" src="{{ channel.avatar }}" alt="" class="yourss-avatar yourss-hero-avatar" />
   <div class="yourss-hero-info">
-    <h1>{{ channel.name }}</h1>
+    <h1>{{ channel.name }}{% if channel.handle %} <span class="yourss-hero-handle">{{ channel.handle }}</span>{% endif %}</h1>
     <div class="yourss-hero-actions">
       <a class="yourss-btn yt" href="{{ channel.home }}" target="_blank" rel="noopener"><svg><use href="#i-youtube" /></svg><span>YouTube</span></a>
       <a class="yourss-btn rss" href="/proxy/rss/{{ channel.channel_id }}" target="_blank"><svg><use href="#i-rss" /></svg><span>RSS</span></a>

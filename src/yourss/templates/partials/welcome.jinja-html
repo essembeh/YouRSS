@@ -1,0 +1,22 @@
+<dialog id="yourss-welcome" class="yourss-settings">
+  <div class="yourss-settings-box">
+    <div class="yourss-settings-head">
+      <strong>Your page is created</strong>
+      <button type="button" class="yourss-icon-btn" data-action="close-dialog" aria-label="Close"><svg><use href="#i-close" /></svg></button>
+    </div>
+    <ol class="yourss-steps yourss-welcome-steps">
+      <li>
+        <strong>Add your other subscriptions</strong>
+        <span>With the <svg><use href="#i-plus" /></svg> next to “Subscriptions”<span class="yourss-welcome-phone">, in the menu <svg><use href="#i-menu" /></svg></span>. Channels and playlists both work.</span>
+      </li>
+      <li>
+        <strong>Then bookmark the page</strong>
+        <span>Its address is your subscription list, nothing is stored on the server. Each change gives a new address.</span>
+      </li>
+    </ol>
+    <div class="yourss-welcome-actions">
+      <button type="button" class="yourss-btn" data-action="close-dialog">Later</button>
+      <button type="button" class="yourss-btn yourss-add-submit" data-action="welcome-add"><svg><use href="#i-plus" /></svg><span>Add a subscription</span></button>
+    </div>
+  </div>
+</dialog>

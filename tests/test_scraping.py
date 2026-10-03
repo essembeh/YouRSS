@@ -50,6 +50,7 @@ def _channel_data(*tabs: dict[str, Any], contents: list[Any] | None = None) -> d
                 "title": "Jonny Giger",
                 "externalId": CHANNEL_ID,
                 "channelUrl": f"https://www.youtube.com/channel/{CHANNEL_ID}",
+                "vanityChannelUrl": "http://www.youtube.com/@JonnyGiger",
                 "avatar": {"thumbnails": [{"url": "https://yt3.googleusercontent.com/abc=s900-c-k-c0x00ffffff-no-rj"}]},
             }
         },
@@ -98,10 +99,20 @@ def test_channel_page_metadata_and_tabs() -> None:
     assert page.channel.channel_id == CHANNEL_ID
     assert page.channel.name == "Jonny Giger"
     assert page.channel.home == f"https://www.youtube.com/channel/{CHANNEL_ID}"
+    assert page.channel.handle == "@JonnyGiger"
     # The advertised avatar is resized to what the UI needs
     assert page.channel.avatar == "https://yt3.googleusercontent.com/abc=s176-c-k-c0x00ffffff-no-rj"
     assert page.tabs == ["videos", "shorts"]
     assert page.selected_tab == "videos"
+
+
+def test_channel_without_handle() -> None:
+    # A channel without a handle advertises its /channel/ address as vanity address
+    data = _channel_data(_tab("videos", selected=True))
+    data["metadata"]["channelMetadataRenderer"]["vanityChannelUrl"] = f"http://www.youtube.com/channel/{CHANNEL_ID}"
+    assert parse_channel_page(_page(data)).channel.handle == ""
+    del data["metadata"]["channelMetadataRenderer"]["vanityChannelUrl"]
+    assert parse_channel_page(_page(data)).channel.handle == ""
 
 
 def test_channel_page_missing_tab_falls_back_to_home() -> None:
