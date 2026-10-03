@@ -59,15 +59,7 @@ def write_cached_feed(cache_folder: Path, key: str, content: bytes) -> None:
 
 
 class ChannelCache:
-    """
-    Small in-memory cache of channel descriptions (id, name, avatar and home
-    URLs: a few hundred bytes each). Nothing else is cached: feeds and video
-    lists are always fetched live.
-
-    Bounded twice: an entry expires after ``YOURSS_CHANNEL_CACHE_TTL`` (0
-    disables the cache) and the least recently used entry is dropped once
-    ``max_size`` is reached.
-    """
+    """In-memory cache of channel descriptions, bounded by a TTL and an LRU size (docs/specs/youtube-backend.md)."""
 
     def __init__(self, max_size: int = 1024) -> None:
         self.max_size = max_size

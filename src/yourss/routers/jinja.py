@@ -6,8 +6,7 @@ from fastapi import Request
 from jinja2 import Environment, FileSystemLoader
 from starlette.templating import Jinja2Templates, _TemplateResponse
 
-import yourss
-
+from .. import __version__
 from ..settings import current_config, static_folder, templates_folder
 
 
@@ -28,7 +27,7 @@ def date_humanize(date: datetime | str | None) -> str:
 def static_url(path: str) -> str:
     # The mtime busts the browser cache as soon as an asset changes
     file = static_folder / path
-    version = int(file.stat().st_mtime) if file.exists() else yourss.__version__
+    version = int(file.stat().st_mtime) if file.exists() else __version__
     return f"/static/{path}?v={version}"
 
 
@@ -47,7 +46,7 @@ def template_page(request: Request, template_name: str, **kwargs: Any) -> _Templ
         template_name,
         context={
             "request": request,
-            "version": yourss.__version__,
+            "version": __version__,
         }
         | {k: v for k, v in kwargs.items() if v is not None},
     )

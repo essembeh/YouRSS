@@ -1,22 +1,4 @@
-"""
-Resilient parsers for the video items of a Youtube payload (``ytInitialData`` or
-a ``/youtubei/v1/browse`` response).
-
-Youtube periodically reshapes its internal JSON. Historically videos were
-described by ``videoRenderer`` / ``richItemRenderer`` nodes; they are now
-described by the newer *ViewModel* components (``lockupViewModel``,
-``shortsLockupViewModel``).
-
-To survive the next reshape, this module does not hardcode a single deep path.
-Instead each field is extracted through a :class:`glom.Coalesce` of candidate
-specs tried in order (new format first, legacy format as fallback). Adding
-support for a new layout is therefore a one-line change: append a candidate
-spec, do not rewrite the parser.
-
-When a payload clearly contains video-like nodes but none of the known parsers
-can extract anything, :class:`ScrapingError` is raised so the breakage is
-detected immediately instead of silently returning an empty list.
-"""
+"""Video and short items of a Youtube payload, one parser per known layout (docs/specs/youtube-backend.md)."""
 
 from __future__ import annotations
 
@@ -48,20 +30,7 @@ def _is_view_count_part(part: dict[str, Any]) -> bool:
 
 
 def _published_from_metadata_rows(rows: Any) -> str | None:
-    """
-    Extract the relative publish date (e.g. ``"4 weeks ago"``) from a
-    ``contentMetadataViewModel.metadataRows`` structure.
-
-    A metadata row holds parts such as ``"1.1M views"`` and ``"21 hours ago"``.
-    We drop the view/like counters (identified by a ``leadingIcon`` or a
-    "views" accessibility label) and keep the remaining text part as the date.
-    This handles every observed layout: full ``["90K views", "4 weeks ago"]``,
-    compact ``["1.1M"+icon, "21h ago"]``, and members-only ``["2 days ago"]``.
-
-    Prefers a part carrying an ``accessibilityLabel`` (the un-abbreviated date,
-    e.g. "21 hours ago" rather than "21h ago"); otherwise falls back to the
-    last non-counter part.
-    """
+    """The relative publish date ("4 weeks ago") of a ``metadataRows`` structure, counters excluded."""
     if not isinstance(rows, list):
         return None
     candidates: list[dict[str, Any]] = []
@@ -116,17 +85,7 @@ def _first_source_url(node: Any) -> str | None:
 
 
 class ItemParser(ABC):
-    """
-    Parser for a single kind of node in a Youtube payload.
-
-    Subclasses declare:
-
-    * ``node_key``: the dict key that wraps the items we care about
-      (e.g. ``lockupViewModel``). All matching nodes are located anywhere in
-      the payload via a recursive search, so we never depend on the exact
-      surrounding container.
-    * ``extract``: how to turn one node into a ``VideoDescription`` kwargs dict.
-    """
+    """Parser for one kind of node (``node_key``), found anywhere in the payload."""
 
     node_key: str
 
