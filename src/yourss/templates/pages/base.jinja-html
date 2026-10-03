@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="neon">
+
+<head>
+  <title>{{ title }} - YouRSS</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="color-scheme" content="dark light" />
+  <script>
+    // Neon is the default theme; a theme chosen in this browser is applied before first paint.
+    try {
+      const theme = localStorage.getItem("yourss-theme")
+      if (["light", "dark", "neon"].includes(theme)) {
+        document.documentElement.dataset.theme = theme
+      }
+    } catch (e) {}
+  </script>
+  <link href="{{ static_url('yourss.css') }}" rel="stylesheet" />
+  <link rel="icon" type="image/png" sizes="32x32" href="{{ static_url('icons/favicon-32.png') }}" />
+  <link rel="icon" type="image/png" sizes="192x192" href="{{ static_url('icons/icon-192.png') }}" />
+  <link rel="apple-touch-icon" sizes="180x180" href="{{ static_url('icons/apple-touch-icon.png') }}" />
+  <link rel="manifest" href="{{ static_url('manifest.json') }}" />
+  <meta name="apple-mobile-web-app-title" content="YouRSS" />
+  <meta name="application-name" content="YouRSS" />
+  <meta name="theme-color" content="#0a0718" />
+</head>
+
+<body class="no-watched">
+  {% include "partials/icons.jinja-html" %}
+
+  <div class="yourss-app">
+    <header class="yourss-topbar">
+      <button type="button" class="yourss-icon-btn" data-action="menu" aria-label="Menu"><svg><use href="#i-menu" /></svg></button>
+      <a class="yourss-brand" href="{{ request.url.path }}"><img src="{{ static_url('icons/icon-192.png') }}" width="24" height="24" alt="" /><span>You<em>RSS</em></span></a>
+      <span class="yourss-spacer"></span>
+      <div class="yourss-segment yourss-filter" data-watched-feature role="group" aria-label="Videos shown">
+        <button type="button" data-action="set-flag" data-flag="hide-watched" data-value="0" title="Show every video (h)">All</button>
+        <button type="button" data-action="set-flag" data-flag="hide-watched" data-value="1" title="Only show the videos not watched yet (h)">New</button>
+      </div>
+      <button type="button" class="yourss-icon-btn yourss-settings-btn" data-action="settings" aria-label="Settings"><svg><use href="#i-settings" /></svg></button>
+    </header>
+
+    {% include "partials/sidebar.jinja-html" %}
+    <div class="yourss-backdrop" data-action="menu"></div>
+
+    <main class="yourss-main">
+      {% block content %}{% endblock %}
+    </main>
+  </div>
+
+  {% include "partials/modal.jinja-html" %}
+  {% include "partials/settings.jinja-html" %}
+  {% include "partials/shortcuts.jinja-html" %}
+  <template id="yourss-empty-template">{% include "partials/empty.jinja-html" %}</template>
+  <button id="scroll-to-top" type="button" data-action="scroll-top" title="Back to top"><svg><use href="#i-up" /></svg></button>
+
+  <script src="https://unpkg.com/htmx.org@2.0.3" integrity="sha384-0895/pl2MU10Hqc6jd4RvrthNlDiE9U1tWmX7WRESftEDRosgxNsQG/Ze9YMRzHq" crossorigin="anonymous"></script>
+  <script src="{{ static_url('yourss.js') }}"></script>
+</body>
+
+</html>

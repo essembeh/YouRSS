@@ -1,56 +1,49 @@
-import json
-from collections import UserDict
-from dataclasses import dataclass
 from datetime import datetime
-from typing import Any, Iterator, Self
+from typing import Any
 
-from .parser import SHORTS_PARSERS, VIDEO_PARSERS, parse_items
-from .utils import find_key
+from pydantic import BaseModel, model_validator
 
 
-@dataclass
-class ChannelDescription:
+class ChannelDescription(BaseModel, frozen=True):
     channel_id: str
     name: str
-    avatar: str | None
-    home: str | None
+    # Absolute Youtube URLs when known, else application routes which resolve them on demand
+    avatar: str
+    home: str
 
-    def __post_init__(self):
-        if self.avatar is None:
-            self.avatar = f"/proxy/avatar/{self.channel_id}"
-        if self.home is None:
-            self.home = f"/proxy/home/{self.channel_id}"
+    @model_validator(mode="before")
+    @classmethod
+    def _default_links(cls, data: Any) -> Any:
+        if isinstance(data, dict) and "channel_id" in data:
+            data = dict(data)
+            data["avatar"] = data.get("avatar") or f"/proxy/avatar/{data['channel_id']}"
+            data["home"] = data.get("home") or f"/proxy/home/{data['channel_id']}"
+        return data
 
 
-@dataclass
-class VideoDescription:
+class VideoDescription(BaseModel, frozen=True):
+    """
+    A video as the templates display it, whatever its source. RSS gives exact
+    values (``published_at``, ``views``); a scraped page only gives the texts
+    Youtube displays (``published_text``, ``views_text``).
+    """
+
     video_id: str
     title: str
-    published: str | datetime
-    thumbnail: str | None
+    thumbnail: str
+    short: bool = False
     channel: ChannelDescription | None = None
+    published_at: datetime | None = None
+    published_text: str | None = None
+    views: int | None = None
+    views_text: str | None = None
 
-    def __post_init__(self):
-        if self.thumbnail is None:
-            # Derived directly from the video_id, no need for a proxy redirect.
-            self.thumbnail = f"https://i.ytimg.com/vi/{self.video_id}/hqdefault.jpg"
-
-
-class BrowseData(UserDict[str, Any]):
+    @model_validator(mode="before")
     @classmethod
-    def from_json_string(cls, text: str) -> Self:
-        return cls(json.loads(text))
-
-    def iter_videos(self, shorts: bool = False) -> Iterator[VideoDescription]:
-        parsers = SHORTS_PARSERS if shorts else VIDEO_PARSERS
-        for kwargs in parse_items(self.data, parsers):
-            yield VideoDescription(**kwargs)
-
-    @property
-    def continuation_token(self) -> str | None:
-        token = find_key("continuationCommand", self.data, dict)
-        return token.get("token") if token else None
-
-    @property
-    def click_tracking_params(self) -> str | None:
-        return find_key("clickTrackingParams", self.data, str)
+    def _default_thumbnail(cls, data: Any) -> Any:
+        if isinstance(data, dict) and "video_id" in data and not data.get("thumbnail"):
+            data = {
+                **data,
+                "thumbnail": f"https://i.ytimg.com/vi/{data['video_id']}/hqdefault.jpg",
+            }
+        return data

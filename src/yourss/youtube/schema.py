@@ -8,7 +8,8 @@ from pydantic import HttpUrl
 from pydantic_xml import BaseXmlModel, attr, element
 from rapid_api_client import ResponseModel
 
-from yourss.youtube.utils import is_channel_id
+from .model import ChannelDescription, VideoDescription
+from .utils import is_channel_id
 
 
 class AtomXmlModel(
@@ -39,10 +40,19 @@ class MediaThumbnail(AtomXmlModel, ns="media"):
     height: int = attr()
 
 
+class MediaStatistics(AtomXmlModel, ns="media"):
+    views: int = attr()
+
+
+class MediaCommunity(AtomXmlModel, ns="media"):
+    statistics: MediaStatistics | None = element(default=None)
+
+
 class MediaGroup(AtomXmlModel, ns="media"):
     title: str = element()
     thumbnail: MediaThumbnail = element()
     description: str = element(default="")
+    community: MediaCommunity | None = element(default=None)
 
 
 class Entry(AtomXmlModel):
@@ -55,6 +65,30 @@ class Entry(AtomXmlModel):
     published: datetime = element()
     updated: datetime = element()
     media_info: MediaGroup = element(tag="group")
+
+    @property
+    def is_short(self) -> bool:
+        # The link of a short points to /shorts/<id> instead of /watch?v=<id>
+        return any("/shorts/" in str(link.href) for link in self.links)
+
+    @property
+    def views(self) -> int | None:
+        community = self.media_info.community
+        return (
+            community.statistics.views if community and community.statistics else None
+        )
+
+    def to_video(self, channel: ChannelDescription | None = None) -> VideoDescription:
+        """The only place where an RSS entry becomes a video of the application."""
+        return VideoDescription(
+            video_id=self.video_id,
+            title=self.title,
+            thumbnail=str(self.media_info.thumbnail.url),
+            short=self.is_short,
+            channel=channel,
+            published_at=self.published,
+            views=self.views,
+        )
 
 
 class Feed(AtomXmlModel, tag="feed"):

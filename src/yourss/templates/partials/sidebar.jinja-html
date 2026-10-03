@@ -1,0 +1,55 @@
+<aside id="yourss-sidebar" class="yourss-sidebar" aria-label="Navigation">
+  <div class="yourss-sidebar-head">
+    <a class="yourss-brand" href="{{ request.url.path }}" title="Reload this page"><img src="{{ static_url('icons/icon-192.png') }}" width="28" height="28" alt="" /><span>You<em>RSS</em></span></a>
+    <button type="button" class="yourss-icon-btn yourss-rail-toggle" data-action="rail" title="Collapse / expand sidebar"><svg><use href="#i-chevron" /></svg></button>
+  </div>
+
+  <label class="yourss-search" title="Filter the videos on this page (shortcut: /)">
+    <svg><use href="#i-search" /></svg>
+    <input id="yourss-search" type="search" placeholder="Filter videos" autocomplete="off" />
+  </label>
+
+  <div class="yourss-segment yourss-filter" data-watched-feature role="group" aria-label="Videos shown">
+    <button type="button" data-action="set-flag" data-flag="hide-watched" data-value="0" title="Show every video (h)">All</button>
+    <button type="button" data-action="set-flag" data-flag="hide-watched" data-value="1" title="Only show the videos not watched yet (h)">New</button>
+  </div>
+
+  <nav class="yourss-nav">
+    {% if channels %}
+    <div class="yourss-row">
+      <a class="yourss-nav-item yourss-home-link" href="{{ request.url.path }}" title="The latest videos of all your channels">
+        <svg><use href="#i-home" /></svg><span class="yourss-label">Home</span>
+        <span class="yourss-badge yourss-count" data-watched-feature data-channel-id="*" hidden></span>
+      </a>
+      <button type="button" class="yourss-icon-btn is-small yourss-row-btn" data-watched-feature data-action="mark-feed-watched" title="Mark every video as watched"><svg><use href="#i-check-all" /></svg></button>
+    </div>
+    <div class="yourss-section">
+      <span class="yourss-label">Subscriptions</span>
+    </div>
+    <ul class="yourss-channels">
+      {% for channel in channels %}
+      <li class="yourss-channel" data-channel-id="{{ channel.channel_id }}">
+        <a class="yourss-nav-item" href="{{ request.url.path }}?c={{ channel.channel_id }}" hx-get="/htmx/channel/{{ channel.channel_id }}" hx-target="#yourss-content"
+          hx-push-url="{{ request.url.path }}?c={{ channel.channel_id }}" title="{{ channel.name }}">
+          <img class="yourss-avatar" referrerpolicy="no-referrer" src="{{ channel.avatar }}" alt="" width="28" height="28" />
+          <span class="yourss-label">{{ channel.name }}</span>
+          <span class="yourss-badge yourss-count" data-watched-feature data-channel-id="{{ channel.channel_id }}" hidden></span>
+        </a>
+      </li>
+      {% endfor %}
+    </ul>
+    {% elif channel %}
+    <div class="yourss-section"><span class="yourss-label">Channel</span></div>
+    <a class="yourss-nav-item active" href="/c/{{ channel.channel_id }}" title="{{ channel.name }}">
+      <img class="yourss-avatar" referrerpolicy="no-referrer" src="{{ channel.avatar }}" alt="" width="28" height="28" /><span class="yourss-label">{{ channel.name }}</span>
+    </a>
+    {% endif %}
+  </nav>
+
+  <div class="yourss-sidebar-foot">
+    <button type="button" class="yourss-nav-item yourss-settings-btn" data-action="settings" title="Settings">
+      <svg><use href="#i-settings" /></svg><span class="yourss-label">Settings</span>
+    </button>
+    {% include "partials/footer.jinja-html" %}
+  </div>
+</aside>

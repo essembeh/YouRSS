@@ -23,7 +23,7 @@ def verify_password(user: User, value: str) -> bool:
     if user.password.method == PasswordMethod.ARGON2:
         try:
             return argon2hasher.verify(user.password.value, value)
-        except BaseException:
+        except Exception:
             return False
 
     raise ValueError("Invalid password method")
@@ -40,7 +40,7 @@ def find_user(username: str) -> Optional[User]:
             for user in config.users:
                 if user.name == username:
                     return user
-        except BaseException as error:
+        except Exception as error:
             logger.exception(error)
 
 

@@ -2,15 +2,13 @@ import pytest
 from bs4 import BeautifulSoup
 from httpx import get
 
-from yourss.youtube import YoutubeApi
-from yourss.youtube.parser import (
-    SHORTS_PARSERS,
-    VIDEO_PARSERS,
-    ScrapingError,
-    parse_items,
-)
+from yourss.youtube import ScrapingError, YoutubeApi
+from yourss.youtube.cache import channel_cache
+from yourss.youtube.scraping.items import SHORTS_PARSERS, VIDEO_PARSERS, parse_items
 
 CHANNEL = "UCVooVnzQxPSTXTMzSi1s6uw"
+# @thinkerview streams its interviews
+STREAMING_CHANNEL = "UCQgWpmt02UtJkyO32HGUASQ"
 
 
 def is_rgpd_applicable():
@@ -67,27 +65,31 @@ async def test_rss_playlist():
 
 
 @pytest.mark.asyncio(loop_scope="module")
-async def test_metadata_channel():
+@pytest.mark.parametrize("name", [CHANNEL, "@jonnygiger"])
+async def test_channel_page(name: str):
     api = YoutubeApi()
 
-    page = await api.get_homepage("UCVooVnzQxPSTXTMzSi1s6uw")
-    channel = page.get_metadata()
-    assert channel.name == "Jonny Giger"
-    assert channel.channel_id == "UCVooVnzQxPSTXTMzSi1s6uw"
-    assert channel.home == "https://www.youtube.com/channel/UCVooVnzQxPSTXTMzSi1s6uw"
-    assert channel.avatar is not None
+    page = await api.get_channel_page(name)
+    assert page.channel.name == "Jonny Giger"
+    assert page.channel.channel_id == CHANNEL
+    assert page.channel.home == f"https://www.youtube.com/channel/{CHANNEL}"
+    assert page.channel.avatar is not None
+    assert page.selected_tab is None
+    # This channel publishes videos and shorts but no live stream
+    assert page.tabs == ["videos", "shorts"]
 
 
 @pytest.mark.asyncio(loop_scope="module")
-async def test_metadata_user():
+async def test_channel_cached():
     api = YoutubeApi()
+    channel_cache.clear()
 
-    page = await api.get_homepage("@jonnygiger")
-    channel = page.get_metadata()
-    assert channel.name == "Jonny Giger"
-    assert channel.channel_id == "UCVooVnzQxPSTXTMzSi1s6uw"
-    assert channel.home == "https://www.youtube.com/channel/UCVooVnzQxPSTXTMzSi1s6uw"
-    assert channel.avatar is not None
+    channel = await api.get_channel("@JonnyGiger")
+    assert channel.channel_id == CHANNEL
+    # Known under the handle (case insensitive) and under the channel id
+    assert channel_cache.get("@jonnygiger") == channel
+    assert channel_cache.get(CHANNEL) == channel
+    assert await api.get_channel(CHANNEL) is channel
 
 
 @pytest.mark.asyncio(loop_scope="module")
@@ -106,16 +108,19 @@ async def test_scrap_videos():
 async def test_scrap_videos_fields():
     api = YoutubeApi()
 
-    homepage = await api.get_homepage(CHANNEL, suffix="/videos")
-    browse_data = homepage.find_browse_data()
-    assert browse_data is not None
+    page = await api.get_channel_page(CHANNEL, "videos")
+    assert page.selected_tab == "videos"
 
-    videos = list(browse_data.iter_videos())
-    assert len(videos) == 30
-    for video in videos:
+    videos = page.videos()
+    assert videos.continuation is not None
+    assert len(videos.videos) == 30
+    for video in videos.videos:
         assert video.video_id
         assert video.title
-        assert video.published
+        assert video.published_text
+        assert video.views_text
+        assert video.published_at is None
+        assert not video.short
         assert video.thumbnail
 
 
@@ -123,13 +128,14 @@ async def test_scrap_videos_fields():
 async def test_scrap_shorts():
     api = YoutubeApi()
 
-    homepage = await api.get_homepage(CHANNEL, suffix="/shorts")
-    browse_data = homepage.find_browse_data()
-    assert browse_data is not None
+    page = await api.get_channel_page(CHANNEL, "shorts")
+    assert page.selected_tab == "shorts"
 
-    shorts = list(browse_data.iter_videos(shorts=True))
+    shorts = page.videos(shorts=True).videos
     assert len(shorts) > 10
     for short in shorts:
+        assert short.short
+        assert short.views_text
         assert short.video_id
         assert short.title
         assert short.thumbnail
@@ -139,16 +145,25 @@ async def test_scrap_shorts():
 async def test_scrap_streams():
     api = YoutubeApi()
 
-    homepage = await api.get_homepage(CHANNEL, suffix="/streams")
-    browse_data = homepage.find_browse_data()
-    assert browse_data is not None
+    page = await api.get_channel_page(STREAMING_CHANNEL, "streams")
+    assert page.selected_tab == "streams"
 
-    streams = list(browse_data.iter_videos())
+    streams = page.videos().videos
     assert len(streams) > 0
     for stream in streams:
         assert stream.video_id
         assert stream.title
         assert stream.thumbnail
+
+
+@pytest.mark.asyncio(loop_scope="module")
+async def test_scrap_missing_tab():
+    api = YoutubeApi()
+
+    # Youtube serves the channel home when the tab does not exist
+    page = await api.get_channel_page(CHANNEL, "streams")
+    assert page.selected_tab is None
+    assert "streams" not in page.tabs
 
 
 def test_date_humanize_handles_none():
@@ -188,7 +203,8 @@ def test_parser_legacy_video_fallback():
         {
             "video_id": "abc12345678",
             "title": "Legacy title",
-            "published": "2 days ago",
+            "published_text": "2 days ago",
+            "views_text": None,
             "thumbnail": "https://i.ytimg.com/x.jpg",
         }
     ]
@@ -232,7 +248,8 @@ def test_parser_lockup_video():
         {
             "video_id": "abc12345678",
             "title": "New title",
-            "published": "4 weeks ago",
+            "published_text": "4 weeks ago",
+            "views_text": "90K views",
             "thumbnail": "https://i.ytimg.com/x.jpg",
         }
     ]
@@ -269,7 +286,8 @@ def test_parser_published_compact_with_icon():
         }
     ]
     [item] = parse_items(_lockup_with_rows(rows), VIDEO_PARSERS)
-    assert item["published"] == "21 hours ago"
+    assert item["published_text"] == "21 hours ago"
+    assert item["views_text"] == "1.1 million views"
 
 
 def test_parser_published_members_only():
@@ -283,7 +301,8 @@ def test_parser_published_members_only():
         {"badges": [{"badgeViewModel": {"badgeText": "Members only"}}]},
     ]
     [item] = parse_items(_lockup_with_rows(rows), VIDEO_PARSERS)
-    assert item["published"] == "2 days ago"
+    assert item["published_text"] == "2 days ago"
+    assert item["views_text"] is None
 
 
 def test_parser_published_missing_is_none():
@@ -300,7 +319,7 @@ def test_parser_published_missing_is_none():
         }
     ]
     [item] = parse_items(_lockup_with_rows(rows), VIDEO_PARSERS)
-    assert item["published"] is None
+    assert item["published_text"] is None
 
 
 def test_parser_legacy_shorts_fallback():
@@ -326,8 +345,9 @@ def test_parser_legacy_shorts_fallback():
         {
             "video_id": "abc12345678",
             "title": "Old short",
-            "published": "10K views",
+            "views_text": "10K views",
             "thumbnail": "https://i.ytimg.com/s.jpg",
+            "short": True,
         }
     ]
 
@@ -354,7 +374,8 @@ def test_parser_shorts_lockup():
         {
             "video_id": "abc12345678",
             "title": "Short title",
-            "published": "532K views",
+            "views_text": "532K views",
             "thumbnail": "https://i.ytimg.com/s.jpg",
+            "short": True,
         }
     ]

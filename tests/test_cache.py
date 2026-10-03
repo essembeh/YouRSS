@@ -10,7 +10,7 @@ from yourss.youtube.cache import read_stale_feed
 from yourss.youtube.client import YoutubeApi
 from yourss.youtube.schema import Feed
 
-SAMPLES_FOLDER = Path(__file__).parent.parent / "samples"
+SAMPLES_FOLDER = Path(__file__).parent / "data"
 CHANNEL_ID = "UCVooVnzQxPSTXTMzSi1s6uw"
 
 

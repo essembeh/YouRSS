@@ -1,0 +1,33 @@
+<dialog id="yourss-shortcuts" class="yourss-settings">
+  <div class="yourss-settings-box">
+    <div class="yourss-settings-head">
+      <strong>Keyboard shortcuts</strong>
+      <button type="button" class="yourss-icon-btn" data-action="close-dialog" aria-label="Close"><svg><use href="#i-close" /></svg></button>
+    </div>
+    <dl class="yourss-shortcuts">
+      <dt><kbd>←</kbd><kbd>↑</kbd><kbd>↓</kbd><kbd>→</kbd></dt>
+      <dd>Move the selection in the grid</dd>
+      <dt><kbd>Space</kbd></dt>
+      <dd>Play the selected video</dd>
+      <dt><kbd>n</kbd><kbd>p</kbd></dt>
+      <dd>Play the next / previous video</dd>
+      <dt><kbd>o</kbd></dt>
+      <dd>Open the selected video in the fullscreen player</dd>
+      <dt><kbd>x</kbd></dt>
+      <dd>Close the player</dd>
+      <dt data-watched-feature><kbd>w</kbd></dt>
+      <dd data-watched-feature>Mark the selected video as watched or not</dd>
+      <dt data-watched-feature><kbd>h</kbd></dt>
+      <dd data-watched-feature>Show every video or only the new ones</dd>
+      <dt><kbd>Shift</kbd><kbd>↑</kbd><kbd>↓</kbd></dt>
+      <dd>Go to the previous / next channel</dd>
+      <dt><kbd>/</kbd></dt>
+      <dd>Filter the videos of the page</dd>
+      <dt><kbd>Esc</kbd></dt>
+      <dd>Close a window, the player or the filter</dd>
+      <dt><kbd>?</kbd></dt>
+      <dd>Show this list</dd>
+    </dl>
+    <p class="yourss-settings-note">A click on a card, outside its image, selects it.</p>
+  </div>
+</dialog>

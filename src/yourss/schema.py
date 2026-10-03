@@ -1,29 +1,29 @@
 from datetime import timedelta
 from enum import Enum
 from pathlib import Path
-from typing import Optional
 
 from pydantic import BaseModel, Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
-class Theme(Enum):
-    LIGHT = "light"
-    DARK = "dark"
-
-    def __str__(self) -> str:
-        return self.value
-
-
 class AppSettings(BaseSettings):
+    """Every setting is a YOURSS_<NAME> environment variable (see the README and the Helm values)."""
+
     model_config = SettingsConfigDict(env_prefix="YOURSS_")
+
+    # Channels of the home page, comma separated
     default_channels: str = "@JonnyGiger"
+    # Serve the generated API documentation (/docs, /redoc, /openapi.json); off outside development
+    api_docs_enabled: bool = False
+    # YAML file declaring the user pages
+    users_file: Path | None = None
+    # Capitalize the titles to tame UPPERCASE ones
     clean_titles: bool = False
-    theme: Theme = Theme.LIGHT
-    users_file: Optional[Path] = None
-    player_nocookie: bool = True
-    cache_folder: Optional[Path] = None
+    # RSS fallback on disk for Youtube's transient 404: folder (unset disables) and max age
+    cache_folder: Path | None = None
     cache_max_age: timedelta = timedelta(hours=24)
+    # In-memory cache of channel names and avatars, 0 disables it
+    channel_cache_ttl: timedelta = timedelta(hours=1)
 
 
 class PasswordMethod(Enum):
@@ -38,9 +38,8 @@ class Password(BaseModel):
 
 class User(BaseModel):
     name: str
-    password: Optional[Password] = None
+    password: Password | None = None
     channels: list[str] = Field(min_length=1)
-    theme: Optional[Theme] = None
 
 
 class UsersConfig(BaseModel):

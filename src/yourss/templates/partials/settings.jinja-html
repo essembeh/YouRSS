@@ -1,0 +1,41 @@
+<dialog id="yourss-settings" class="yourss-settings">
+  <div class="yourss-settings-box">
+    <div class="yourss-settings-head">
+      <strong>Settings</strong>
+      <button type="button" class="yourss-icon-btn" data-action="close-dialog" aria-label="Close"><svg><use href="#i-close" /></svg></button>
+    </div>
+
+    <div class="yourss-setting">
+      <span class="yourss-setting-name">Theme</span>
+      <div class="yourss-segment yourss-theme" role="group" aria-label="Theme">
+        <button type="button" data-action="set-theme" data-value="neon"><svg><use href="#i-bolt" /></svg><span>Neon</span></button>
+        <button type="button" data-action="set-theme" data-value="dark"><svg><use href="#i-moon" /></svg><span>Dark</span></button>
+        <button type="button" data-action="set-theme" data-value="light"><svg><use href="#i-sun" /></svg><span>Light</span></button>
+      </div>
+    </div>
+
+    <div class="yourss-setting">
+      <span class="yourss-setting-name">Density</span>
+      <div class="yourss-segment" role="group" aria-label="Density">
+        <button type="button" data-action="set-density" data-value="compact"><svg><use href="#i-grid-s" /></svg><span>Compact</span></button>
+        <button type="button" data-action="set-density" data-value="normal"><svg><use href="#i-grid-m" /></svg><span>Normal</span></button>
+        <button type="button" data-action="set-density" data-value="large"><svg><use href="#i-grid-l" /></svg><span>Large</span></button>
+      </div>
+    </div>
+
+    <button type="button" class="yourss-toggle" data-action="toggle" data-flag="new-videos" aria-pressed="false">
+      <svg><use href="#i-check-all" /></svg><span class="yourss-toggle-text"><strong>Show new videos</strong><small>Remember the videos you played: New markers, counters and the All / New filter</small></span><i class="yourss-switch"></i>
+    </button>
+    <button type="button" class="yourss-toggle" data-action="toggle" data-flag="autoplay" aria-pressed="false">
+      <svg><use href="#i-play" /></svg><span class="yourss-toggle-text"><strong>Autoplay next</strong><small>Play the next video when one ends</small></span><i class="yourss-switch"></i>
+    </button>
+    <button type="button" class="yourss-toggle" data-action="toggle" data-flag="dock" aria-pressed="false">
+      <svg><use href="#i-dock" /></svg><span class="yourss-toggle-text"><strong>Mini player</strong><small>Keep playing in a corner when the video leaves the screen, instead of closing the player</small></span><i class="yourss-switch"></i>
+    </button>
+
+    <button type="button" class="yourss-btn yourss-reset-btn" data-action="reset-storage" title="Back to the default settings and forget the watched videos">
+      <svg><use href="#i-reset" /></svg><span>Reset settings and watched videos</span>
+    </button>
+    <p class="yourss-settings-note">Settings are stored in this browser only.</p>
+  </div>
+</dialog>

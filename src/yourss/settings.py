@@ -8,7 +8,7 @@ from .schema import AppSettings
 templates_folder = Path(app_root).parent / "templates"
 static_folder = Path(app_root).parent / "static"
 
-current_config = AppSettings.model_validate({})
+current_config = AppSettings()
 logger.debug("Loaded configuration: {}", current_config)
 
 if current_config.cache_folder is not None:

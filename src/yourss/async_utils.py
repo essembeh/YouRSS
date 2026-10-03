@@ -7,17 +7,13 @@ from .youtube import ChannelDescription, Feed, YoutubeApi, is_playlist_id
 async def async_fetch(
     names: List[str], api: YoutubeApi
 ) -> Tuple[Dict[str, ChannelDescription], List[Feed], List[BaseException]]:
-    async def fetch_metadata(name: str) -> ChannelDescription:
-        page = await api.get_homepage(name)
-        return page.get_metadata()
-
     channels = {}
     feeds = []
     errors = []
 
     # first fetch user/channel_id metadata
     for result in await asyncio.gather(
-        *[fetch_metadata(n) for n in names if not is_playlist_id(n)],
+        *[api.get_channel(n) for n in names if not is_playlist_id(n)],
         return_exceptions=True,
     ):
         if isinstance(result, ChannelDescription):
@@ -49,7 +45,7 @@ async def async_fetch(
 
     # fetch metadata for missing playlist channels
     for result in await asyncio.gather(
-        *[fetch_metadata(n) for n in playlist_channels_id], return_exceptions=True
+        *[api.get_channel(n) for n in playlist_channels_id], return_exceptions=True
     ):
         if isinstance(result, ChannelDescription):
             channels[result.channel_id] = result

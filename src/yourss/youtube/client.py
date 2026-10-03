@@ -1,29 +1,25 @@
-from asyncio import sleep
-from typing import (
-    Annotated,
-    Any,
-    AsyncIterator,
-    Awaitable,
-    Callable,
-    Dict,
-    List,
-    Literal,
-)
+from collections.abc import AsyncIterator, Awaitable, Callable
+from typing import Annotated, Any
 
 from httpx import Cookies, HTTPStatusError, Response
 from loguru import logger
-from rapid_api_client import JsonBody, Path, Query, RapidApi, get, post, rapid
+from rapid_api_client import JsonBody, Path, Query, RapidApi, get, post, rapid_default
 from starlette.status import HTTP_404_NOT_FOUND
 
 from ..settings import current_config
-from .cache import read_stale_feed, write_cached_feed
-from .model import BrowseData, VideoDescription
+from .cache import channel_cache, read_stale_feed, write_cached_feed
+from .model import ChannelDescription, VideoDescription
 from .schema import Feed
-from .scrapper import PageScrapper
-from .utils import (
-    is_channel_id,
-    is_user,
+from .scraping import (
+    ChannelPage,
+    ChannelTab,
+    Continuation,
+    ScrapingError,
+    VideoPage,
+    parse_channel_page,
+    parse_continuation,
 )
+from .utils import is_channel_id, is_user
 
 BASE_URL = "https://www.youtube.com"
 MOZILLA_USER_AGENT = (
@@ -37,13 +33,20 @@ def _youtube_cookies() -> Cookies:
     return out
 
 
-@rapid(
+@rapid_default(
     base_url=BASE_URL,
     headers={"user-agent": MOZILLA_USER_AGENT, "accept-language": "en"},
     follow_redirects=True,
     cookies=_youtube_cookies(),
 )
 class YoutubeApi(RapidApi):
+    """
+    Transport only: what is asked to Youtube and how. Reading the answers is the
+    job of the ``schema`` module (RSS) and of the ``scraping`` package (pages).
+    """
+
+    # --- RSS feeds
+
     @get("/feeds/videos.xml")
     async def _get_channel_rss_raw(
         self, channel_id: Annotated[str, Query()]
@@ -81,64 +84,71 @@ class YoutubeApi(RapidApi):
     async def get_playlist_rss(self, playlist_id: str) -> Feed:
         return await self._fetch_rss(playlist_id, self._get_playlist_rss_raw)
 
+    # --- pages and internal API, read by the scraping package
+
     @get("{path}")
     async def get_html(
         self, path: Annotated[str, Path()], ucbcb: Annotated[int, Query()] = 1
     ) -> Response: ...
 
     @post("/youtubei/v1/browse")
-    async def api_browse(self, data: Annotated[dict, JsonBody()]) -> Dict[str, Any]: ...
+    async def api_browse(self, data: Annotated[dict, JsonBody()]) -> dict[str, Any]: ...
 
-    async def get_homepage(
-        self, name: str, suffix: Literal["/videos", "/shorts", "/streams"] | None = None
-    ) -> PageScrapper:
+    async def get_channel_page(
+        self, name: str, tab: ChannelTab | None = None
+    ) -> ChannelPage:
+        """Page of a channel (``UC…`` id or ``@handle``): its home, or one of its tabs."""
         if is_channel_id(name):
-            resp = await self.get_html(f"/channel/{name}{suffix or ''}")
+            path = f"/channel/{name}"
         elif is_user(name):
-            resp = await self.get_html(f"/{name}{suffix or ''}")
+            path = f"/{name}"
         else:
             raise ValueError(f"Cannot find homepage for: {name}")
-        return PageScrapper.from_response(resp)
+        url = f"{path}/{tab}" if tab else path
+        try:
+            out = parse_channel_page(await self._get_page(url))
+        except ScrapingError as error:
+            # Youtube sometimes serves a page in another layout: a second request usually gets the usual one
+            logger.warning("Retrying {}: {}", url, error)
+            out = parse_channel_page(await self._get_page(url))
+        channel_cache.put(name, out.channel)
+        return out
 
-    async def iter_videos(
-        self, channel: str, *, delay: float = 0
-    ) -> AsyncIterator[List[VideoDescription]]:
-        homepage = await self.get_homepage(channel, suffix="/videos")
-        assert (client_data := homepage.find_client_data()) is not None
-        assert (browse_data := homepage.find_browse_data()) is not None
-        while True:
-            videos = list(browse_data.iter_videos())
-            if len(videos) > 0:
-                # yield all videos from the page
-                yield videos
-            else:
-                # could not find any video
-                break
-            if browse_data.continuation_token is None:
-                # no continuation token, stop
-                break
-            # get next page using json api
-            if delay > 0:
-                await sleep(delay)
-            browse_data = await self.get_next_page(
-                client_data,
-                browse_data.click_tracking_params,
-                browse_data.continuation_token,
-            )
+    async def _get_page(self, url: str) -> str:
+        resp = await self.get_html(url)
+        resp.raise_for_status()
+        return resp.text
 
-    async def get_next_page(
-        self,
-        client_data: Dict[str, Any],
-        click_tracking_params: str,
-        continuation_token: str,
-    ) -> BrowseData:
-        resp = await self.api_browse(
+    async def get_channel(self, name: str) -> ChannelDescription:
+        """Name, id, avatar and home of a channel, from the cache when it is known."""
+        cached = channel_cache.get(name)
+        if cached is not None:
+            return cached
+        return (await self.get_channel_page(name)).channel
+
+    async def get_more_videos(
+        self, continuation: Continuation, *, shorts: bool = False
+    ) -> VideoPage:
+        """Next page of a channel tab."""
+        payload = await self.api_browse(
             {
                 "context": {
-                    "clickTracking": {"clickTrackingParams": click_tracking_params},
-                    "client": client_data,
+                    "client": {
+                        "clientName": "WEB",
+                        "clientVersion": continuation.client_version,
+                        "hl": "en",
+                    }
                 },
-                "continuation": continuation_token,
+                "continuation": continuation.token,
             }
         )
-        return BrowseData(resp)
+        return parse_continuation(payload, continuation, shorts=shorts)
+
+    async def iter_videos(self, channel: str) -> AsyncIterator[list[VideoDescription]]:
+        """Every video of a channel, one page at a time."""
+        page = (await self.get_channel_page(channel, "videos")).videos()
+        while page.videos:
+            yield page.videos
+            if page.continuation is None:
+                break
+            page = await self.get_more_videos(page.continuation)

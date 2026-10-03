@@ -42,7 +42,6 @@ async def user(request: Request, user: User = Depends(get_auth_user)):
         channels=sorted(channels.values(), key=lambda c: c.name.lower()),
         videos=videos,
         errors=errors,
-        theme=user.theme,
     )
 
 
@@ -66,16 +65,15 @@ async def page(request: Request, names: str):
 @router.get("/channel/{channel}", response_class=HTMLResponse)
 @router.get("/c/{channel}", response_class=HTMLResponse)
 async def channel(request: Request, channel: ChannelId | UserId):
-    api = YoutubeApi()
     try:
-        homepage = await api.get_homepage(channel)
-        channel_desc = homepage.get_metadata()
+        page = await YoutubeApi().get_channel_page(channel)
     except Exception as e:
-        raise HTTPException(HTTP_404_NOT_FOUND, detail=str(e))
+        raise HTTPException(HTTP_404_NOT_FOUND, detail=str(e)) from e
 
     return template_page(
         request,
         "pages/channel.jinja-html",
         title=f"/c/{channel}",
-        channel=channel_desc,
+        channel=page.channel,
+        tabs=page.tabs,
     )

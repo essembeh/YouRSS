@@ -1,9 +1,8 @@
-  <div class="container-fluid">
-    <footer class="py-3 mt-4 border-top text-center">
-      <a href="https://github.com/essembeh/YouRSS" target="_blank" class="text-body">
-        <i class="bi bi-github" width="24" height="24"></i>
-      </a>
-      <span class="fw-bold">YouRSS</span>
-      <span class="text-secondary">v{{ version }}</span>
-    </footer>
+<footer class="yourss-footer">
+  <div class="yourss-footer-row">
+    <a href="https://github.com/essembeh/YouRSS" target="_blank" rel="noopener" title="GitHub"><svg><use href="#i-github" /></svg></a>
+    <span class="yourss-muted">v{{ version }}</span>
+    <span class="yourss-spacer"></span>
+    <button type="button" class="yourss-icon-btn is-small" data-action="shortcuts" title="Keyboard shortcuts (?)" aria-label="Keyboard shortcuts"><svg><use href="#i-keyboard" /></svg></button>
   </div>
+</footer>

@@ -1,30 +1,15 @@
-<div id="yourss-modal" class="modal fade" tabindex="-1">
-    <div class="modal-dialog modal-fullscreen">
-        <div class="modal-content">
-            <div class="modal-header">
-                <span id="yourss-modal-video-title" class="fw-normal"></span>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <div id="yourss-modal-player" style="width: 100%; height: 100%"></div>
-            </div>
-            <div class="modal-footer">
-                <a id="yourss-modal-link-rss" class="btn btn-warning" target="_blank">
-                    <i class="bi bi-rss-fill" style="color: white"></i>
-                </a>
-                <a id="yourss-modal-link-piped" class="btn btn-success yourss-modal-external" target="_blank" rel="noopener">
-                    <i class="bi bi-incognito"></i>
-                </a>
-                <a id="yourss-modal-link-youtube" class="btn btn-danger yourss-modal-external" target="_blank" rel="noopener">
-                    <i class="bi bi-youtube"></i>
-                </a>
-                <a id="yourss-modal-link-tab" class="btn btn-primary yourss-modal-external" target="_blank" rel="noopener">
-                    <i class="bi bi-fullscreen"></i>
-                </a>
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-                    <i class="bi bi-x-lg"></i>
-                </button>
-            </div>
-        </div>
+<dialog id="yourss-modal" class="yourss-modal">
+  <div class="yourss-modal-box">
+    <div class="yourss-modal-head">
+      <span id="yourss-modal-video-title"></span>
+      <button type="button" class="yourss-icon-btn" data-action="close-dialog" aria-label="Close"><svg><use href="#i-close" /></svg></button>
     </div>
-</div>
+    <div id="yourss-modal-player" class="yourss-modal-player"></div>
+    <div class="yourss-modal-foot">
+      <a id="yourss-modal-link-rss" class="yourss-btn rss" target="_blank" rel="noopener" title="Channel RSS feed"><svg><use href="#i-rss" /></svg><span>RSS</span></a>
+      <span class="yourss-spacer"></span>
+      <a id="yourss-modal-link-youtube" class="yourss-btn yt" data-action="close-dialog" target="_blank" rel="noopener" title="Open on YouTube"><svg><use href="#i-youtube" /></svg><span>YouTube</span></a>
+      <a id="yourss-modal-link-tab" class="yourss-btn" data-action="close-dialog" target="_blank" rel="noopener" title="Player in a new tab"><svg><use href="#i-fullscreen" /></svg></a>
+    </div>
+  </div>
+</dialog>

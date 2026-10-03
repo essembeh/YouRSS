@@ -1,5 +1,6 @@
 """
-Resilient parsers for Youtube's ``ytInitialData`` / ``/youtubei/v1/browse`` payloads.
+Resilient parsers for the video items of a Youtube payload (``ytInitialData`` or
+a ``/youtubei/v1/browse`` response).
 
 Youtube periodically reshapes its internal JSON. Historically videos were
 described by ``videoRenderer`` / ``richItemRenderer`` nodes; they are now
@@ -24,11 +25,13 @@ from typing import Any, Dict, Iterator, List
 
 from glom import Coalesce, GlomError, glom
 
-from .utils import find_key, iter_key, simple_url
+from ..model import VideoDescription
+from .errors import ScrapingError
+from .walk import find_key, iter_key
 
 
-class ScrapingError(RuntimeError):
-    """Raised when a payload contains video nodes we can no longer parse."""
+def simple_url(url: str) -> str:
+    return url.split("?", 1)[0]
 
 
 def _is_view_count_part(part: Dict[str, Any]) -> bool:
@@ -78,6 +81,23 @@ def _published_from_metadata_rows(rows: Any) -> str | None:
         if part.get("accessibilityLabel"):
             return part["accessibilityLabel"]
     return candidates[-1]["text"]["content"]
+
+
+def _views_from_metadata_rows(rows: Any) -> str | None:
+    """The view counter ("90K views") of a ``metadataRows`` structure, when it has one."""
+    if not isinstance(rows, list):
+        return None
+    for row in rows:
+        for part in row.get("metadataParts", []) if isinstance(row, dict) else []:
+            if not isinstance(part, dict):
+                continue
+            label = part.get("accessibilityLabel") or ""
+            text = part.get("text", {}).get("content") or ""
+            if "view" in label.lower():
+                return label
+            if "view" in text.lower():
+                return text
+    return None
 
 
 def _nested_text(payload: Any, key: str) -> str | None:
@@ -157,10 +177,12 @@ class LockupVideoParser(ItemParser):
         if not video_id:
             return None
         thumbnail = glom(node, self._THUMBNAIL)
+        rows = glom(node, self._METADATA_ROWS)
         return {
             "video_id": video_id,
             "title": glom(node, self._TITLE) or "",
-            "published": _published_from_metadata_rows(glom(node, self._METADATA_ROWS)),
+            "published_text": _published_from_metadata_rows(rows),
+            "views_text": _views_from_metadata_rows(rows),
             "thumbnail": simple_url(thumbnail) if thumbnail else None,
         }
 
@@ -172,6 +194,7 @@ class LegacyVideoParser(ItemParser):
 
     _TITLE = Coalesce("title.runs.0.text", "title.simpleText", default=None)
     _PUBLISHED = Coalesce("publishedTimeText.simpleText", default=None)
+    _VIEWS = Coalesce("viewCountText.simpleText", default=None)
     _THUMBNAIL = Coalesce("thumbnail.thumbnails.0.url", default=None)
 
     def extract(self, node: Dict[str, Any]) -> Dict[str, Any] | None:
@@ -182,7 +205,8 @@ class LegacyVideoParser(ItemParser):
         return {
             "video_id": video_id,
             "title": glom(node, self._TITLE) or "",
-            "published": glom(node, self._PUBLISHED),
+            "published_text": glom(node, self._PUBLISHED),
+            "views_text": glom(node, self._VIEWS),
             "thumbnail": simple_url(thumbnail) if thumbnail else None,
         }
 
@@ -217,8 +241,9 @@ class ShortsLockupParser(ItemParser):
             "video_id": video_id,
             "title": glom(node, self._TITLE) or "",
             # Shorts carry no publish date, only a view count.
-            "published": glom(node, self._SUBTITLE),
+            "views_text": glom(node, self._SUBTITLE),
             "thumbnail": simple_url(thumbnail) if thumbnail else None,
+            "short": True,
         }
 
 
@@ -239,8 +264,9 @@ class LegacyShortsParser(ItemParser):
         return {
             "video_id": video_id,
             "title": _nested_text(content, "primaryText") or "",
-            "published": _nested_text(content, "secondaryText"),
+            "views_text": _nested_text(content, "secondaryText"),
             "thumbnail": simple_url(thumbnail) if thumbnail else None,
+            "short": True,
         }
 
 
@@ -280,3 +306,11 @@ def parse_items(
             "parsed: the page structure has likely changed."
         )
     return []
+
+
+def parse_videos(
+    payload: Dict[str, Any], *, shorts: bool = False
+) -> List[VideoDescription]:
+    """Videos (or shorts) found anywhere in ``payload``, in page order."""
+    parsers = SHORTS_PARSERS if shorts else VIDEO_PARSERS
+    return [VideoDescription(**item) for item in parse_items(payload, parsers)]

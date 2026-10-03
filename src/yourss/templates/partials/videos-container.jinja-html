@@ -1,5 +1,7 @@
-<div class="container-fluid mt-2">
-    <div class="yourss-videos-grid">
-        {% include "partials/videos.jinja-html" %}
-    </div>
+{% if videos %}
+<div class="yourss-grid">
+  {% include "partials/videos.jinja-html" %}
 </div>
+{% else %}
+{% include "partials/empty.jinja-html" %}
+{% endif %}

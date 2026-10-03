@@ -92,3 +92,29 @@ async def test_page_content_invalid_names(client):
 async def test_single_channel(client, name: str, http_status: int):
     resp = await client.get(f"/c/{name}")
     assert resp.status_code == http_status
+
+
+@pytest.mark.anyio
+async def test_htmx_channel_tabs(client):
+    # @JonnyGiger publishes videos and shorts but has no live stream tab
+    channel = "UCVooVnzQxPSTXTMzSi1s6uw"
+
+    resp = await client.get(f"/htmx/channel/{channel}")
+    assert resp.status_code == 200
+    assert f"/htmx/videos/{channel}" in resp.text
+    assert f"/htmx/streams/{channel}" not in resp.text
+
+    resp = await client.get(f"/htmx/videos/{channel}")
+    assert resp.status_code == 200
+    soup = BeautifulSoup(resp.text, features="html.parser")
+    assert len(soup.find_all("div", id=re.compile(r"^yourss-video-"))) > 10
+
+    # Youtube serves the channel home for a missing tab: it must render as an empty tab
+    resp = await client.get(f"/htmx/streams/{channel}")
+    assert resp.status_code == 200
+    soup = BeautifulSoup(resp.text, features="html.parser")
+    assert len(soup.find_all("div", id=re.compile(r"^yourss-video-"))) == 0
+    assert soup.find("div", class_="yourss-empty") is not None
+
+    resp = await client.get(f"/htmx/playlists/{channel}")
+    assert resp.status_code == 422

@@ -6,7 +6,7 @@ from pytest import mark
 
 from yourss.youtube import Feed
 
-SAMPLES_FOLDER = Path(__file__).parent.parent / "samples"
+SAMPLES_FOLDER = Path(__file__).parent / "data"
 FEEDS_FILE = Path(__file__).parent / "feeds.txt"
 
 
@@ -86,3 +86,23 @@ def test_multiple_feeds():
         assert feed.uid.startswith("UC"), f"{feed.title}"
 
     assert count > 0
+
+
+def test_feed_entry_to_video():
+    from yourss.youtube import ChannelDescription
+
+    rss = Feed.from_xml((SAMPLES_FOLDER / "UCVooVnzQxPSTXTMzSi1s6uw.xml").read_text())
+    entry = rss.entries[0]
+    channel = ChannelDescription(channel_id=entry.channel_id, name="Jonny Giger")
+
+    video = entry.to_video(channel)
+    assert video.video_id == entry.video_id
+    assert video.title == entry.title
+    assert video.published_at == entry.published
+    assert video.published_text is None
+    assert isinstance(video.views, int) and video.views > 0
+    assert video.thumbnail.startswith("https://")
+    assert video.channel == channel
+    # Unknown links fall back to the application routes
+    assert channel.avatar == f"/proxy/avatar/{entry.channel_id}"
+    assert entry.to_video().channel is None

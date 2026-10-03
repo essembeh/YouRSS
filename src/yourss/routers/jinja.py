@@ -7,7 +7,7 @@ from starlette.templating import Jinja2Templates, _TemplateResponse
 
 import yourss
 
-from ..settings import current_config, templates_folder
+from ..settings import current_config, static_folder, templates_folder
 
 
 def clean_title(text: str) -> str:
@@ -24,13 +24,20 @@ def date_humanize(date: datetime | str | None) -> str:
     return arrow.get(date).humanize()
 
 
+def static_url(path: str) -> str:
+    # The mtime busts the browser cache as soon as an asset changes
+    file = static_folder / path
+    version = int(file.stat().st_mtime) if file.exists() else yourss.__version__
+    return f"/static/{path}?v={version}"
+
+
 # Jinja customization
-jinja_env = Environment(loader=FileSystemLoader(templates_folder))
+jinja_env = Environment(loader=FileSystemLoader(templates_folder), autoescape=True)
 jinja_env.filters["clean_title"] = clean_title
 jinja_env.filters["date_humanize"] = date_humanize
+jinja_env.globals["static_url"] = static_url
 
 jinja = Jinja2Templates(env=jinja_env)
-TemplateResponse = jinja.TemplateResponse
 
 
 def template_page(request: Request, template_name: str, **kwargs) -> _TemplateResponse:
@@ -40,8 +47,6 @@ def template_page(request: Request, template_name: str, **kwargs) -> _TemplateRe
         context={
             "request": request,
             "version": yourss.__version__,
-            "config": current_config,
-            "theme": current_config.theme,
         }
         | {k: v for k, v in kwargs.items() if v is not None},
     )

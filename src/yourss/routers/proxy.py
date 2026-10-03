@@ -13,6 +13,10 @@ from .utils import force_https
 
 router = APIRouter(prefix="/proxy")
 
+# The targets rarely change: let the browser reuse the redirection instead of asking again
+CACHE_HEADERS = {"Cache-Control": "public, max-age=3600"}
+AVATAR_CACHE_HEADERS = {"Cache-Control": "public, max-age=86400"}
+
 
 @router.get("/rss/{name}", response_class=RedirectResponse)
 async def rss_feed(name: UserId | ChannelId | Playlist_Id):
@@ -21,8 +25,7 @@ async def rss_feed(name: UserId | ChannelId | Playlist_Id):
     feed = None
     # if a user is provided, get the channel id
     if is_user(name):
-        homepage = await api.get_homepage(name)
-        desc = homepage.get_metadata()
+        desc = await api.get_channel(name)
         name = desc.channel_id
 
     if is_channel_id(name):
@@ -34,32 +37,30 @@ async def rss_feed(name: UserId | ChannelId | Playlist_Id):
         raise HTTPException(
             status_code=HTTP_404_NOT_FOUND, detail=f"Cannot find rss for: {name}"
         )
-    return RedirectResponse(force_https(str(feed.get_url())))
+    return RedirectResponse(force_https(str(feed.get_url())), headers=CACHE_HEADERS)
 
 
 @router.get("/avatar/{name}", response_class=RedirectResponse)
 async def avatar(name: UserId | ChannelId):
     api = YoutubeApi()
 
-    homepage = await api.get_homepage(name)
-    desc = homepage.get_metadata()
+    desc = await api.get_channel(name)
 
     if (url := desc.avatar) is None:
         raise HTTPException(
             status_code=HTTP_404_NOT_FOUND, detail=f"Cannot find avatar for: {name}"
         )
-    return RedirectResponse(url)
+    return RedirectResponse(url, headers=AVATAR_CACHE_HEADERS)
 
 
 @router.get("/home/{name}", response_class=RedirectResponse)
 async def home(name: UserId | ChannelId):
     api = YoutubeApi()
 
-    homepage = await api.get_homepage(name)
-    desc = homepage.get_metadata()
+    desc = await api.get_channel(name)
 
     if (home := desc.home) is None:
         raise HTTPException(
             status_code=HTTP_404_NOT_FOUND, detail=f"Cannot find homepage for: {name}"
         )
-    return RedirectResponse(home)
+    return RedirectResponse(home, headers=CACHE_HEADERS)
