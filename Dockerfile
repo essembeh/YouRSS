@@ -1,61 +1,62 @@
+# Multi-stage build: uv builds the venv in a build stage, the final image only gets the .venv.
+
+# Pinned versions, updated in the dependency bump commit along with uv.lock.
+ARG UV_VERSION=0.11.21
+ARG PYTHON_VERSION=3.13
+
+#########################################
+## Stage: uv (official image, pinned version)
+FROM ghcr.io/astral-sh/uv:${UV_VERSION} AS uv
+
 #########################################
 ## Stage: base
-##
-FROM python:3.12-slim as base
+FROM python:${PYTHON_VERSION}-slim AS base
 
-# Create dedicated user
-RUN groupadd -r app && useradd -r -d /app -g app -N app
-RUN mkdir -p /app && chown app:app /app
+RUN groupadd -r app && useradd -r -d /app -g app -N app \
+ && mkdir -p /app && chown app:app /app
 WORKDIR /app
 
-# Python default config
-ENV PYTHONDONTWRITEBYTECODE=1
-ENV PYTHONUNBUFFERED=1
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1
 
 
 #########################################
 ## Stage: builder
-##
-FROM base as builder
+FROM base AS builder
 
-# Install uv
-COPY --from=ghcr.io/astral-sh/uv:latest /uv /usr/local/bin/uv
-ENV UV_LINK_MODE="copy"
-ENV UV_COMPILE_BYTECODE="1"
-ENV UV_PYTHON_DOWNLOADS="never"
+COPY --from=uv /uv /usr/local/bin/uv
 
-# Use dedicated user
 USER app
+ENV UV_LINK_MODE=copy \
+    UV_COMPILE_BYTECODE=1 \
+    UV_PYTHON_DOWNLOADS=never
 
-# Only create the venv for dependencies
-COPY --chown=app:app . .
+# 1) Dependencies only: this layer is cached as long as pyproject.toml / uv.lock do not change.
+COPY --chown=app:app pyproject.toml uv.lock README.md ./
 RUN uv sync --locked --no-dev --no-install-project
 
-# Build the app and install it
-RUN uv build --wheel
-RUN uv pip install --offline dist/*.whl
+# 2) Then the project, not editable: the venv must be self-contained to be copied.
+COPY --chown=app:app src ./src
+RUN uv sync --locked --no-dev --no-editable
+
+
+#########################################
+## Stage: production
+FROM base AS production
+
+RUN apt-get update && apt-get install -y tini && rm -rf /var/lib/apt/lists/*
+ENTRYPOINT ["tini", "--"]
+
+USER app
+COPY --from=builder --chown=app:app /app/.venv /app/.venv
+# PATH is enough: the package is installed in the venv, no PYTHONPATH needed.
+ENV PATH="/app/.venv/bin:$PATH"
 
 
 #########################################
 ## Stage: webapp
-##
-FROM base as webapp
+FROM production AS webapp
 
-# Install tini
-RUN apt-get update && apt-get install -y tini && rm -rf /var/lib/apt/lists/*
-ENTRYPOINT ["tini", "--"]
-
-# Use dedicated user
-USER app
-
-# Get venv from builder
-COPY --from=builder --chown=app:app /app/.venv /app/.venv
-
-# Custom Python
-ENV PATH="/app/.venv/bin:$PATH"
-ENV PYTHONPATH="/app"
-
-# Webserver
 EXPOSE 8000
+# No `uv run` here: PATH points to the venv, uv run would sync again at startup.
 CMD ["python", "-m", "uvicorn", "--host", "0.0.0.0", "--port", "8000", "yourss.main:app"]
-

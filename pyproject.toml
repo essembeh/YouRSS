@@ -9,7 +9,7 @@ classifiers = [
     "Development Status :: 4 - Beta",
     "Topic :: Utilities",
 ]
-requires-python = ">=3.12"
+requires-python = ">=3.13"
 dependencies = [
     "argon2-cffi>=25.1.0",
     "arrow>=1.4.0",
