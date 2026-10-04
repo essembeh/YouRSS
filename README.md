@@ -9,9 +9,9 @@
 <details>
 <summary>More screenshots</summary>
 
-| The player takes the whole row | The homepage of a channel |
+| The player takes the whole row | A channel, opened inside the page |
 | --- | --- |
-| ![Player](./images/yourss_player.png) | ![Channel page](./images/yourss_channel.png) |
+| ![Player](./images/yourss_player.png) | ![Channel view](./images/yourss_channel.png) |
 
 <p align="center">
   <img src="./images/yourss_mobile_menu.png" alt="YouRSS on mobile: the subscriptions" width="30%">
@@ -33,19 +33,34 @@ Youtube publishes an RSS feed for every channel. RSS is an open and stable way t
 
 ## Features
 
-### One page for all your channels
+### Build your own page
 
-The channels of a page are in its URL, as a list of *channel_id* (example https://yourss.domain.tld/UCVooVnzQxPSTXTMzSi1s6uw,UCQsmxaMzYr76Yd1iqMEq8TA): you get their last 15 videos, sorted by date. Start from the home page, add channels by handle, *channel_id*, or by the address of a channel or of one of its videos, add playlists by id or address, remove the ones you no longer want, then bookmark the page: its address is your subscription list, nothing is stored on the server. A *user* page gives a short name to a list of channels declared in the configuration.
+No account: your subscriptions are the address of your page.
 
-Turn on *Show new videos* in the settings and the videos you played for a few seconds are marked as watched: on the next visit a `NEW` marker and a counter per channel show what you have not seen yet. This is stored in your browser only.
+| 1. Start from the home page | 2. Your page is created | 3. Add the rest, then bookmark |
+| --- | --- | --- |
+| ![The home page explains how it works](./images/yourss_home.png) | ![The page just created](./images/yourss_welcome.png) | ![Adding a channel or a playlist](./images/yourss_add.png) |
+
+- the home page takes your first channel, then the **+** next to *Subscriptions* adds the others
+- a channel is added by its handle (`@name`), its *channel_id*, its address or the address of one of its videos; a playlist by its id or its address
+- a subscription is removed from the sidebar
+- each change gives a new address, made of ids only (example https://yourss.domain.tld/UCVooVnzQxPSTXTMzSi1s6uw,PLw-vK1_d04zZCal3yMX_T23h5nDJ2toTk): bookmark it, share it, open it on another device. Nothing is stored on the server
+
+The administrator of an instance can also declare *user* pages, short names for a list of channels and playlists (`/u/<name>`), and can turn custom pages off.
+
+### One page for all your subscriptions
+
+A page shows the last 15 videos of each channel and what the feed of each playlist holds, sorted by date.
+
+Turn on *Show new videos* in the settings and the videos you played for a few seconds are marked as watched: on the next visit a `NEW` marker and a counter per channel show what you have not seen yet, and an *All / New* switch hides the rest. This is stored in your browser only.
 
 ### Play in the page
 
 Click a thumbnail to play: the player takes the whole row, or the whole screen on a phone. When you scroll away the player is closed, or keeps playing in a mini player if you turned it on in the settings. A second action opens a fullscreen player with links to Youtube and to the RSS feed. The next video can be played automatically.
 
-### Channel pages
+### Channels and playlists, inside the page
 
-Browse the homepage of a channel with its recent videos, all its videos, its shorts and its streams.
+Click a channel in the sidebar to browse it without leaving your page: its recent videos, all its videos, its shorts and its streams. A playlist opens the same way.
 
 ### And also
 
