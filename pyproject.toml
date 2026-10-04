@@ -1,6 +1,6 @@
 [project]
 name = "yourss"
-version = "0.17.1"
+version = "0.80.0"
 description = "Simple Youtube browser based on RSS feeds"
 readme = "README.md"
 authors = [{ name = "Sébastien MB", email = "seb@essembeh.org" }]
