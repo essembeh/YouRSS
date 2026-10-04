@@ -1,14 +1,22 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Query, Request
+from fastapi import APIRouter, Depends, Header, HTTPException, Query, Request
 from starlette.responses import HTMLResponse
+from starlette.status import HTTP_404_NOT_FOUND
 
 from ..youtube import ChannelTab, Continuation, YoutubeApi
 from .jinja import template_page
 from .schema import ChannelId, UserId
 from .utils import next_page_url
 
-router = APIRouter(prefix="/htmx")
+
+def require_htmx(hx_request: Annotated[str | None, Header()] = None) -> None:
+    # A filter, not a security measure: it keeps crawlers and direct visits away from the fragments
+    if hx_request != "true":
+        raise HTTPException(HTTP_404_NOT_FOUND)
+
+
+router = APIRouter(prefix="/htmx", dependencies=[Depends(require_htmx)])
 
 
 @router.get("/channel/{channel}", response_class=HTMLResponse)

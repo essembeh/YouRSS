@@ -1,6 +1,0 @@
-{% extends "pages/base.jinja-html" %}
-{% block content %}
-<div id="yourss-content" hx-history-elt>
-  {% include "partials/channel.jinja-html" %}
-</div>
-{% endblock %}

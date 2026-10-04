@@ -25,13 +25,13 @@
   <meta name="theme-color" content="#0a0718" />
 </head>
 
-<body class="no-watched"{% if page_names is defined %} data-page-names="{{ page_names|join(',') }}"{% endif %}>
+<body class="no-watched"{% if page_names is defined %} data-page-names="{{ page_names|join(',') }}" data-page-max="{{ max_page_items }}"{% endif %}>
   {% include "partials/icons.jinja-html" %}
 
   <div class="yourss-app">
     <header class="yourss-topbar">
       <button type="button" class="yourss-icon-btn" data-action="menu" aria-label="Menu"><svg><use href="#i-menu" /></svg></button>
-      <a class="yourss-brand" href="{{ request.url.path }}"><img src="{{ static_url('icons/icon-192.png') }}" width="24" height="24" alt="" /><span>You<em>RSS</em></span></a>
+      <a class="yourss-brand" href="{{ home_path|default(request.url.path) }}"><img src="{{ static_url('icons/icon-192.png') }}" width="24" height="24" alt="" /><span>You<em>RSS</em></span></a>
       <span class="yourss-spacer"></span>
       <div class="yourss-segment yourss-filter" data-watched-feature role="group" aria-label="Videos shown">
         <button type="button" data-action="set-flag" data-flag="hide-watched" data-value="0" title="Show every video (h)">All</button>

@@ -1,7 +1,10 @@
+{# Nothing of a refused address is echoed: the brand links lead to the home page #}
+{% set home_path = "/" %}
 {% extends "pages/base.jinja-html" %}
 {% block content %}
 <div class="yourss-empty" role="alert">
   <strong>{{ title }}</strong>
   <span>{{ message }}</span>
+  {% if home_link %}<a class="yourss-btn yourss-empty-action" href="/"><svg><use href="#i-home" /></svg><span>Home page</span></a>{% endif %}
 </div>
 {% endblock %}

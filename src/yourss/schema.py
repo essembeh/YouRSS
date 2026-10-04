@@ -13,6 +13,8 @@ class AppSettings(BaseSettings):
 
     # Let visitors build their own multi channel page; off, only user and channel pages remain
     custom_pages_enabled: bool = True
+    # How many channels and playlists the address of a custom page may hold
+    max_page_items: int = Field(default=12, ge=1)
     # Serve the generated API documentation (/docs, /redoc, /openapi.json); off outside development
     api_docs_enabled: bool = False
     # YAML file declaring the user pages

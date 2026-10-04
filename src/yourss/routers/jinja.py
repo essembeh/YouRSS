@@ -49,6 +49,7 @@ def template_page(
         template_name,
         context={
             "request": request,
+            "max_page_items": current_config.max_page_items,
             "version": __version__,
         }
         | {k: v for k, v in kwargs.items() if v is not None},

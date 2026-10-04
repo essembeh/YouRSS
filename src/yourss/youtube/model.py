@@ -7,19 +7,18 @@ from pydantic import BaseModel, model_validator
 class ChannelDescription(BaseModel, frozen=True):
     channel_id: str
     name: str
-    # Absolute Youtube URLs when known, else application routes which resolve them on demand
+    # Empty when unknown: the templates then show the initial of the channel
     avatar: str = ""
+    # Its page on Youtube, derived from the id when not given
     home: str = ""
     # "@name", empty when unknown (a channel only known through its feed)
     handle: str = ""
 
     @model_validator(mode="before")
     @classmethod
-    def _default_links(cls, data: Any) -> Any:
-        if isinstance(data, dict) and "channel_id" in data:
-            data = dict(data)
-            data["avatar"] = data.get("avatar") or f"/proxy/avatar/{data['channel_id']}"
-            data["home"] = data.get("home") or f"/proxy/home/{data['channel_id']}"
+    def _default_home(cls, data: Any) -> Any:
+        if isinstance(data, dict) and "channel_id" in data and not data.get("home"):
+            data = {**data, "home": f"https://www.youtube.com/channel/{data['channel_id']}"}
         return data
 
 

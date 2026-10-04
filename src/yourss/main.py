@@ -5,7 +5,7 @@ from starlette.types import Scope
 
 from . import __name__ as app_name
 from . import __version__ as app_version
-from .routers import api, htmx, proxy, web
+from .routers import api, htmx, web
 from .settings import current_config, static_folder
 
 
@@ -32,7 +32,6 @@ def create_app(*, api_docs: bool) -> FastAPI:
     out.include_router(web.router)
     out.include_router(htmx.router)
     out.include_router(api.router)
-    out.include_router(proxy.router)
     out.mount("/static", CachedStaticFiles(directory=static_folder), name="static")
     return out
 

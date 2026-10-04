@@ -1,10 +1,11 @@
 import re
 from urllib.parse import unquote
 
-CHANNEL_PATTERN = r"^UC[\w-]{22}$"
-PLAYLIST_PATTERN = r"^PL[\w-]{32}$"
-# A handle holds letters, digits, "_", "-" and "."
-USER_PATTERN = r"^@[\w.-]+$"
+# Ids are ASCII only; `\w` would also accept the letters of every alphabet
+CHANNEL_PATTERN = r"^UC[A-Za-z0-9_-]{22}$"
+PLAYLIST_PATTERN = r"^PL[A-Za-z0-9_-]{32}$"
+# A handle holds 3 to 30 letters (of any alphabet), digits, "_", "-" and "."
+USER_PATTERN = r"^@[\w.-]{3,30}$"
 # Address of a channel as copied from a browser: youtube.com/@name or youtube.com/channel/UC…
 _CHANNEL_URL = re.compile(
     r"^(?:https?://)?(?:www\.|m\.)?youtube\.com/(?:channel/)?(@[\w.-]+|UC[\w-]{22})(?:[/?#].*)?$", re.IGNORECASE
@@ -15,14 +16,14 @@ def is_channel_id(text: str) -> bool:
     """
     Check if a string is a valid Youtube channel id
     """
-    return bool(re.fullmatch(CHANNEL_PATTERN, text, flags=re.IGNORECASE))
+    return bool(re.fullmatch(CHANNEL_PATTERN, text))
 
 
 def is_playlist_id(text: str) -> bool:
     """
     Check if a string is a valid Youtube playlist id
     """
-    return bool(re.fullmatch(PLAYLIST_PATTERN, text, flags=re.IGNORECASE))
+    return bool(re.fullmatch(PLAYLIST_PATTERN, text))
 
 
 def is_user(text: str) -> bool:

@@ -90,6 +90,7 @@ def test_feed_entry_to_video() -> None:
     assert isinstance(video.views, int) and video.views > 0
     assert video.thumbnail.startswith("https://")
     assert video.channel == channel
-    # Unknown links fall back to the application routes
-    assert channel.avatar == f"/proxy/avatar/{entry.channel_id}"
+    # Unknown links: no avatar, and the page of the channel on Youtube derived from its id
+    assert channel.avatar == ""
+    assert channel.home == f"https://www.youtube.com/channel/{entry.channel_id}"
     assert entry.to_video().channel is None

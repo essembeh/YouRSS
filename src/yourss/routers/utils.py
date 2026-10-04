@@ -9,19 +9,13 @@ from ..youtube.cache import channel_cache
 _OLDEST = datetime.min.replace(tzinfo=UTC)
 
 
-def force_https(url: str) -> str:
-    if url.startswith("http:"):
-        return url.replace("http:", "https:", 1)
-    return url
-
-
-def parse_channel_names(text: str, delimiter: str = ",") -> list[str]:
+def split_subscriptions(text: str, delimiter: str = ",") -> list[str]:
     """Names of an address, in their order, without duplicates."""
     return list(dict.fromkeys(name for name in map(str.strip, text.split(delimiter)) if name))
 
 
 def canonical_names(names: list[str]) -> list[str]:
-    """Names for a generated address: the id of each handle the cache knows, the name as typed otherwise."""
+    """Subscriptions of a user page for the address of its copy: the id of each handle the cache knows."""
     out = []
     for name in names:
         cached = channel_cache.get(name) if is_user(name) else None

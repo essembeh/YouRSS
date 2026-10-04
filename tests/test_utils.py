@@ -1,6 +1,6 @@
 from pytest import mark
 
-from yourss.routers.utils import parse_channel_names
+from yourss.routers.utils import split_subscriptions
 from yourss.youtube import parse_channel_reference, parse_video_reference
 
 CHANNEL_ID = "UCVooVnzQxPSTXTMzSi1s6uw"
@@ -45,5 +45,5 @@ def test_parse_video_reference(text: str, expected: str | None) -> None:
     assert parse_video_reference(text) == expected
 
 
-def test_parse_channel_names() -> None:
-    assert parse_channel_names(" @b, @a,,@b ,UCx") == ["@b", "@a", "UCx"]
+def test_split_subscriptions() -> None:
+    assert split_subscriptions(" @b, @a,,@b ,UCx") == ["@b", "@a", "UCx"]

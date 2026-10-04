@@ -1,0 +1,7 @@
+{% macro avatar(channel, size, extra="") -%}
+{% if channel.avatar -%}
+<img class="yourss-avatar {{ extra }}" referrerpolicy="no-referrer" src="{{ channel.avatar }}" alt="" width="{{ size }}" height="{{ size }}" />
+{%- else -%}
+<span class="yourss-avatar yourss-avatar-none {{ extra }}" aria-hidden="true">{{ channel.name[:1] }}</span>
+{%- endif %}
+{%- endmacro %}

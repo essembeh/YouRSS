@@ -26,8 +26,8 @@ async def _channel_name(api: YoutubeApi, text: str) -> str | None:
     return None
 
 
-@router.get("/channel")
-async def channel(q: Annotated[str, Query(min_length=1, max_length=200)]) -> dict[str, str]:
+@router.get("/resolve")
+async def resolve(q: Annotated[str, Query(min_length=1, max_length=200)]) -> dict[str, str]:
     """Resolve what a visitor typed to a channel (docs/specs/custom-pages.md)."""
     if not current_config.custom_pages_enabled:
         raise HTTPException(HTTP_403_FORBIDDEN, detail="Custom pages are disabled on this instance")
@@ -41,5 +41,5 @@ async def channel(q: Annotated[str, Query(min_length=1, max_length=200)]) -> dic
             )
         out = await api.get_channel(name)
     except (HTTPError, ScrapingError) as error:
-        raise HTTPException(HTTP_404_NOT_FOUND, detail=f"No channel found for {q.strip()}") from error
-    return {"channel_id": out.channel_id, "name": out.name}
+        raise HTTPException(HTTP_404_NOT_FOUND, detail=f"Nothing found for {q.strip()}") from error
+    return {"kind": "channel", "id": out.channel_id, "name": out.name}

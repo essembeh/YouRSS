@@ -1,3 +1,4 @@
+{% from "partials/macros.jinja-html" import avatar %}
 {% for video in videos %}
 <div id="yourss-video-{{ video.video_id }}" class="yourss-video" data-video-id="{{ video.video_id }}"{% if video.channel %} data-channel-id="{{ video.channel.channel_id }}"{% endif %}
   {% if loop.last and next_page_url %} hx-get="{{ next_page_url }}" hx-trigger="revealed" hx-swap="afterend"{% endif %}>
@@ -21,7 +22,7 @@
     {% if video.channel %}
     <a class="yourss-video-channel" href="{{ request.url.path }}?c={{ video.channel.channel_id }}" hx-get="/htmx/channel/{{ video.channel.channel_id }}"
       hx-target="#yourss-content" hx-push-url="{{ request.url.path }}?c={{ video.channel.channel_id }}">
-      <img class="yourss-avatar" referrerpolicy="no-referrer" src="{{ video.channel.avatar }}" alt="" width="22" height="22" /><span>{{ video.channel.name }}</span>
+      {{ avatar(video.channel, 22) }}<span>{{ video.channel.name }}</span>
     </a>
     {% endif %}
     <p class="yourss-video-title">{{ video.title|clean_title }}</p>

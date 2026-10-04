@@ -14,7 +14,8 @@ Principles, in order of importance when they conflict:
 
 1. **RSS first.** What a feed provides is read from the feed. Feeds are always fetched live.
 2. **Pass through, never proxy.** The browser loads thumbnails, avatars and the player straight
-   from YouTube. The server never relays media; the `/proxy/*` routes are HTTP redirects.
+   from YouTube, and every link (RSS feed, channel page) points to YouTube. The server never
+   relays media.
 3. **Stateless server.** No database, no session, no cookie. What belongs to a visitor (theme,
    density, watched videos) lives in the browser, in `localStorage`.
 4. **Cache as little as possible.** The only server cache is a small, bounded, in-memory one for
@@ -22,8 +23,9 @@ Principles, in order of importance when they conflict:
    cache.
 5. **Stay light.** One small FastAPI application, server-rendered templates, htmx for the dynamic
    parts, vanilla CSS and JavaScript. No front-end framework, no build step.
-6. **Everything is a URL.** `/@a,@b` (channels in the URL), `/u/<name>` (a configured list),
-   `/c/<id>` (one channel). A page can be bookmarked and shared as is. A visitor builds a page by
+6. **Everything is a URL.** `/UC…,PL…` (channel and playlist ids in the URL), `/u/<name>` (a
+   configured list); a
+   channel opened inside a page is `<page>?c=<id>`. A page can be bookmarked and shared as is. A visitor builds a page by
    adding and removing channels: its address is the subscription list, the home page explains it.
 
 Not goals: accounts, comments, searching videos, recommendations, downloads, relaying or storing
@@ -40,7 +42,7 @@ Python 3.13, FastAPI, Jinja2, Pydantic (settings, models, `pydantic-xml` for the
 | --- | --- |
 | `src/yourss/main.py` | the FastAPI application |
 | `src/yourss/schema.py`, `settings.py` | settings (`YOURSS_*`) and the users file model |
-| `src/yourss/routers/` | pages (`web`), htmx fragments (`htmx`), redirects (`proxy`), `api` |
+| `src/yourss/routers/` | pages (`web`), htmx fragments (`htmx`), `api` |
 | `src/yourss/youtube/` | HTTP client, RSS feed models, video and channel models |
 | `src/yourss/templates/`, `static/` | Jinja templates, `yourss.css`, `yourss.js`, icons |
 | `charts/yourss/` | Helm chart, one value per setting, same defaults as the application |

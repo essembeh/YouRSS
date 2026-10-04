@@ -1,6 +1,7 @@
+{% from "partials/macros.jinja-html" import avatar %}
 <aside id="yourss-sidebar" class="yourss-sidebar" aria-label="Navigation">
   <div class="yourss-sidebar-head">
-    <a class="yourss-brand" href="{{ request.url.path }}" title="Reload this page"><img src="{{ static_url('icons/icon-192.png') }}" width="28" height="28" alt="" /><span>You<em>RSS</em></span></a>
+    <a class="yourss-brand" href="{{ home_path|default(request.url.path) }}" title="Reload this page"><img src="{{ static_url('icons/icon-192.png') }}" width="28" height="28" alt="" /><span>You<em>RSS</em></span></a>
     <button type="button" class="yourss-icon-btn yourss-rail-toggle" data-action="rail" title="Collapse / expand sidebar"><svg><use href="#i-chevron" /></svg></button>
   </div>
 
@@ -37,21 +38,16 @@
       <li class="yourss-channel" data-channel-id="{{ channel.channel_id }}">
         <a class="yourss-nav-item" href="{{ request.url.path }}?c={{ channel.channel_id }}" hx-get="/htmx/channel/{{ channel.channel_id }}" hx-target="#yourss-content"
           hx-push-url="{{ request.url.path }}?c={{ channel.channel_id }}" title="{{ channel.name }}">
-          <img class="yourss-avatar" referrerpolicy="no-referrer" src="{{ channel.avatar }}" alt="" width="28" height="28" />
+          {{ avatar(channel, 28) }}
           <span class="yourss-label">{{ channel.name }}</span>
           <span class="yourss-badge yourss-count" data-watched-feature data-channel-id="{{ channel.channel_id }}" hidden></span>
         </a>
         {% if page_names is defined %}
-        <button type="button" class="yourss-icon-btn is-small yourss-row-btn yourss-remove-btn" data-action="remove-channel" data-name="{{ channel.name }}" title="Remove {{ channel.name }} from this page" aria-label="Remove {{ channel.name }}"><svg><use href="#i-close" /></svg></button>
+        <button type="button" class="yourss-icon-btn is-small yourss-row-btn yourss-remove-btn" data-action="remove-channel" data-id="{{ channel.channel_id }}" data-name="{{ channel.name }}" title="Remove {{ channel.name }} from this page" aria-label="Remove {{ channel.name }}"><svg><use href="#i-close" /></svg></button>
         {% endif %}
       </li>
       {% endfor %}
     </ul>
-    {% elif channel %}
-    <div class="yourss-section"><span class="yourss-label">Channel</span></div>
-    <a class="yourss-nav-item active" href="/c/{{ channel.channel_id }}" title="{{ channel.name }}">
-      <img class="yourss-avatar" referrerpolicy="no-referrer" src="{{ channel.avatar }}" alt="" width="28" height="28" /><span class="yourss-label">{{ channel.name }}</span>
-    </a>
     {% endif %}
   </nav>
 

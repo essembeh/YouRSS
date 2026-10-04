@@ -13,8 +13,10 @@ yourss:
   # --- Application settings: each value maps to one YOURSS_* environment variable
 
   # YOURSS_CUSTOM_PAGES_ENABLED: let visitors build their own multi channel page. When false, only
-  # the user pages below and the single channel pages remain
+  # the user pages below remain
   customPagesEnabled: true
+  # YOURSS_MAX_PAGE_ITEMS: how many channels and playlists the address of a custom page may hold
+  maxPageItems: 12
   # YOURSS_API_DOCS_ENABLED: serve the generated API documentation (/docs, /redoc, /openapi.json)
   apiDocsEnabled: false
   # YOURSS_CLEAN_TITLES: capitalize the titles to tame UPPERCASE ones

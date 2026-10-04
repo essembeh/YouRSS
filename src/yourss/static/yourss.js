@@ -330,7 +330,7 @@
     $("#yourss-modal-link-youtube").href = `https://www.youtube.com/watch?v=${videoId}`
     $("#yourss-modal-link-tab").href = `${PLAYER_HOST}/embed/${videoId}?autoplay=1`
     const rssLink = $("#yourss-modal-link-rss")
-    rssLink.href = channelId ? `/proxy/rss/${channelId}` : "#"
+    rssLink.href = channelId ? `https://www.youtube.com/feeds/videos.xml?channel_id=${encodeURIComponent(channelId)}` : "#"
     rssLink.hidden = !channelId
     if (!$("#yourss-modal").open) {
       $("#yourss-modal").showModal()
@@ -448,9 +448,8 @@
   }
 
   function removeChannel(el) {
-    const channelId = el.closest(".yourss-channel").dataset.channelId
     if (confirm(`Remove ${el.dataset.name} from this page?`)) {
-      goToPage(pageNames().filter((name) => name !== channelId))
+      goToPage(pageNames().filter((name) => name !== el.dataset.id))
     }
   }
 
@@ -469,14 +468,17 @@
     form.classList.add("is-busy")
     showAddError(form, "")
     try {
-      const response = await fetch(`/api/channel?q=${encodeURIComponent(query)}`)
-      const body = await response.json()
+      const response = await fetch(`/api/resolve?q=${encodeURIComponent(query)}`)
+      // An unexpected failure of the server has no JSON body
+      const body = await response.json().catch(() => ({}))
       if (!response.ok) {
-        showAddError(form, typeof body.detail === "string" ? body.detail : "This channel cannot be added")
-      } else if (pageNames().includes(body.channel_id)) {
+        showAddError(form, typeof body.detail === "string" ? body.detail : `The server failed (error ${response.status}), try again`)
+      } else if (pageNames().includes(body.id)) {
         showAddError(form, `${body.name} is already on this page`)
+      } else if (pageNames().length >= Number(document.body.dataset.pageMax)) {
+        showAddError(form, `A page holds at most ${document.body.dataset.pageMax} channels: remove one first`)
       } else {
-        goToPage([...pageNames(), body.channel_id])
+        goToPage([...pageNames(), body.id])
         return
       }
     } catch {

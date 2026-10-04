@@ -35,7 +35,7 @@ Youtube publishes an RSS feed for every channel. RSS is an open and stable way t
 
 ### One page for all your channels
 
-The channels of a page are in its URL (example https://yourss.domain.tld/@jonnygiger,@berrics): you get their last 15 videos, sorted by date. Start from the home page, add channels by handle, *channel_id*, or by the address of a channel or of one of its videos, remove the ones you no longer want, then bookmark the page: its address is your subscription list, nothing is stored on the server. A *user* page gives a short name to a list of channels declared in the configuration.
+The channels of a page are in its URL, as a list of *channel_id* (example https://yourss.domain.tld/UCVooVnzQxPSTXTMzSi1s6uw,UCQsmxaMzYr76Yd1iqMEq8TA): you get their last 15 videos, sorted by date. Start from the home page, add channels by handle, *channel_id*, or by the address of a channel or of one of its videos, remove the ones you no longer want, then bookmark the page: its address is your subscription list, nothing is stored on the server. A *user* page gives a short name to a list of channels declared in the configuration.
 
 Turn on *Show new videos* in the settings and the videos you played for a few seconds are marked as watched: on the next visit a `NEW` marker and a counter per channel show what you have not seen yet. This is stored in your browser only.
 
@@ -113,7 +113,8 @@ Then visit [http://localhost:8000/](http://localhost:8000/)
 
 | VARIABLE | DEFAULT | HELM VALUE | DESCRIPTION |
 |----------|---------|------------|-------------|
-| YOURSS_CUSTOM_PAGES_ENABLED | `True` | `yourss.customPagesEnabled` | Let visitors build their own page by putting channels in its URL. If set to `false`, the home page and the multi channel pages show an error (`403`), and only the *user* pages and the single channel pages remain |
+| YOURSS_CUSTOM_PAGES_ENABLED | `True` | `yourss.customPagesEnabled` | Let visitors build their own page by putting channels in its URL. If set to `false`, the home page and the multi channel pages show an error (`403`), and only the *user* pages remain |
+| YOURSS_MAX_PAGE_ITEMS | `12` | `yourss.maxPageItems` | How many channels and playlists the address of a custom page may hold. A longer address is refused (`422`) before anything is asked to Youtube. *User* pages are not limited |
 | YOURSS_API_DOCS_ENABLED | `False` | `yourss.apiDocsEnabled` | If set to `true`, the generated API documentation is served at `/docs`, `/redoc` and `/openapi.json`. Meant for development: it is off in the docker image and in the Helm chart |
 | YOURSS_USERS_FILE |  | `yourss.users` | You can declare user pages in a dedicated file (the Helm chart builds it from the values and stores it in a *Secret*) |
 | YOURSS_CLEAN_TITLES | `False` | `yourss.cleanTitles` | If set to `true`, videos titles are cleaned to prevent UPPERCASE TITLES |
@@ -121,14 +122,14 @@ Then visit [http://localhost:8000/](http://localhost:8000/)
 | YOURSS_CACHE_MAX_AGE | `PT24H` | `yourss.cacheMaxAge` | Max age of the fallback file served when Youtube returns a `404` (ISO-8601 duration, e.g. `PT24H`, or a number of seconds). Older files are deleted and the `404` is propagated |
 | YOURSS_CHANNEL_CACHE_TTL | `PT1H` | `yourss.channelCacheTtl` | How long the name and avatar of a channel are kept in memory (ISO-8601 duration or seconds, `0` disables). Only these few strings are cached, at most 1024 channels; feeds and video lists are always fetched live |
 
-> Note: channels can be Youtube username (like `@JonnyGiger`) or directly a *channel_id* (24 alnum chars) like `UCa_Dlwrwv3ktrhCy91HpVRw`, to provide a list, use a coma between channels
+> Note: in the users file, a channel is a *channel_id* (24 characters, like `UCa_Dlwrwv3ktrhCy91HpVRw`) or a handle (like `@JonnyGiger`), and a playlist is its id (`PL…`). The address of a page only holds ids.
 
 See [`.env`](./.env) for example.
 
 ## Configure user pages
 
 You can create *user* pages with as many *channels* as you want, *user* pages are easier to type or remember.
-For example you can have http://my-yourss-instance/u/skate with some *channels* configured instead of bookmarking http://my-yourss-instance/@jonnygiger,@berrics 
+For example you can have http://my-yourss-instance/u/skate with some *channels* configured instead of bookmarking http://my-yourss-instance/UCVooVnzQxPSTXTMzSi1s6uw,UCQsmxaMzYr76Yd1iqMEq8TA 
 
 To configure users:
 - set `YOURSS_USERS_FILE` and point to a *YAML* file where you'll declare your *users*
@@ -141,19 +142,18 @@ By default any visitor can build a page by putting channels in its URL, and the 
 The administrator of an instance can turn this off, for example to keep the instance for the *user* pages declared in the configuration:
 
 - set `YOURSS_CUSTOM_PAGES_ENABLED=false`, or `yourss.customPagesEnabled: false` in the Helm values
-- the home page and the multi channel pages (`/@jonnygiger,@berrics`) then show an error (`403`), and channels can no longer be added
-- the *user* pages (`/u/<name>`) and the pages of a single channel (`/c/<channel>`) keep working
+- the home page and the multi channel pages (`/UCVooVnzQxPSTXTMzSi1s6uw,UCQsmxaMzYr76Yd1iqMEq8TA`) then show an error (`403`), and channels can no longer be added
+- the *user* pages (`/u/<name>`) keep working
 
-> Note: this does not make the instance private, the page of any single channel can still be opened.
+> Note: this does not make the instance private, the routes which feed the pages (`/htmx/...`) still answer for any channel.
 
 # Usage
 
 - the home page `http://yourss.local/` explains how to build your own page and lets you add your first channel
-- you can browse a single channel with: `http://yourss.local/@jonnygiger`
-- you can browse multiple channels in a single page: `http://yourss.local/@jonnygiger,@berrics`
-- you can browse the homepage of a channel (recent videos, videos, shorts, streams): `http://yourss.local/c/@jonnygiger`
-- the original *RSS* feed can be accessed at `http://yourss.local/proxy/rss/@jonnygiger`
-- you will be redirected to the channel avatar with `http://yourss.local/proxy/avatar/@jonnygiger`
+- you can browse a single channel with: `http://yourss.local/UCVooVnzQxPSTXTMzSi1s6uw`
+- you can browse multiple channels and playlists in a single page, their ids separated by commas: `http://yourss.local/UCVooVnzQxPSTXTMzSi1s6uw,UCQsmxaMzYr76Yd1iqMEq8TA`
+- an address only holds ids: to add a channel by its handle (`@jonnygiger`) or its address, use the add form, which resolves it
+- click a channel in the sidebar of a page to browse its homepage (recent videos, videos, shorts, streams)
 - if you defined some *users*, for example `demo`, the page can be accessed at `http://yourss.local/u/demo`
 
 > Note: replace `yourss.local` with the URL of your *YouRSS* instance.
