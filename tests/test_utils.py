@@ -1,7 +1,7 @@
 from pytest import mark
 
 from yourss.routers.utils import split_subscriptions
-from yourss.youtube import parse_channel_reference, parse_video_reference
+from yourss.youtube import parse_channel_reference, parse_playlist_reference, parse_video_reference
 
 CHANNEL_ID = "UCVooVnzQxPSTXTMzSi1s6uw"
 
@@ -43,6 +43,26 @@ def test_parse_channel_reference(text: str, expected: str | None) -> None:
 )
 def test_parse_video_reference(text: str, expected: str | None) -> None:
     assert parse_video_reference(text) == expected
+
+
+PLAYLIST_ID = "PLw-vK1_d04zZCal3yMX_T23h5nDJ2toTk"
+
+
+@mark.parametrize(
+    "text,expected",
+    [
+        (PLAYLIST_ID, PLAYLIST_ID),
+        (f"https://www.youtube.com/playlist?list={PLAYLIST_ID}", PLAYLIST_ID),
+        (f"youtube.com/playlist?si=abc&list={PLAYLIST_ID}&feature=shared", PLAYLIST_ID),
+        # The address of a video played from a playlist names the video, not the playlist
+        (f"https://www.youtube.com/watch?v=q5IMA244HXw&list={PLAYLIST_ID}", None),
+        (f"https://example.org/playlist?list={PLAYLIST_ID}", None),
+        ("PLshort", None),
+        ("UCVooVnzQxPSTXTMzSi1s6uw", None),
+    ],
+)
+def test_parse_playlist_reference(text: str, expected: str | None) -> None:
+    assert parse_playlist_reference(text) == expected
 
 
 def test_split_subscriptions() -> None:

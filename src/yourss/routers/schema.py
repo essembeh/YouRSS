@@ -10,6 +10,7 @@ from .utils import split_subscriptions
 
 UserId = Annotated[str, Path(pattern=USER_PATTERN)]
 ChannelId = Annotated[str, Path(pattern=CHANNEL_PATTERN)]
+PlaylistId = Annotated[str, Path(pattern=PLAYLIST_PATTERN)]
 
 # One subscription of a custom page: a channel id or a playlist id. A handle is resolved once, by
 # /api/resolve, when the channel is added: it is not accepted in an address (docs/specs/custom-pages.md §3)

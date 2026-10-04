@@ -20,8 +20,8 @@
   <div class="yourss-dock-placeholder" data-action="undock"><svg><use href="#i-play" /></svg><span>Playing in the mini player, click to come back</span></div>
   <div class="yourss-video-body">
     {% if video.channel %}
-    <a class="yourss-video-channel" href="{{ request.url.path }}?c={{ video.channel.channel_id }}" hx-get="/htmx/channel/{{ video.channel.channel_id }}"
-      hx-target="#yourss-content" hx-push-url="{{ request.url.path }}?c={{ video.channel.channel_id }}">
+    <a class="yourss-video-channel" href="{{ page_path }}?c={{ video.channel.channel_id }}" hx-get="/htmx/channel/{{ video.channel.channel_id }}"
+      hx-target="#yourss-content" hx-push-url="{{ page_path }}?c={{ video.channel.channel_id }}">
       {{ avatar(video.channel, 22) }}<span>{{ video.channel.name }}</span>
     </a>
     {% endif %}

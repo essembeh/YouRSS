@@ -14,6 +14,15 @@ def split_subscriptions(text: str, delimiter: str = ",") -> list[str]:
     return list(dict.fromkeys(name for name in map(str.strip, text.split(delimiter)) if name))
 
 
+def page_entries(
+    names: list[str], channels: dict[str, ChannelDescription], feeds: list[Feed]
+) -> tuple[list[ChannelDescription], list[Feed]]:
+    """What the sidebar lists: the channels and the playlists named by the page, sorted by name."""
+    listed = [channel for channel in channels.values() if channel.channel_id in names]
+    playlists = [feed for feed in feeds if feed.playlist_id is not None and feed.playlist_id in names]
+    return sorted(listed, key=lambda c: c.name.lower()), sorted(playlists, key=lambda f: f.title.lower())
+
+
 def canonical_names(names: list[str]) -> list[str]:
     """Subscriptions of a user page for the address of its copy: the id of each handle the cache knows."""
     out = []
@@ -52,4 +61,6 @@ def get_videos_from_feeds(feeds: list[Feed], channels: dict[str, ChannelDescript
                 home=str(entry.author.uri),
             )
             out.append(entry.to_video(channel))
-    return sorted(out, key=lambda v: v.published_at or _OLDEST, reverse=True)
+    out.sort(key=lambda v: v.published_at or _OLDEST, reverse=True)
+    # A video present in two feeds (a channel and one of its playlists) is listed once
+    return list({video.video_id: video for video in reversed(out)}.values())[::-1]

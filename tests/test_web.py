@@ -40,6 +40,9 @@ async def test_user_page_is_read_only(client: AsyncClient) -> None:
     assert soup.find("button", attrs={"data-action": "remove-channel"}) is None
     copy = soup.find("a", class_="yourss-copy-page")
     assert copy is not None and str(copy["href"]).startswith("/UC")
+    # A user page holds playlists too: listed, opened inside the page, not removable
+    playlist = soup.find("li", class_="yourss-playlist")
+    assert playlist is not None and playlist["data-playlist-id"] == "PLw-vK1_d04zZCal3yMX_T23h5nDJ2toTk"
 
 
 @mark.parametrize(
@@ -288,6 +291,57 @@ async def test_htmx_routes_only_answer_htmx(client: AsyncClient) -> None:
     assert resp.status_code == 404
     resp = await client.get("/htmx/rss/UCVooVnzQxPSTXTMzSi1s6uw", headers={"HX-Request": "false"})
     assert resp.status_code == 404
+
+
+PLAYLIST_ID = "PLw-vK1_d04zZCal3yMX_T23h5nDJ2toTk"
+
+
+@mark.parametrize("query", [PLAYLIST_ID, f"https://www.youtube.com/playlist?list={PLAYLIST_ID}&si=abc"])
+async def test_api_resolve_playlist(client: AsyncClient, query: str) -> None:
+    resp = await client.get("/api/resolve", params={"q": query})
+    assert resp.status_code == 200
+    payload = resp.json()
+    assert payload["kind"] == "playlist" and payload["id"] == PLAYLIST_ID and payload["name"]
+
+    resp = await client.get("/api/resolve", params={"q": "PL" + "A" * 32})
+    assert resp.status_code == 404
+
+
+async def test_page_lists_what_its_address_names(client: AsyncClient) -> None:
+    # The owner of the playlist is not a subscription: only the playlist is listed, and can be removed
+    resp = await client.get(f"/{PLAYLIST_ID}")
+    assert resp.status_code == 200
+    soup = BeautifulSoup(resp.text, features="html.parser")
+    assert soup.find_all("li", class_="yourss-channel") == []
+    removable = [str(button["data-id"]) for button in soup.find_all("button", attrs={"data-action": "remove-channel"})]
+    assert removable == [PLAYLIST_ID]
+
+    # With its channel next to it, each video is listed once
+    resp = await client.get(f"/{PLAYLIST_ID},UCVooVnzQxPSTXTMzSi1s6uw")
+    soup = BeautifulSoup(resp.text, features="html.parser")
+    ids = [str(div["data-video-id"]) for div in soup.find_all("div", class_="yourss-video")]
+    assert len(ids) == len(set(ids)) > 15
+    assert len(soup.find_all("button", attrs={"data-action": "remove-channel"})) == 2
+
+
+async def test_htmx_playlist(client: AsyncClient) -> None:
+    resp = await client.get(f"/htmx/playlist/{PLAYLIST_ID}", headers=HTMX)
+    assert resp.status_code == 200
+    soup = BeautifulSoup(resp.text, features="html.parser")
+    # Youtube decides how many entries the feed of a playlist holds: only check there are some
+    assert len(soup.find_all("div", class_="yourss-video")) > 0
+    hero = soup.find("section", class_="yourss-hero")
+    assert hero is not None and hero["data-channel-page"] == PLAYLIST_ID
+
+    # The link to the channel of a video stays on the page the fragment is shown in
+    headers = HTMX | {"HX-Current-URL": f"http://test/u/demo?p={PLAYLIST_ID}"}
+    resp = await client.get(f"/htmx/playlist/{PLAYLIST_ID}", headers=headers)
+    soup = BeautifulSoup(resp.text, features="html.parser")
+    links = [str(a["href"]) for a in soup.find_all("a", class_="yourss-video-channel")]
+    assert links and all(link.startswith("/u/demo?c=UC") for link in links)
+
+    resp = await client.get("/htmx/playlist/UCVooVnzQxPSTXTMzSi1s6uw", headers=HTMX)
+    assert resp.status_code == 422
 
 
 async def test_handle_in_address_points_to_the_add_form(client: AsyncClient) -> None:

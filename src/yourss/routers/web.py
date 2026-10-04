@@ -13,7 +13,7 @@ from ..settings import current_config
 from ..youtube import YoutubeApi
 from .jinja import template_page
 from .schema import SUBSCRIPTIONS, SUBSCRIPTIONS_PATTERN, TOO_MANY
-from .utils import canonical_names, get_videos_from_feeds
+from .utils import canonical_names, get_videos_from_feeds, page_entries
 
 router = APIRouter()
 
@@ -48,11 +48,13 @@ async def user(request: Request, user: User = Depends(get_auth_user)) -> HTMLRes
     channels, feeds, errors = await async_fetch(user.channels, api=api)
     videos = get_videos_from_feeds(feeds, channels)
     names = canonical_names(user.channels)
+    listed, playlists = page_entries(names, channels, feeds)
     return template_page(
         request,
         "pages/view.jinja-html",
         title=f"/u/{user.name}",
-        channels=sorted(channels.values(), key=lambda c: c.name.lower()),
+        channels=listed,
+        playlists=playlists,
         videos=videos,
         errors=errors,
         # A user page is read-only: it only offers its multi channel copy
@@ -105,11 +107,13 @@ async def page(
     api = YoutubeApi()
     channels, feeds, errors = await async_fetch(ids, api=api)
     videos = get_videos_from_feeds(feeds, channels)
+    listed, playlists = page_entries(ids, channels, feeds)
     return template_page(
         request,
         "pages/view.jinja-html",
-        title=", ".join(sorted((c.name for c in channels.values()), key=str.lower)),
-        channels=sorted(channels.values(), key=lambda c: c.name.lower()),
+        title=", ".join([c.name for c in listed] + [f.title for f in playlists]),
+        channels=listed,
+        playlists=playlists,
         videos=videos,
         errors=errors,
         page_names=ids,

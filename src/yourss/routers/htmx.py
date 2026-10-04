@@ -5,9 +5,10 @@ from starlette.responses import HTMLResponse
 from starlette.status import HTTP_404_NOT_FOUND
 
 from ..youtube import ChannelTab, Continuation, YoutubeApi
+from ..youtube.cache import channel_cache
 from .jinja import template_page
-from .schema import ChannelId, UserId
-from .utils import next_page_url
+from .schema import ChannelId, PlaylistId, UserId
+from .utils import get_videos_from_feeds, next_page_url
 
 
 def require_htmx(hx_request: Annotated[str | None, Header()] = None) -> None:
@@ -23,6 +24,15 @@ router = APIRouter(prefix="/htmx", dependencies=[Depends(require_htmx)])
 async def htmx_channel(request: Request, channel: ChannelId | UserId) -> HTMLResponse:
     page = await YoutubeApi().get_channel_page(channel)
     return template_page(request, "partials/channel.jinja-html", channel=page.channel, tabs=page.tabs)
+
+
+@router.get("/playlist/{playlist}", response_class=HTMLResponse)
+async def htmx_playlist(request: Request, playlist: PlaylistId) -> HTMLResponse:
+    feed = await YoutubeApi().get_playlist_rss(playlist)
+    # No request for the channels: the ones the cache knows have their avatar, the others their initial
+    channels = {entry.channel_id: channel_cache.get(entry.channel_id) for entry in feed.entries}
+    videos = get_videos_from_feeds([feed], {key: channel for key, channel in channels.items() if channel is not None})
+    return template_page(request, "partials/playlist.jinja-html", playlist=feed, videos=videos)
 
 
 @router.get("/rss/{channel}", response_class=HTMLResponse)

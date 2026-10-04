@@ -33,6 +33,11 @@ def is_user(text: str) -> bool:
     return bool(re.fullmatch(USER_PATTERN, text, flags=re.IGNORECASE))
 
 
+# Address of a playlist: youtube.com/playlist?list=PL…
+_PLAYLIST_URL = re.compile(
+    r"^(?:https?://)?(?:(?:www\.|m\.|music\.)?youtube\.com/playlist\?(?:[^#]*&)?list=)([\w-]+)(?:[&#].*)?$",
+    re.IGNORECASE,
+)
 # Address of a video: watch?v=…, youtu.be/…, shorts/…, live/… or embed/…
 _VIDEO_URL = re.compile(
     r"^(?:https?://)?(?:(?:www\.|m\.|music\.)?youtube\.com/(?:watch\?(?:[^#]*&)?v=|shorts/|live/|embed/)|youtu\.be/)"
@@ -48,6 +53,14 @@ def parse_channel_reference(text: str) -> str | None:
     if (match := _CHANNEL_URL.match(text)) is not None:
         text = match.group(1)
     return text if is_channel_id(text) or is_user(text) else None
+
+
+def parse_playlist_reference(text: str) -> str | None:
+    """The id of the playlist named by what a visitor typed (id or address), ``None`` when it is neither."""
+    text = text.strip()
+    if (match := _PLAYLIST_URL.match(text)) is not None:
+        text = match.group(1)
+    return text if is_playlist_id(text) else None
 
 
 def parse_video_reference(text: str) -> str | None:

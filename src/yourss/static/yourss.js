@@ -396,23 +396,32 @@
     return row[0].el
   }
 
-  /* ---------- channel opened inside a multi channel page: the URL is `<page>?c=<channel id>` ---------- */
-  function channelFromUrl() {
-    const value = new URLSearchParams(location.search).get("c")
-    return value !== null && /^[\w@.-]+$/.test(value) ? value : null
+  /* ---------- channel or playlist opened inside a page: the URL is `<page>?c=<channel id>` or `<page>?p=<playlist id>` ---------- */
+  const SELECTION_PARAMS = { c: "channel", p: "playlist" }
+
+  function selectionFromUrl() {
+    const params = new URLSearchParams(location.search)
+    for (const [param, kind] of Object.entries(SELECTION_PARAMS)) {
+      const id = params.get(param)
+      if (id !== null && /^[\w@.-]+$/.test(id)) {
+        return { kind, id }
+      }
+    }
+    return null
   }
 
   function markActiveChannel() {
-    const wanted = channelFromUrl()
-    $$(".yourss-channel").forEach((row) => {
-      $(".yourss-nav-item", row)?.classList.toggle("active", row.dataset.channelId === wanted)
+    const wanted = selectionFromUrl()
+    $$(".yourss-channel, .yourss-playlist").forEach((row) => {
+      const id = row.dataset.channelId || row.dataset.playlistId
+      $(".yourss-nav-item", row)?.classList.toggle("active", id === wanted?.id)
     })
     $(".yourss-home-link")?.classList.toggle("active", wanted === null)
   }
 
-  // Go to the entry after (step 1) or before (step -1) the active one: Home, then each channel.
+  // Go to the entry after (step 1) or before (step -1) the active one: Home, then each channel and playlist.
   function moveChannel(step) {
-    const entries = $$(".yourss-home-link, .yourss-channel .yourss-nav-item")
+    const entries = $$(".yourss-home-link, .yourss-channel .yourss-nav-item, .yourss-playlist .yourss-nav-item")
     const target = entries[entries.findIndex((el) => el.classList.contains("active")) + step]
     if (target) {
       target.click()
@@ -420,12 +429,13 @@
     }
   }
 
-  // Open the channel named by the URL when the page shows something else (fresh load, pasted URL).
+  // Open what the URL names when the page shows something else (fresh load, pasted URL).
   function syncChannelFromUrl() {
-    const wanted = channelFromUrl()
+    const wanted = selectionFromUrl()
     const shown = $("#yourss-content [data-channel-page]")?.dataset.channelPage
-    if (wanted && wanted !== shown && $(`.yourss-channel[data-channel-id="${CSS.escape(wanted)}"]`)) {
-      htmx.ajax("GET", `/htmx/channel/${encodeURIComponent(wanted)}`, { target: "#yourss-content" })
+    const listed = wanted && $(`.yourss-${wanted.kind}[data-${wanted.kind}-id="${CSS.escape(wanted.id)}"]`)
+    if (listed && wanted.id !== shown) {
+      htmx.ajax("GET", `/htmx/${wanted.kind}/${encodeURIComponent(wanted.id)}`, { target: "#yourss-content" })
     }
     markActiveChannel()
   }
@@ -459,7 +469,7 @@
     error.hidden = message === ""
   }
 
-  // The server resolves what was typed to a channel id, the browser builds the new address.
+  // The server resolves what was typed to a channel or playlist id, the browser builds the new address.
   async function addChannel(form) {
     const query = form.elements.q.value.trim()
     if (query === "" || form.classList.contains("is-busy")) {
@@ -476,7 +486,7 @@
       } else if (pageNames().includes(body.id)) {
         showAddError(form, `${body.name} is already on this page`)
       } else if (pageNames().length >= Number(document.body.dataset.pageMax)) {
-        showAddError(form, `A page holds at most ${document.body.dataset.pageMax} channels: remove one first`)
+        showAddError(form, `A page holds at most ${document.body.dataset.pageMax} channels and playlists: remove one first`)
       } else {
         goToPage([...pageNames(), body.id])
         return

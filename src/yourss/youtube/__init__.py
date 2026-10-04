@@ -11,4 +11,5 @@ from .utils import is_channel_id as is_channel_id
 from .utils import is_playlist_id as is_playlist_id
 from .utils import is_user as is_user
 from .utils import parse_channel_reference as parse_channel_reference
+from .utils import parse_playlist_reference as parse_playlist_reference
 from .utils import parse_video_reference as parse_video_reference

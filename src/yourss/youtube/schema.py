@@ -96,7 +96,8 @@ class Feed(AtomXmlModel, tag="feed"):
     author: FeedAuthor = element()
     published: datetime = element()
     links: list[Link] = element(tag="link")
-    entries: list[Entry] = element(tag="entry")
+    # Youtube sometimes serves the feed of a playlist without any entry
+    entries: list[Entry] = element(tag="entry", default_factory=list)
 
     def _find_link(self, rel: str) -> HttpUrl | None:
         for link in self.links:

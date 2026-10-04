@@ -7,7 +7,13 @@ from starlette.status import HTTP_403_FORBIDDEN, HTTP_404_NOT_FOUND, HTTP_422_UN
 from .. import __name__ as app_name
 from .. import __version__ as app_version
 from ..settings import current_config
-from ..youtube import ScrapingError, YoutubeApi, parse_channel_reference, parse_video_reference
+from ..youtube import (
+    ScrapingError,
+    YoutubeApi,
+    parse_channel_reference,
+    parse_playlist_reference,
+    parse_video_reference,
+)
 
 router = APIRouter(prefix="/api")
 
@@ -28,16 +34,19 @@ async def _channel_name(api: YoutubeApi, text: str) -> str | None:
 
 @router.get("/resolve")
 async def resolve(q: Annotated[str, Query(min_length=1, max_length=200)]) -> dict[str, str]:
-    """Resolve what a visitor typed to a channel (docs/specs/custom-pages.md)."""
+    """Resolve what a visitor typed to a channel or a playlist (docs/specs/custom-pages.md)."""
     if not current_config.custom_pages_enabled:
         raise HTTPException(HTTP_403_FORBIDDEN, detail="Custom pages are disabled on this instance")
     api = YoutubeApi()
     try:
+        if (playlist_id := parse_playlist_reference(q)) is not None:
+            feed = await api.get_playlist_rss(playlist_id)
+            return {"kind": "playlist", "id": playlist_id, "name": feed.title}
         name = await _channel_name(api, q)
         if name is None:
             raise HTTPException(
                 HTTP_422_UNPROCESSABLE_CONTENT,
-                detail="Type a handle (@name), a channel_id, or the address of a channel or of a video",
+                detail="Type a handle, a channel_id, a playlist id, or the address of a channel, video or playlist",
             )
         out = await api.get_channel(name)
     except (HTTPError, ScrapingError) as error:

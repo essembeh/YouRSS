@@ -1,0 +1,12 @@
+<section class="yourss-hero" data-channel-page="{{ playlist.playlist_id }}">
+  <span class="yourss-avatar yourss-avatar-none yourss-hero-avatar" aria-hidden="true"><svg><use href="#i-list" /></svg></span>
+  <div class="yourss-hero-info">
+    <h1>{{ playlist.title }} <span class="yourss-hero-handle">playlist by {{ playlist.author.name }}</span></h1>
+    <div class="yourss-hero-actions">
+      <a class="yourss-btn yt" href="https://www.youtube.com/playlist?list={{ playlist.playlist_id }}" target="_blank" rel="noopener"><svg><use href="#i-youtube" /></svg><span>YouTube</span></a>
+      <a class="yourss-btn rss" href="https://www.youtube.com/feeds/videos.xml?playlist_id={{ playlist.playlist_id }}" target="_blank" rel="noopener"><svg><use href="#i-rss" /></svg><span>RSS</span></a>
+    </div>
+  </div>
+</section>
+
+{% include "partials/videos-container.jinja-html" %}

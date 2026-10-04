@@ -35,7 +35,7 @@ Youtube publishes an RSS feed for every channel. RSS is an open and stable way t
 
 ### One page for all your channels
 
-The channels of a page are in its URL, as a list of *channel_id* (example https://yourss.domain.tld/UCVooVnzQxPSTXTMzSi1s6uw,UCQsmxaMzYr76Yd1iqMEq8TA): you get their last 15 videos, sorted by date. Start from the home page, add channels by handle, *channel_id*, or by the address of a channel or of one of its videos, remove the ones you no longer want, then bookmark the page: its address is your subscription list, nothing is stored on the server. A *user* page gives a short name to a list of channels declared in the configuration.
+The channels of a page are in its URL, as a list of *channel_id* (example https://yourss.domain.tld/UCVooVnzQxPSTXTMzSi1s6uw,UCQsmxaMzYr76Yd1iqMEq8TA): you get their last 15 videos, sorted by date. Start from the home page, add channels by handle, *channel_id*, or by the address of a channel or of one of its videos, add playlists by id or address, remove the ones you no longer want, then bookmark the page: its address is your subscription list, nothing is stored on the server. A *user* page gives a short name to a list of channels declared in the configuration.
 
 Turn on *Show new videos* in the settings and the videos you played for a few seconds are marked as watched: on the next visit a `NEW` marker and a counter per channel show what you have not seen yet. This is stored in your browser only.
 

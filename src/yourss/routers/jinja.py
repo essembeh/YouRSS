@@ -1,5 +1,6 @@
 from datetime import datetime
 from typing import Any
+from urllib.parse import urlparse
 
 import arrow
 from fastapi import Request
@@ -41,6 +42,14 @@ jinja_env.globals["static_url"] = static_url
 jinja = Jinja2Templates(env=jinja_env)
 
 
+def page_path(request: Request) -> str:
+    """Path of the page the visitor is on: for a fragment, htmx names it in a header."""
+    current = request.headers.get("hx-current-url")
+    path = urlparse(current).path if current else request.url.path
+    # Only a local path may end in a link
+    return path if path.startswith("/") and not path.startswith("//") else "/"
+
+
 def template_page(
     request: Request, template_name: str, *, status_code: int = HTTP_200_OK, **kwargs: Any
 ) -> _TemplateResponse:
@@ -49,6 +58,7 @@ def template_page(
         template_name,
         context={
             "request": request,
+            "page_path": page_path(request),
             "max_page_items": current_config.max_page_items,
             "version": __version__,
         }

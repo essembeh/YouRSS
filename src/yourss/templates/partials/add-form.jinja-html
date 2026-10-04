@@ -1,7 +1,7 @@
 <form class="yourss-add-form" autocomplete="off">
   <label class="yourss-search yourss-add-field">
     <svg><use href="#i-plus" /></svg>
-    <input name="q" type="text" required maxlength="200" placeholder="@handle, channel_id, channel or video address" aria-label="Channel to add" autocapitalize="none" spellcheck="false" />
+    <input name="q" type="text" required maxlength="200" placeholder="@handle, channel_id, playlist or address" aria-label="Channel or playlist to add" autocapitalize="none" spellcheck="false" />
   </label>
   <button type="submit" class="yourss-btn yourss-add-submit">Add</button>
   <p class="yourss-add-error" role="alert" hidden></p>
@@ -10,6 +10,8 @@
     <dd><button type="button" data-action="add-example" title="Use this example">@ben-j</button></dd>
     <dt>channel_id</dt>
     <dd><button type="button" data-action="add-example" title="Use this example">UCBqd6fLWpemEM2o5wlNDUfw</button></dd>
+    <dt>Playlist</dt>
+    <dd><button type="button" data-action="add-example" title="Use this example">PLw-vK1_d04zZCal3yMX_T23h5nDJ2toTk</button></dd>
     <dt>Video</dt>
     <dd><button type="button" data-action="add-example" title="Use this example">https://www.youtube.com/watch?v=p1gQsZ6DSqU</button></dd>
   </dl>

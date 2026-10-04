@@ -8,12 +8,12 @@
   <ol class="yourss-steps">
     <li>
       <strong>Add a first channel</strong>
-      <span>Type its handle (<code>@name</code>) or its <code>channel_id</code>, or paste the address of the channel or of one of its videos.</span>
+      <span>Type its handle (<code>@name</code>) or its <code>channel_id</code>, or paste the address of the channel or of one of its videos. A playlist works too, by id or by address.</span>
       {% include "partials/add-form.jinja-html" %}
     </li>
     <li>
       <strong>Add the others</strong>
-      <span>With the <svg><use href="#i-plus" /></svg> of the sidebar, next to “Subscriptions”. Each channel goes in the address of the page, and can be removed from there.</span>
+      <span>With the <svg><use href="#i-plus" /></svg> of the sidebar, next to “Subscriptions”. Each channel or playlist goes in the address of the page, and can be removed from there.</span>
     </li>
     <li>
       <strong>Bookmark your page</strong>

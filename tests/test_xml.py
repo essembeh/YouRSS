@@ -94,3 +94,13 @@ def test_feed_entry_to_video() -> None:
     assert channel.avatar == ""
     assert channel.home == f"https://www.youtube.com/channel/{entry.channel_id}"
     assert entry.to_video().channel is None
+
+
+def test_feed_without_entry() -> None:
+    # What Youtube sometimes serves for a playlist: the feed, and no entry at all
+    xml = (SAMPLES_FOLDER / "PLw-vK1_d04zZCal3yMX_T23h5nDJ2toTk.xml").read_text()
+    start, end = xml.index("<entry>"), xml.rindex("</entry>") + len("</entry>")
+    rss = Feed.from_xml((xml[:start] + xml[end:]).encode())
+    assert rss.playlist_id == "PLw-vK1_d04zZCal3yMX_T23h5nDJ2toTk"
+    assert rss.title
+    assert rss.entries == []

@@ -17,7 +17,7 @@
   </div>
 
   <nav class="yourss-nav">
-    {% if channels %}
+    {% if channels or playlists %}
     <div class="yourss-row">
       <a class="yourss-nav-item yourss-home-link" href="{{ request.url.path }}" title="The latest videos of all your channels">
         <svg><use href="#i-home" /></svg><span class="yourss-label">Home</span>
@@ -28,7 +28,7 @@
     <div class="yourss-section">
       <span class="yourss-label">Subscriptions</span>
       {% if page_names is defined %}
-      <button type="button" class="yourss-icon-btn is-small yourss-row-btn" data-action="add-channel" title="Add a channel to this page (a)" aria-label="Add a channel"><svg><use href="#i-plus" /></svg></button>
+      <button type="button" class="yourss-icon-btn is-small yourss-row-btn" data-action="add-channel" title="Add a channel or a playlist to this page (a)" aria-label="Add a channel or a playlist"><svg><use href="#i-plus" /></svg></button>
       {% elif copy_url is defined %}
       <a class="yourss-icon-btn is-small yourss-row-btn yourss-copy-page" href="{{ copy_url }}" title="This page is read-only: customize a copy of it" aria-label="Customize a copy of this page"><svg><use href="#i-edit" /></svg></a>
       {% endif %}
@@ -44,6 +44,18 @@
         </a>
         {% if page_names is defined %}
         <button type="button" class="yourss-icon-btn is-small yourss-row-btn yourss-remove-btn" data-action="remove-channel" data-id="{{ channel.channel_id }}" data-name="{{ channel.name }}" title="Remove {{ channel.name }} from this page" aria-label="Remove {{ channel.name }}"><svg><use href="#i-close" /></svg></button>
+        {% endif %}
+      </li>
+      {% endfor %}
+      {% for playlist in playlists %}
+      <li class="yourss-playlist" data-playlist-id="{{ playlist.playlist_id }}">
+        <a class="yourss-nav-item" href="{{ request.url.path }}?p={{ playlist.playlist_id }}" hx-get="/htmx/playlist/{{ playlist.playlist_id }}" hx-target="#yourss-content"
+          hx-push-url="{{ request.url.path }}?p={{ playlist.playlist_id }}" title="Playlist: {{ playlist.title }}">
+          <svg><use href="#i-list" /></svg>
+          <span class="yourss-label">{{ playlist.title }}</span>
+        </a>
+        {% if page_names is defined %}
+        <button type="button" class="yourss-icon-btn is-small yourss-row-btn yourss-remove-btn" data-action="remove-channel" data-id="{{ playlist.playlist_id }}" data-name="{{ playlist.title }}" title="Remove {{ playlist.title }} from this page" aria-label="Remove {{ playlist.title }}"><svg><use href="#i-close" /></svg></button>
         {% endif %}
       </li>
       {% endfor %}
