@@ -1,0 +1,26 @@
+# Demo instance on Render (https://render.com/docs/blueprint-spec): the image the CI builds from
+# `main`, on the free plan. It sleeps after 15 minutes without a visit and takes about a minute to
+# wake up. The CI asks for a new deploy after each commit on `main` (job `demo-deploy`).
+services:
+  - name: yourss
+    type: web
+    runtime: image
+    plan: free
+    region: frankfurt
+    image:
+      url: ghcr.io/essembeh/yourss:main
+    # The sample users file is fetched when the container starts: a pre-deploy command runs on
+    # another instance (and on paid plans only), what it writes is not seen by the service
+    dockerCommand: >-
+      /bin/sh -c 'python -c "import urllib.request as u;
+      u.urlretrieve(\"https://raw.githubusercontent.com/essembeh/YouRSS/main/samples/users.yaml\", \"/tmp/users.yaml\")";
+      exec python -m uvicorn --host 0.0.0.0 --port 8000 yourss.main:app'
+    healthCheckPath: /api/version
+    envVars:
+      # The port the container listens on
+      - key: PORT
+        value: "8000"
+      - key: LOGURU_LEVEL
+        value: INFO
+      - key: YOURSS_USERS_FILE
+        value: /tmp/users.yaml

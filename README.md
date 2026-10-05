@@ -4,6 +4,10 @@
 
 > A minimal Youtube RSS feed viewer for your browser: the latest videos of the channels you chose, on one page. No account, no registration, no ads, no recommendations, no tracking.
 
+**Try it: https://yourss.onrender.com**
+
+> This demo is a public instance, shared by everyone and hosted on a free plan: it sleeps when nobody uses it, so the first page may take about a minute to show up. It comes without any guarantee and can be limited or stopped at any time: to follow your channels every day, [install your own](#install).
+
 ![YouRSS on desktop and on mobile, with the neon theme](./images/yourss_hero.png)
 
 <details>

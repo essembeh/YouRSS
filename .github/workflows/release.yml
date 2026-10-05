@@ -79,6 +79,25 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           push: true
 
+  # Optional: without the RENDER_DEPLOY_HOOK_URL secret there is no demo instance and nothing happens
+  demo-deploy:
+    name: Redeploy the demo instance
+    if: ${{ github.ref == 'refs/heads/main' }}
+    needs: docker-build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ask Render to deploy the image just built from main
+        env:
+          RENDER_DEPLOY_HOOK_URL: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
+        run: |
+          if [ -z "$RENDER_DEPLOY_HOOK_URL" ]; then
+            echo "No demo instance configured"
+            exit 0
+          fi
+          # The hook URL is a secret: its answer is not printed
+          curl --fail --silent --show-error --output /dev/null \
+            "${RENDER_DEPLOY_HOOK_URL}&imgURL=ghcr.io%2Fessembeh%2Fyourss%3Amain"
+
   helm-release:
     name: Update Helm repository
     if: ${{ startsWith(github.ref, 'refs/tags/') }}
