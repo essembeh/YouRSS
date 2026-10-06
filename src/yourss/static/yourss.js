@@ -298,9 +298,12 @@
     }
   }
 
+  // End of a video: next one with autoplay, else a mini player is closed.
   function playNext() {
     if (flag("autoplay")) {
       playRelative(1)
+    } else if ($(".yourss-video.is-docked")) {
+      closePlayer()
     }
   }
 
