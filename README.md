@@ -4,10 +4,6 @@
 
 > A minimal Youtube RSS feed viewer for your browser: the latest videos of the channels you chose, on one page. No account, no registration, no ads, no recommendations, no tracking.
 
-**Try it: https://yourss.onrender.com**
-
-> This demo is a public instance, shared by everyone and hosted on a free plan: it sleeps when nobody uses it, so the first page may take about a minute to show up. It comes without any guarantee and can be limited or stopped at any time: to follow your channels every day, [install your own](#install).
-
 ![YouRSS on desktop and on mobile, with the neon theme](./images/yourss_hero.png)
 
 <details>
@@ -24,20 +20,15 @@
 
 </details>
 
-## Why
+## 🚀 Try the demo
 
-Youtube publishes an RSS feed for every channel. RSS is an open and stable way to share content, it has been for decades: it lets *you* choose how, and with which application, you follow what you like.
+**https://yourss.onrender.com**
 
-*YouRSS* is a small RSS client for the browser, nothing more:
+> This demo is a public instance, shared by everyone and hosted on a free plan: it sleeps when nobody uses it, so the first page may take about a minute to show up. It comes without any guarantee and can be limited or stopped at any time: to follow your channels every day, [install your own](#-install).
 
-- **no account**: the channels you follow are in the *URL*, a page can be bookmarked and shared as is
-- **nothing but the content you chose**: no ads, no suggested videos
-- **nothing kept on the server**: no database, no session, no cookie; your settings and the videos you watched stay in your browser
-- **straight from Youtube**: thumbnails, avatars and the player are loaded by your browser, the server never relays them
+## ✨ Features
 
-## Features
-
-### Build your own page
+### 🧱 Build your own page
 
 No account: your subscriptions are the address of your page.
 
@@ -52,21 +43,25 @@ No account: your subscriptions are the address of your page.
 
 The administrator of an instance can also declare *user* pages, short names for a list of channels and playlists (`/u/<name>`), and can turn custom pages off.
 
-### One page for all your subscriptions
+### 📰 One page for all your subscriptions
 
 A page shows the last 15 videos of each channel and what the feed of each playlist holds, sorted by date.
 
 Turn on *Show new videos* in the settings and the videos you played for a few seconds are marked as watched: on the next visit a `NEW` marker and a counter per channel show what you have not seen yet, and an *All / New* switch hides the rest. This is stored in your browser only.
 
-### Play in the page
+### ▶️ Play in the page
 
-Click a thumbnail to play: the player takes the whole row, or the whole screen on a phone. When you scroll away the player is closed, or keeps playing in a mini player if you turned it on in the settings. A second action opens a fullscreen player with links to Youtube and to the RSS feed. The next video can be played automatically.
+Click a thumbnail to play: the player takes the whole row, or the whole screen on a phone. A second action opens a fullscreen player with links to Youtube and to the RSS feed. The next video can be played automatically.
 
-### Channels and playlists, inside the page
+### 📺 Keep watching while you browse
+
+Turn on the *Mini player* in the settings: when you scroll away, the video keeps playing, docked in a corner of the screen, while you browse the rest of the page or open another channel. Its card shows where it comes from, a click brings you back to it, and the mini player closes by itself when the video ends. Without it, the player is closed as soon as its card leaves the screen.
+
+### 📂 Channels and playlists, inside the page
 
 Click a channel in the sidebar to browse it without leaving your page: its recent videos, all its videos, its shorts and its streams. A playlist opens the same way.
 
-### And also
+### 🎁 And also
 
 - three themes (neon, dark, light) and three density levels, to pick in the settings
 - works on desktop and mobile, can be added to the home screen of a phone
@@ -74,9 +69,20 @@ Click a channel in the sidebar to browse it without leaving your page: its recen
 - keyboard shortcuts: arrows move in the grid, `Space` plays, `n`/`p` play the next/previous video, `Shift`+`↑`/`↓` change channel… press `?` for the list
 - light: server-rendered pages, [htmx](https://htmx.org/), one CSS file and one JavaScript file, no framework
 
-# Install
+## 💡 Philosophy
 
-## From the source
+Youtube publishes an RSS feed for every channel. RSS is an open and stable way to share content, it has been for decades: it lets *you* choose how, and with which application, you follow what you like.
+
+*YouRSS* is a small RSS client for the browser, nothing more:
+
+- **no account**: the channels you follow are in the *URL*, a page can be bookmarked and shared as is
+- **nothing but the content you chose**: no ads, no suggested videos
+- **nothing kept on the server**: no database, no session, no cookie; your settings and the videos you watched stay in your browser
+- **straight from Youtube**: thumbnails, avatars and the player are loaded by your browser, the server never relays them
+
+# 📦 Install
+
+## 🐍 From the source
 
 First, you need [uv](https://docs.astral.sh/uv/), see [installation documentation](https://docs.astral.sh/uv/getting-started/installation/):
 
@@ -92,7 +98,7 @@ $ just run
 
 Then visit [http://localhost:8000/](http://localhost:8000/)
 
-## From docker
+## 🐳 From docker
 
 Using Docker you can run the latest image build on the latest commit:
 
@@ -102,7 +108,7 @@ $ docker run -d --name yourss -p 8000:8000 ghcr.io/essembeh/yourss:main
 
 Then visit [http://localhost:8000/](http://localhost:8000/)
 
-## Install Helm Chart for Kubernetes
+## ☸️ Install Helm Chart for Kubernetes
 
 You need an access to a Kubernetes cluster and `helm` tool installed.
 ```sh
@@ -126,7 +132,7 @@ $ kubectl port-forward service/my-yourss 8000:http
 
 Then visit [http://localhost:8000/](http://localhost:8000/)
 
-# Configuration
+# ⚙️ Configuration
 
 *YouRSS* can be configured using environment variables.
 
@@ -145,7 +151,7 @@ Then visit [http://localhost:8000/](http://localhost:8000/)
 
 See [`.env`](./.env) for example.
 
-## Configure user pages
+## 👤 Configure user pages
 
 You can create *user* pages with as many *channels* as you want, *user* pages are easier to type or remember.
 For example you can have http://my-yourss-instance/u/skate with some *channels* configured instead of bookmarking http://my-yourss-instance/UCVooVnzQxPSTXTMzSi1s6uw,UCQsmxaMzYr76Yd1iqMEq8TA 
@@ -155,7 +161,7 @@ To configure users:
 - see [sample `users.yaml`](./samples/users.yaml) for example
 - *user* page can be protected by a *password* (configurable using plain text passwords or argon2 hash)
 
-## Disable custom pages
+## 🚫 Disable custom pages
 
 By default any visitor can build a page by putting channels in its URL, and the home page explains how.
 The administrator of an instance can turn this off, for example to keep the instance for the *user* pages declared in the configuration:
@@ -166,7 +172,7 @@ The administrator of an instance can turn this off, for example to keep the inst
 
 > Note: this does not make the instance private, the routes which feed the pages (`/htmx/...`) still answer for any channel.
 
-# Usage
+# 📖 Usage
 
 - the home page `http://yourss.local/` explains how to build your own page and lets you add your first channel
 - you can browse a single channel with: `http://yourss.local/UCVooVnzQxPSTXTMzSi1s6uw`
@@ -177,7 +183,7 @@ The administrator of an instance can turn this off, for example to keep the inst
 
 > Note: replace `yourss.local` with the URL of your *YouRSS* instance.
 
-# External links
+# 🔗 External links
 
 Special thanks to the amazing python frameworks: [FastAPI](https://fastapi.tiangolo.com/), [asyncio](https://docs.python.org/fr/3/library/asyncio.html), [httpx](https://www.python-httpx.org/) and [Pydantic](https://docs.pydantic.dev/) ♥️
 

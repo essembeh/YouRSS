@@ -34,7 +34,7 @@ outdated:
 
 # Web application with hot reload
 webapp:
-    xdg-open http://localhost:8000
+    xdg-open http://localhost:8000/u/demo
     uv run --env-file .env -- fastapi dev --host 0.0.0.0 src/yourss/main.py
 
 alias run := webapp
