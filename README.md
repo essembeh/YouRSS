@@ -143,9 +143,11 @@ Then visit [http://localhost:8000/](http://localhost:8000/)
 | YOURSS_API_DOCS_ENABLED | `False` | `yourss.apiDocsEnabled` | If set to `true`, the generated API documentation is served at `/docs`, `/redoc` and `/openapi.json`. Meant for development: it is off in the docker image and in the Helm chart |
 | YOURSS_USERS_FILE |  | `yourss.users` | You can declare user pages in a dedicated file (the Helm chart builds it from the values and stores it in a *Secret*) |
 | YOURSS_CLEAN_TITLES | `False` | `yourss.cleanTitles` | If set to `true`, videos titles are cleaned to prevent UPPERCASE TITLES |
-| YOURSS_CACHE_FOLDER |  | `yourss.cacheEnabled` | If set, the last successful RSS response is stored on disk in this folder (created at startup) to survive Youtube's daily transient `404` windows. Feeds are **always** fetched live; this is a fallback, not a cache. If unset, a `404` is propagated as-is |
-| YOURSS_CACHE_MAX_AGE | `PT24H` | `yourss.cacheMaxAge` | Max age of the fallback file served when Youtube returns a `404` (ISO-8601 duration, e.g. `PT24H`, or a number of seconds). Older files are deleted and the `404` is propagated |
-| YOURSS_CHANNEL_CACHE_TTL | `PT1H` | `yourss.channelCacheTtl` | How long the name and avatar of a channel are kept in memory (ISO-8601 duration or seconds, `0` disables). Only these few strings are cached, at most 1024 channels; feeds and video lists are always fetched live |
+| YOURSS_CACHE_ENABLED | `False` | `yourss.cacheEnabled` | If set to `true`, the RSS feeds are kept on disk. A feed younger than `YOURSS_CACHE_TTL` is served without asking Youtube, and when the fetch fails (Youtube's daily transient `404` windows, errors, timeouts) a feed younger than `YOURSS_CACHE_FALLBACK_TTL` is served instead of the error |
+| YOURSS_CACHE_FOLDER |  | `yourss.cacheFolder` | Where the feeds are kept (created at startup). If unset, a temporary folder `yourss-*` is created at startup |
+| YOURSS_CACHE_TTL | `PT30M` | `yourss.cacheTtl` | How long a cached feed is served without asking Youtube (ISO-8601 duration, e.g. `PT30M`, or a number of seconds) |
+| YOURSS_CACHE_FALLBACK_TTL | `PT48H` | `yourss.cacheFallbackTtl` | How long a cached feed may replace a failed fetch, at least `YOURSS_CACHE_TTL`. An older feed is deleted and the error is propagated |
+| YOURSS_CHANNEL_CACHE_TTL | `PT1H` | `yourss.channelCacheTtl` | How long the name and avatar of a channel are kept in memory (ISO-8601 duration or seconds, `0` disables). Only these few strings are cached, at most 1024 channels; video lists are always fetched live |
 
 > Note: in the users file, a channel is a *channel_id* (24 characters, like `UCa_Dlwrwv3ktrhCy91HpVRw`) or a handle (like `@JonnyGiger`), and a playlist is its id (`PL…`). The address of a page only holds ids.
 

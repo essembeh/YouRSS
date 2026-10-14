@@ -1,8 +1,9 @@
 from datetime import timedelta
 from enum import Enum
 from pathlib import Path
+from typing import Self
 
-from pydantic import BaseModel, Field, SecretStr
+from pydantic import BaseModel, Field, SecretStr, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -21,11 +22,21 @@ class AppSettings(BaseSettings):
     users_file: Path | None = None
     # Capitalize the titles to tame UPPERCASE ones
     clean_titles: bool = False
-    # RSS fallback on disk for Youtube's transient 404: folder (unset disables) and max age
+    # RSS cache on disk (docs/specs/rss-cache.md): off by default, a temporary folder when none is given
+    cache_enabled: bool = False
     cache_folder: Path | None = None
-    cache_max_age: timedelta = timedelta(hours=24)
+    # A cached feed younger than the TTL is served without asking Youtube
+    cache_ttl: timedelta = timedelta(minutes=30)
+    # When the fetch fails, a cached feed younger than this is served instead of the error
+    cache_fallback_ttl: timedelta = timedelta(hours=48)
     # In-memory cache of channel names and avatars, 0 disables it
     channel_cache_ttl: timedelta = timedelta(hours=1)
+
+    @model_validator(mode="after")
+    def _check_cache_ttls(self) -> Self:
+        if self.cache_ttl > self.cache_fallback_ttl:
+            raise ValueError("cache_ttl must not exceed cache_fallback_ttl")
+        return self
 
 
 class PasswordMethod(Enum):

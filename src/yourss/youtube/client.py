@@ -1,13 +1,12 @@
 from collections.abc import AsyncIterator, Awaitable, Callable
 from typing import Annotated, Any
 
-from httpx import Cookies, HTTPStatusError, Response
+from httpx import Cookies, Response
 from loguru import logger
 from rapid_api_client import JsonBody, Path, Query, RapidApi, get, post, rapid_default
-from starlette.status import HTTP_404_NOT_FOUND
 
 from ..settings import current_config
-from .cache import channel_cache, read_stale_feed, write_cached_feed
+from .cache import channel_cache, drop_cached_feed, read_cached_feed, write_cached_feed
 from .model import ChannelDescription, VideoDescription
 from .schema import Feed
 from .scraping import (
@@ -54,21 +53,23 @@ class YoutubeApi(RapidApi):
     async def _get_playlist_rss_raw(self, playlist_id: Annotated[str, Query()]) -> Feed: ...  # type: ignore[empty-body]
 
     async def _fetch_rss(self, key: str, fetch: Callable[[str], Awaitable[Feed]]) -> Feed:
-        """Always fetch the feed live. The on-disk copy is only a fallback used
-        when Youtube returns a transient 404 (it does so daily on all feeds)."""
-        folder = current_config.cache_folder
+        """Fetch a feed through the optional disk cache (docs/specs/rss-cache.md)."""
+        folder = current_config.cache_folder if current_config.cache_enabled else None
         if folder is None:
             return await fetch(key)
+        cached = read_cached_feed(folder, key, current_config.cache_ttl)
+        if cached is not None:
+            return cached
         try:
             feed = await fetch(key)
-        except HTTPStatusError as error:
-            if error.response.status_code != HTTP_404_NOT_FOUND:
+        except Exception as error:
+            # Any failure (Youtube's daily transient 404, 5xx, network) falls back on the cache
+            stale = read_cached_feed(folder, key, current_config.cache_fallback_ttl)
+            if stale is None:
+                drop_cached_feed(folder, key)
                 raise
-            logger.warning("Youtube returned 404 for RSS {}", key)
-            stale = read_stale_feed(folder, key, current_config.cache_max_age)
-            if stale is not None:
-                return stale
-            raise
+            logger.warning("Serving the cached RSS of {} after a fetch error: {}", key, error)
+            return stale
         write_cached_feed(folder, key, feed._response.content)
         return feed
 

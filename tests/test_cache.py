@@ -2,24 +2,31 @@ import os
 from datetime import timedelta
 from pathlib import Path
 
-from httpx import HTTPStatusError, Request, Response
-from pytest import MonkeyPatch, fixture, raises
+from httpx import ConnectTimeout, HTTPStatusError, Request, Response
+from pydantic import ValidationError
+from pytest import MonkeyPatch, fixture, mark, raises
 
-from yourss.settings import current_config
-from yourss.youtube.cache import read_stale_feed
+from yourss.schema import AppSettings
+from yourss.settings import current_config, setup_cache_folder
+from yourss.youtube.cache import read_cached_feed
 from yourss.youtube.client import YoutubeApi
 from yourss.youtube.schema import Feed
 
 SAMPLES_FOLDER = Path(__file__).parent / "data"
 CHANNEL_ID = "UCVooVnzQxPSTXTMzSi1s6uw"
+# Older than any ttl used in the tests
+OLD_MTIME = 1_000_000
 
-# The mocked api, its call counter and the fallback folder
+# The mocked api, its call counter and the cache folder
 type ApiFixture = tuple[YoutubeApi, dict[str, int], Path]
 
 
-def _http_404() -> HTTPStatusError:
+def _http_error(status: int) -> HTTPStatusError:
     request = Request("GET", "https://www.youtube.com/feeds/videos.xml")
-    return HTTPStatusError("404", request=request, response=Response(404, request=request))
+    return HTTPStatusError(str(status), request=request, response=Response(status, request=request))
+
+
+FETCH_ERRORS = [_http_error(404), _http_error(500), ConnectTimeout("timeout")]
 
 
 @fixture
@@ -29,13 +36,11 @@ def sample_bytes() -> bytes:
 
 @fixture
 def api(monkeypatch: MonkeyPatch, tmp_path: Path, sample_bytes: bytes) -> ApiFixture:
-    """A YoutubeApi whose raw fetch is mocked, with a call counter.
-
-    The on-disk file is only a 404 fallback, not a cache: the feed is always
-    fetched live.
-    """
+    """A YoutubeApi whose raw fetch is mocked, with a call counter, and the cache enabled."""
+    monkeypatch.setattr(current_config, "cache_enabled", True)
     monkeypatch.setattr(current_config, "cache_folder", tmp_path)
-    monkeypatch.setattr(current_config, "cache_max_age", timedelta(hours=24))
+    monkeypatch.setattr(current_config, "cache_ttl", timedelta(minutes=10))
+    monkeypatch.setattr(current_config, "cache_fallback_ttl", timedelta(hours=24))
 
     calls = {"count": 0}
 
@@ -51,95 +56,117 @@ def api(monkeypatch: MonkeyPatch, tmp_path: Path, sample_bytes: bytes) -> ApiFix
     return instance, calls, tmp_path
 
 
-async def test_always_fetches_and_stores_fallback(api: ApiFixture) -> None:
+def _fail_with(monkeypatch: MonkeyPatch, instance: YoutubeApi, calls: dict[str, int], error: Exception) -> None:
+    async def fetch_error(channel_id: str) -> Feed:
+        calls["count"] += 1
+        raise error
+
+    monkeypatch.setattr(instance, "_get_channel_rss_raw", fetch_error)
+
+
+async def test_fresh_cache_skips_the_fetch(api: ApiFixture) -> None:
     instance, calls, tmp_path = api
 
     first = await instance.get_channel_rss(CHANNEL_ID)
     second = await instance.get_channel_rss(CHANNEL_ID)
 
-    # always fetched live, even with a file already present
-    assert calls["count"] == 2
+    assert calls["count"] == 1
     assert first.uid == second.uid == CHANNEL_ID
     assert (tmp_path / f"{CHANNEL_ID}.rss").is_file()
 
 
-async def test_disabled_fetches_without_file(monkeypatch: MonkeyPatch, api: ApiFixture) -> None:
-    instance, calls, tmp_path = api
-    monkeypatch.setattr(current_config, "cache_folder", None)
-
-    await instance.get_channel_rss(CHANNEL_ID)
-
-    assert calls["count"] == 1
-    assert not any(tmp_path.iterdir())
-
-
-async def test_404_serves_stale_fallback(monkeypatch: MonkeyPatch, api: ApiFixture) -> None:
+async def test_expired_cache_is_fetched_again(api: ApiFixture) -> None:
     instance, calls, tmp_path = api
     path = tmp_path / f"{CHANNEL_ID}.rss"
 
-    # first successful fetch stores the fallback file
+    await instance.get_channel_rss(CHANNEL_ID)
+    os.utime(path, (OLD_MTIME, OLD_MTIME))
     await instance.get_channel_rss(CHANNEL_ID)
 
-    async def fetch_404(channel_id: str) -> Feed:
-        calls["count"] += 1
-        raise _http_404()
+    assert calls["count"] == 2
+    assert path.stat().st_mtime > OLD_MTIME  # refreshed
 
-    monkeypatch.setattr(instance, "_get_channel_rss_raw", fetch_404)
+
+async def test_disabled_fetches_without_file(monkeypatch: MonkeyPatch, api: ApiFixture) -> None:
+    instance, calls, tmp_path = api
+    monkeypatch.setattr(current_config, "cache_enabled", False)
+
+    await instance.get_channel_rss(CHANNEL_ID)
+    await instance.get_channel_rss(CHANNEL_ID)
+
+    assert calls["count"] == 2
+    assert not any(tmp_path.iterdir())
+
+
+@mark.parametrize("error", FETCH_ERRORS, ids=type)
+async def test_fetch_error_serves_the_cache(monkeypatch: MonkeyPatch, api: ApiFixture, error: Exception) -> None:
+    instance, calls, tmp_path = api
+    path = tmp_path / f"{CHANNEL_ID}.rss"
+
+    await instance.get_channel_rss(CHANNEL_ID)
+    # too old to be served directly, young enough for the fallback
+    monkeypatch.setattr(current_config, "cache_ttl", timedelta(0))
+    _fail_with(monkeypatch, instance, calls, error)
 
     feed = await instance.get_channel_rss(CHANNEL_ID)
 
     assert calls["count"] == 2  # fetch attempted and failed
-    assert feed.uid == CHANNEL_ID  # served from fallback
+    assert feed.uid == CHANNEL_ID  # served from the cache
     assert path.is_file()  # kept
 
 
-async def test_404_drops_dead_fallback_and_raises(monkeypatch: MonkeyPatch, api: ApiFixture) -> None:
-    instance, _calls, tmp_path = api
+async def test_fetch_error_drops_the_dead_cache_and_raises(monkeypatch: MonkeyPatch, api: ApiFixture) -> None:
+    instance, calls, tmp_path = api
     path = tmp_path / f"{CHANNEL_ID}.rss"
 
     await instance.get_channel_rss(CHANNEL_ID)
-    monkeypatch.setattr(current_config, "cache_max_age", timedelta(seconds=1))
-    old = 1_000_000  # far older than max_age
-    os.utime(path, (old, old))
-
-    async def fetch_404(channel_id: str) -> Feed:
-        raise _http_404()
-
-    monkeypatch.setattr(instance, "_get_channel_rss_raw", fetch_404)
+    os.utime(path, (OLD_MTIME, OLD_MTIME))
+    _fail_with(monkeypatch, instance, calls, _http_error(404))
 
     with raises(HTTPStatusError):
         await instance.get_channel_rss(CHANNEL_ID)
 
-    assert not path.is_file()  # dead fallback dropped
+    assert not path.is_file()
 
 
-async def test_404_without_fallback_raises(monkeypatch: MonkeyPatch, api: ApiFixture) -> None:
-    instance, _calls, _tmp_path = api
-
-    async def fetch_404(channel_id: str) -> Feed:
-        raise _http_404()
-
-    monkeypatch.setattr(instance, "_get_channel_rss_raw", fetch_404)
+async def test_fetch_error_without_cache_raises(monkeypatch: MonkeyPatch, api: ApiFixture) -> None:
+    instance, calls, _tmp_path = api
+    _fail_with(monkeypatch, instance, calls, _http_error(404))
 
     with raises(HTTPStatusError):
         await instance.get_channel_rss(CHANNEL_ID)
 
 
-async def test_non_404_error_propagates(monkeypatch: MonkeyPatch, api: ApiFixture) -> None:
-    instance, _calls, _tmp_path = api
-
-    # a fallback file exists but non-404 errors must not use it
-    await instance.get_channel_rss(CHANNEL_ID)
-
-    async def fetch_500(channel_id: str) -> Feed:
-        request = Request("GET", "https://x")
-        raise HTTPStatusError("500", request=request, response=Response(500, request=request))
-
-    monkeypatch.setattr(instance, "_get_channel_rss_raw", fetch_500)
-
-    with raises(HTTPStatusError):
-        await instance.get_channel_rss(CHANNEL_ID)
+def test_read_cached_feed_missing(tmp_path: Path) -> None:
+    assert read_cached_feed(tmp_path, "does-not-exist", timedelta(hours=1)) is None
 
 
-def test_read_stale_feed_missing(tmp_path: Path) -> None:
-    assert read_stale_feed(tmp_path, "does-not-exist", timedelta(hours=1)) is None
+def test_read_cached_feed_corrupted(tmp_path: Path) -> None:
+    (tmp_path / "broken.rss").write_bytes(b"not xml")
+    assert read_cached_feed(tmp_path, "broken", timedelta(hours=1)) is None
+
+
+def test_settings_ttl_must_not_exceed_fallback_ttl() -> None:
+    with raises(ValidationError):
+        AppSettings(cache_ttl=timedelta(hours=2), cache_fallback_ttl=timedelta(hours=1))
+
+
+def test_setup_cache_folder_creates_the_given_folder(tmp_path: Path) -> None:
+    config = AppSettings(cache_enabled=True, cache_folder=tmp_path / "rss")
+    setup_cache_folder(config)
+    assert (tmp_path / "rss").is_dir()
+
+
+def test_setup_cache_folder_picks_a_temporary_folder() -> None:
+    config = AppSettings(cache_enabled=True, cache_folder=None)
+    setup_cache_folder(config)
+    assert config.cache_folder is not None
+    assert config.cache_folder.is_dir()
+    assert config.cache_folder.name.startswith("yourss-")
+    config.cache_folder.rmdir()
+
+
+def test_setup_cache_folder_disabled_leaves_the_folder_alone(tmp_path: Path) -> None:
+    config = AppSettings(cache_enabled=False, cache_folder=tmp_path / "rss")
+    setup_cache_folder(config)
+    assert not (tmp_path / "rss").exists()

@@ -12,15 +12,16 @@ registration, no ads, no recommendations, no tracking.
 
 Principles, in order of importance when they conflict:
 
-1. **RSS first.** What a feed provides is read from the feed. Feeds are always fetched live.
+1. **RSS first.** What a feed provides is read from the feed. Feeds are fetched live, unless the
+   optional disk cache holds a copy younger than a few minutes.
 2. **Pass through, never proxy.** The browser loads thumbnails, avatars and the player straight
    from YouTube, and every link (RSS feed, channel page) points to YouTube. The server never
    relays media.
 3. **Stateless server.** No database, no session, no cookie. What belongs to a visitor (theme,
    density, watched videos) lives in the browser, in `localStorage`.
-4. **Cache as little as possible.** The only server cache is a small, bounded, in-memory one for
-   channel names and avatars. The RSS copy on disk is a fallback for YouTube's transient 404, not a
-   cache.
+4. **Cache as little as possible.** Two server caches, both optional and short-lived: a small,
+   bounded, in-memory one for channel names and avatars, and an RSS copy on disk (off by default)
+   that spares YouTube a fetch for a few minutes and survives its transient 404.
 5. **Stay light.** One small FastAPI application, server-rendered templates, htmx for the dynamic
    parts, vanilla CSS and JavaScript. No front-end framework, no build step.
 6. **Everything is a URL.** `/UC…,PL…` (channel and playlist ids in the URL), `/u/<name>` (a
