@@ -1,11 +1,13 @@
+from pathlib import Path
 from typing import Any
 
 from bs4 import BeautifulSoup
 from httpx import get
-from pytest import mark, raises
+from pytest import MonkeyPatch, mark, raises
 
+from yourss.settings import current_config
 from yourss.youtube import ScrapingError, YoutubeApi
-from yourss.youtube.cache import channel_cache
+from yourss.youtube.cache import read_cached_channel
 from yourss.youtube.scraping.items import SHORTS_PARSERS, VIDEO_PARSERS, parse_items
 
 CHANNEL = "UCVooVnzQxPSTXTMzSi1s6uw"
@@ -77,16 +79,17 @@ async def test_channel_page(name: str) -> None:
     assert page.tabs == ["videos", "shorts"]
 
 
-async def test_channel_cached() -> None:
+async def test_channel_cached(monkeypatch: MonkeyPatch, tmp_path: Path) -> None:
+    monkeypatch.setattr(current_config, "cache_enabled", True)
+    monkeypatch.setattr(current_config, "cache_folder", tmp_path)
     api = YoutubeApi()
-    channel_cache.clear()
 
     channel = await api.get_channel("@JonnyGiger")
     assert channel.channel_id == CHANNEL
     # Known under the handle (case insensitive) and under the channel id
-    assert channel_cache.get("@jonnygiger") == channel
-    assert channel_cache.get(CHANNEL) == channel
-    assert await api.get_channel(CHANNEL) is channel
+    assert read_cached_channel(tmp_path, "@jonnygiger", None) == channel
+    assert read_cached_channel(tmp_path, CHANNEL, None) == channel
+    assert await api.get_channel(CHANNEL) == channel
 
 
 async def test_scrap_videos() -> None:

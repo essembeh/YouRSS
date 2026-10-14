@@ -3,7 +3,7 @@ from typing import Any
 from urllib.parse import urlencode
 
 from ..youtube import ChannelDescription, Continuation, Feed, VideoDescription, is_user
-from ..youtube.cache import channel_cache
+from ..youtube.cache import known_channel
 
 # Sort key of a video without a date (never the case for an RSS entry)
 _OLDEST = datetime.min.replace(tzinfo=UTC)
@@ -27,7 +27,7 @@ def canonical_names(names: list[str]) -> list[str]:
     """Subscriptions of a user page for the address of its copy: the id of each handle the cache knows."""
     out = []
     for name in names:
-        cached = channel_cache.get(name) if is_user(name) else None
+        cached = known_channel(name) if is_user(name) else None
         out.append(cached.channel_id if cached is not None else name)
     return list(dict.fromkeys(out))
 

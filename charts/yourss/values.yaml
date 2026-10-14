@@ -21,22 +21,23 @@ yourss:
   apiDocsEnabled: false
   # YOURSS_CLEAN_TITLES: capitalize the titles to tame UPPERCASE ones
   cleanTitles: false
-  # YOURSS_CACHE_ENABLED: keep the RSS feeds on disk. A feed younger than cacheTtl is served
-  # without asking Youtube; when the fetch fails (Youtube's daily transient 404 windows), a feed
-  # younger than cacheFallbackTtl is served instead of the error
-  cacheEnabled: false
-  # YOURSS_CACHE_FOLDER: where the feeds are kept; empty means a temporary folder under /tmp (an
-  # emptyDir), lost with the pod
+  # YOURSS_CACHE_ENABLED: keep the RSS feeds and the channel metadata (name, avatar) on disk. A
+  # feed younger than cacheRssTtl is served without asking Youtube; when the fetch fails (Youtube's
+  # daily transient 404 windows), a feed younger than cacheRssFallbackTtl is served instead of the
+  # error. When false, nothing is cached: every page load scrapes a page per channel
+  cacheEnabled: true
+  # YOURSS_CACHE_FOLDER: where the cache lives; empty means a temporary folder under /tmp (an
+  # emptyDir), lost with the pod. The pod does not start if it cannot write there
   cacheFolder: ""
-  # YOURSS_CACHE_TTL: how long a cached feed is served without asking Youtube (ISO-8601 duration
-  # or seconds)
-  cacheTtl: PT30M
-  # YOURSS_CACHE_FALLBACK_TTL: how long a cached feed may replace a failed fetch, must be at least
-  # cacheTtl (ISO-8601 duration or seconds)
-  cacheFallbackTtl: PT48H
-  # YOURSS_CHANNEL_CACHE_TTL: how long the name and avatar of a channel are kept in memory,
-  # 0 disables this cache
-  channelCacheTtl: PT1H
+  # YOURSS_CACHE_RSS_TTL: how long a cached feed is served without asking Youtube (ISO-8601
+  # duration or seconds)
+  cacheRssTtl: PT30M
+  # YOURSS_CACHE_RSS_FALLBACK_TTL: how long a cached feed may replace a failed fetch, must be at
+  # least cacheRssTtl (ISO-8601 duration or seconds)
+  cacheRssFallbackTtl: PT48H
+  # YOURSS_CACHE_METADATA_TTL: how long the name and avatar of a channel are served without
+  # scraping its page (ISO-8601 duration or seconds)
+  cacheMetadataTtl: PT24H
   # YOURSS_USERS_FILE: user pages, stored in a Secret since they may hold passwords
   users:
     []
@@ -129,7 +130,7 @@ resources:
     # no cpu limit on purpose (avoid throttling a bursty I/O-bound app)
     memory: 512Mi
 
-# The pods share nothing: each one has its own RSS cache and channel cache
+# The pods share nothing: each one has its own cache
 autoscaling:
   enabled: false
   minReplicas: 1

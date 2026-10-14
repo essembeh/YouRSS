@@ -50,18 +50,18 @@ spec:
               value: {{ .Values.yourss.apiDocsEnabled | quote }}
             - name: YOURSS_CLEAN_TITLES
               value: {{ .Values.yourss.cleanTitles | quote }}
-            - name: YOURSS_CHANNEL_CACHE_TTL
-              value: {{ .Values.yourss.channelCacheTtl | quote }}
             - name: YOURSS_CACHE_ENABLED
               value: {{ .Values.yourss.cacheEnabled | quote }}
             {{- with .Values.yourss.cacheFolder }}
             - name: YOURSS_CACHE_FOLDER
               value: {{ . | quote }}
             {{- end }}
-            - name: YOURSS_CACHE_TTL
-              value: {{ .Values.yourss.cacheTtl | quote }}
-            - name: YOURSS_CACHE_FALLBACK_TTL
-              value: {{ .Values.yourss.cacheFallbackTtl | quote }}
+            - name: YOURSS_CACHE_RSS_TTL
+              value: {{ .Values.yourss.cacheRssTtl | quote }}
+            - name: YOURSS_CACHE_RSS_FALLBACK_TTL
+              value: {{ .Values.yourss.cacheRssFallbackTtl | quote }}
+            - name: YOURSS_CACHE_METADATA_TTL
+              value: {{ .Values.yourss.cacheMetadataTtl | quote }}
             {{- if .Values.yourss.users }}
             - name: YOURSS_USERS_FILE
               value: /yourss/users.yaml

@@ -1,13 +1,10 @@
 import json
 import re
-from datetime import timedelta
 from typing import Any
 
 from pytest import MonkeyPatch, raises
 
-from yourss.settings import current_config
-from yourss.youtube import ChannelDescription, Continuation, ScrapingError
-from yourss.youtube.cache import ChannelCache
+from yourss.youtube import Continuation, ScrapingError
 from yourss.youtube.scraping import parse_channel_page, parse_continuation
 from yourss.youtube.scraping.extract import (
     extract_client_version,
@@ -159,39 +156,6 @@ def test_parse_continuation() -> None:
     assert [v.video_id for v in page.videos] == ["ccccccccccc"]
     assert page.continuation == Continuation(token="NEXT", client_version="2.20260101.00.00")  # noqa: S106  # a continuation token is not a secret
     assert parse_continuation({"items": [_lockup("ddddddddddd")]}, previous).continuation is None
-
-
-def _channel(index: int) -> ChannelDescription:
-    return ChannelDescription(channel_id=f"UC{index:022d}", name=f"Channel {index}")
-
-
-def test_channel_cache_is_bounded(monkeypatch: MonkeyPatch) -> None:
-    monkeypatch.setattr(current_config, "channel_cache_ttl", timedelta(hours=1))
-    cache = ChannelCache(max_size=4)
-    for index in range(10):
-        cache.put(f"@channel{index}", _channel(index))
-    assert len(cache) == 4
-    # The oldest entries were dropped, the latest one is known under both of its names
-    assert cache.get("@channel0") is None
-    assert cache.get("@CHANNEL9") == _channel(9)
-    assert cache.get(_channel(9).channel_id) == _channel(9)
-
-
-def test_channel_cache_expires(monkeypatch: MonkeyPatch) -> None:
-    monkeypatch.setattr(current_config, "channel_cache_ttl", timedelta(hours=1))
-    cache = ChannelCache()
-    cache.put("@channel1", _channel(1))
-    assert cache.get("@channel1") == _channel(1)
-    monkeypatch.setattr("yourss.youtube.cache.monotonic", lambda: 10**9)
-    assert cache.get("@channel1") is None
-    assert len(cache) == 1  # the other key is dropped when it is read
-
-
-def test_channel_cache_can_be_disabled(monkeypatch: MonkeyPatch) -> None:
-    monkeypatch.setattr(current_config, "channel_cache_ttl", timedelta(0))
-    cache = ChannelCache()
-    cache.put("@channel1", _channel(1))
-    assert len(cache) == 0
 
 
 async def test_channel_page_is_retried_once(monkeypatch: MonkeyPatch) -> None:

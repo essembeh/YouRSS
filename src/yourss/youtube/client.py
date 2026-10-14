@@ -6,7 +6,14 @@ from loguru import logger
 from rapid_api_client import JsonBody, Path, Query, RapidApi, get, post, rapid_default
 
 from ..settings import current_config
-from .cache import channel_cache, drop_cached_feed, read_cached_feed, write_cached_feed
+from .cache import (
+    cache_folder,
+    drop_cached_feed,
+    read_cached_channel,
+    read_cached_feed,
+    write_cached_channel,
+    write_cached_feed,
+)
 from .model import ChannelDescription, VideoDescription
 from .schema import Feed
 from .scraping import (
@@ -53,18 +60,18 @@ class YoutubeApi(RapidApi):
     async def _get_playlist_rss_raw(self, playlist_id: Annotated[str, Query()]) -> Feed: ...  # type: ignore[empty-body]
 
     async def _fetch_rss(self, key: str, fetch: Callable[[str], Awaitable[Feed]]) -> Feed:
-        """Fetch a feed through the optional disk cache (docs/specs/rss-cache.md)."""
-        folder = current_config.cache_folder if current_config.cache_enabled else None
+        """Fetch a feed through the optional disk cache (docs/specs/disk-cache.md)."""
+        folder = cache_folder()
         if folder is None:
             return await fetch(key)
-        cached = read_cached_feed(folder, key, current_config.cache_ttl)
+        cached = read_cached_feed(folder, key, current_config.cache_rss_ttl)
         if cached is not None:
             return cached
         try:
             feed = await fetch(key)
         except Exception as error:
             # Any failure (Youtube's daily transient 404, 5xx, network) falls back on the cache
-            stale = read_cached_feed(folder, key, current_config.cache_fallback_ttl)
+            stale = read_cached_feed(folder, key, current_config.cache_rss_fallback_ttl)
             if stale is None:
                 drop_cached_feed(folder, key)
                 raise
@@ -115,7 +122,8 @@ class YoutubeApi(RapidApi):
             # Youtube sometimes serves a page in another layout: a second request usually gets the usual one
             logger.warning("Retrying {}: {}", url, error)
             out = parse_channel_page(await self._get_page(url))
-        channel_cache.put(name, out.channel)
+        if (folder := cache_folder()) is not None:
+            write_cached_channel(folder, name, out.channel)
         return out
 
     async def _get_page(self, url: str) -> str:
@@ -124,11 +132,22 @@ class YoutubeApi(RapidApi):
         return resp.text
 
     async def get_channel(self, name: str) -> ChannelDescription:
-        """Name, id, avatar and home of a channel, from the cache when it is known."""
-        cached = channel_cache.get(name)
+        """Name, id, avatar and home of a channel, through the optional disk cache (docs/specs/disk-cache.md)."""
+        folder = cache_folder()
+        if folder is None:
+            return (await self.get_channel_page(name)).channel
+        cached = read_cached_channel(folder, name, current_config.cache_metadata_ttl)
         if cached is not None:
             return cached
-        return (await self.get_channel_page(name)).channel
+        try:
+            return (await self.get_channel_page(name)).channel
+        except Exception as error:
+            # A stale name or avatar is harmless: the cached description is served whatever its age
+            stale = read_cached_channel(folder, name, None)
+            if stale is None:
+                raise
+            logger.warning("Serving the cached description of {} after a fetch error: {}", name, error)
+            return stale
 
     async def get_more_videos(self, continuation: Continuation, *, shorts: bool = False) -> VideoPage:
         """Next page of a channel tab."""

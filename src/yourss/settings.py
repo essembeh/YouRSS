@@ -1,3 +1,4 @@
+import os
 from pathlib import Path
 from tempfile import mkdtemp
 
@@ -10,19 +11,39 @@ templates_folder = Path(app_root).parent / "templates"
 static_folder = Path(app_root).parent / "static"
 
 
+def check_writable(folder: Path) -> None:
+    """Write, read back and delete a probe file: the cache must work before the application starts."""
+    probe = folder / f".write-check.{os.getpid()}"
+    try:
+        probe.write_bytes(b"yourss")
+        if probe.read_bytes() != b"yourss":
+            raise OSError("read back a different content")
+    finally:
+        probe.unlink(missing_ok=True)
+
+
 def setup_cache_folder(config: AppSettings) -> None:
-    """Make the RSS cache folder usable: create the given one, or pick a temporary one."""
+    """Make the cache folder usable, or fail: a cache that was asked for must work (docs/specs/disk-cache.md)."""
     if not config.cache_enabled:
         if config.cache_folder is not None:
-            logger.warning("YOURSS_CACHE_FOLDER is set to {} but the RSS cache is disabled", config.cache_folder)
+            logger.warning("YOURSS_CACHE_FOLDER is set to {} but the cache is disabled", config.cache_folder)
         return
-    if config.cache_folder is None:
-        config.cache_folder = Path(mkdtemp(prefix="yourss-"))
-        logger.info("RSS cache enabled in a temporary folder: {}", config.cache_folder)
-    else:
-        config.cache_folder.mkdir(parents=True, exist_ok=True)
-        logger.info("RSS cache enabled: {}", config.cache_folder)
-    logger.info("RSS cache ttl: {}, fallback ttl: {}", config.cache_ttl, config.cache_fallback_ttl)
+    try:
+        if config.cache_folder is None:
+            config.cache_folder = Path(mkdtemp(prefix="yourss-"))
+            logger.info("Cache enabled in a temporary folder: {}", config.cache_folder)
+        else:
+            config.cache_folder.mkdir(parents=True, exist_ok=True)
+            logger.info("Cache enabled: {}", config.cache_folder)
+        check_writable(config.cache_folder)
+    except OSError as error:
+        raise RuntimeError(f"The cache folder {config.cache_folder} is not usable: {error}") from error
+    logger.info(
+        "Cache ttl: rss {}, rss fallback {}, metadata {}",
+        config.cache_rss_ttl,
+        config.cache_rss_fallback_ttl,
+        config.cache_metadata_ttl,
+    )
 
 
 current_config = AppSettings()

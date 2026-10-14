@@ -30,28 +30,32 @@ the application. The meaning of each setting is documented in the
 | `yourss.maxPageItems` | `12` | `YOURSS_MAX_PAGE_ITEMS` |
 | `yourss.apiDocsEnabled` | `false` | `YOURSS_API_DOCS_ENABLED` |
 | `yourss.cleanTitles` | `false` | `YOURSS_CLEAN_TITLES` |
-| `yourss.cacheEnabled` | `false` | `YOURSS_CACHE_ENABLED` |
+| `yourss.cacheEnabled` | `true` | `YOURSS_CACHE_ENABLED` |
 | `yourss.cacheFolder` | `""` | `YOURSS_CACHE_FOLDER`, only set when not empty |
-| `yourss.cacheTtl` | `PT30M` | `YOURSS_CACHE_TTL` |
-| `yourss.cacheFallbackTtl` | `PT48H` | `YOURSS_CACHE_FALLBACK_TTL` |
-| `yourss.channelCacheTtl` | `PT1H` | `YOURSS_CHANNEL_CACHE_TTL` |
+| `yourss.cacheRssTtl` | `PT30M` | `YOURSS_CACHE_RSS_TTL` |
+| `yourss.cacheRssFallbackTtl` | `PT48H` | `YOURSS_CACHE_RSS_FALLBACK_TTL` |
+| `yourss.cacheMetadataTtl` | `PT24H` | `YOURSS_CACHE_METADATA_TTL` |
 | `yourss.users` | `[]` | `YOURSS_USERS_FILE`, see below |
 | `yourss.extraEnv` | `[]` | any other variable, as a list of `name` / `value` |
 
-### RSS cache
+### Cache
 
-Off by default: every page load fetches its feeds from Youtube. With `cacheEnabled: true`, each
-pod keeps the feeds on disk:
+On by default. Each pod keeps on disk the RSS feeds and the metadata of the channels (name,
+avatar, handle to id resolution):
 
-- a feed younger than `cacheTtl` is served without asking Youtube;
+- a feed younger than `cacheRssTtl` is served without asking Youtube;
 - when the fetch fails (Youtube answers `404` for a while every day, errors, timeouts), a feed
-  younger than `cacheFallbackTtl` is served instead of the error. `cacheFallbackTtl` must be at
-  least `cacheTtl`.
+  younger than `cacheRssFallbackTtl` is served instead of the error. `cacheRssFallbackTtl` must be
+  at least `cacheRssTtl`;
+- the name and avatar of a channel are served without scraping its page for `cacheMetadataTtl`,
+  and whatever their age when the scrape fails.
 
-The pods share nothing, each one has its own cache. With `cacheFolder` empty the feeds go to a
-temporary folder under `/tmp`, an `emptyDir` that disappears with the pod. The root filesystem is
-read-only, so a custom `cacheFolder` must live under `/tmp` or on a volume added with `volumes`
-and `volumeMounts`.
+With `cacheEnabled: false` nothing is cached: every page load fetches its feeds and scrapes a
+1 MB page per channel. The pods share nothing, each one has its own cache. With `cacheFolder`
+empty the files go to a temporary folder under `/tmp`, an `emptyDir` that disappears with the
+pod. The root filesystem is read-only, so a custom `cacheFolder` must live under `/tmp` or on a
+volume added with `volumes` and `volumeMounts`; the pod refuses to start when it cannot write
+there.
 
 Durations are ISO-8601 (`PT30M`, `PT48H`) or a number of seconds.
 
