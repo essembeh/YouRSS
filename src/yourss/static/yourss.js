@@ -6,7 +6,8 @@
  *    its media box is `.yourss-media` (thumbnail `img.yourss-thumbnail`, `.yourss-player-container`)
  *  - every command is a `[data-action]` element handled by the `actions` table below
  *  - a channel avatar is `img.yourss-avatar` (retried when it fails to load)
- *  - `template#yourss-empty-template` holds the empty state shown when a tab request fails
+ *  - `template#yourss-empty-template` holds the empty state of a tab, `template#yourss-failed-template` the
+ *    failure state shown when a channel or tab request fails
  *  - dialogs: `#yourss-modal` (player, `#yourss-modal-player`, `#yourss-modal-video-title`,
  *    `#yourss-modal-link-{rss,youtube,tab}`), `#yourss-settings`, `#yourss-shortcuts`, `#yourss-add`
  *  - an editable page lists its channels in `<body data-page-names>`; channels are added with a
@@ -756,15 +757,16 @@
     }
   })
 
-  // A failed tab request must not leave the previous tab on screen: show the empty state.
-  function showTabFailure(event) {
-    if (event.detail.target?.id === "tab-content") {
+  // A failed channel or tab request must not leave the previous content on screen: show the failure state.
+  function showFailure(event) {
+    const target = event.detail.target
+    if (target?.id === "tab-content" || target?.id === "yourss-content") {
       closePlayer()
-      event.detail.target.replaceChildren($("#yourss-empty-template").content.cloneNode(true))
+      target.replaceChildren($("#yourss-failed-template").content.cloneNode(true))
     }
   }
-  on("htmx:responseError", showTabFailure)
-  on("htmx:sendError", showTabFailure)
+  on("htmx:responseError", showFailure)
+  on("htmx:sendError", showFailure)
 
   /* ---------- boot: this script is the last element of <body>, the DOM is ready ---------- */
   document.addEventListener("error", retryAvatar, true)

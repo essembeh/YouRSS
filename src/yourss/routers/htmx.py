@@ -5,7 +5,6 @@ from starlette.responses import HTMLResponse
 from starlette.status import HTTP_404_NOT_FOUND
 
 from ..youtube import ChannelTab, Continuation, YoutubeApi
-from ..youtube.cache import known_channel
 from .jinja import template_page
 from .schema import ChannelId, PlaylistId, UserId
 from .utils import get_videos_from_feeds, next_page_url
@@ -30,8 +29,7 @@ async def htmx_channel(request: Request, channel: ChannelId | UserId) -> HTMLRes
 async def htmx_playlist(request: Request, playlist: PlaylistId) -> HTMLResponse:
     feed = await YoutubeApi().get_playlist_rss(playlist)
     # No request for the channels: the ones the cache knows have their avatar, the others their initial
-    channels = {entry.channel_id: known_channel(entry.channel_id) for entry in feed.entries}
-    videos = get_videos_from_feeds([feed], {key: channel for key, channel in channels.items() if channel is not None})
+    videos = get_videos_from_feeds([feed], {})
     return template_page(request, "partials/playlist.jinja-html", playlist=feed, videos=videos)
 
 

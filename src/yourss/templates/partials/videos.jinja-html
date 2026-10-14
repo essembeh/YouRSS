@@ -21,7 +21,7 @@
   <div class="yourss-video-body">
     {% if video.channel %}
     <a class="yourss-video-channel" href="{{ page_path }}?c={{ video.channel.channel_id }}" hx-get="/htmx/channel/{{ video.channel.channel_id }}"
-      hx-target="#yourss-content" hx-push-url="{{ page_path }}?c={{ video.channel.channel_id }}">
+      hx-target="#yourss-content" hx-sync="#yourss-content:replace" hx-push-url="{{ page_path }}?c={{ video.channel.channel_id }}">
       {{ avatar(video.channel, 22) }}<span>{{ video.channel.name }}</span>
     </a>
     {% endif %}

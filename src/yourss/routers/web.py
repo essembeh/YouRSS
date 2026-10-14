@@ -1,19 +1,21 @@
-from typing import Annotated
+from html import escape
+from typing import Annotated, TypedDict
 
 from fastapi import APIRouter, Depends, Path, Query, Request
 from fastapi.responses import RedirectResponse
+from loguru import logger
 from pydantic import ValidationError
-from starlette.responses import HTMLResponse
+from starlette.responses import HTMLResponse, Response
 from starlette.status import HTTP_403_FORBIDDEN, HTTP_404_NOT_FOUND, HTTP_422_UNPROCESSABLE_CONTENT
 
-from ..async_utils import async_fetch
+from ..async_utils import SubscriptionStatus, async_fetch
 from ..schema import User
 from ..security import get_auth_user
 from ..settings import current_config
-from ..youtube import YoutubeApi
+from ..youtube import VideoDescription, YoutubeApi
 from .jinja import template_page
-from .schema import SUBSCRIPTIONS, SUBSCRIPTIONS_PATTERN, TOO_MANY
-from .utils import canonical_names, get_videos_from_feeds, page_entries
+from .schema import SUBSCRIPTIONS, SUBSCRIPTIONS_PATTERN, TOO_MANY, ChannelId
+from .utils import FetchSummary, canonical_names, fetch_summary, get_videos_from_feeds, page_entries
 
 router = APIRouter()
 
@@ -42,21 +44,59 @@ async def watch(video: str = Query(alias="v", min_length=11, max_length=11)) -> 
     return RedirectResponse(f"https://www.youtube-nocookie.com/embed/{video}?autoplay=1")
 
 
+def initial_svg(letter: str) -> str:
+    """The avatar of a channel Youtube did not give one for: its initial on a disc."""
+    return (
+        '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">'
+        '<rect width="64" height="64" rx="32" fill="#2a3140"/>'
+        '<text x="32" y="32" dy=".35em" text-anchor="middle" font-family="system-ui, sans-serif" font-size="30" '
+        f'font-weight="700" fill="#aab3c5">{escape(letter.upper())}</text></svg>'
+    )
+
+
+@router.get("/avatar/{channel_id}", response_model=None)
+async def avatar(channel_id: ChannelId, n: Annotated[str, Query(max_length=1)] = "") -> Response:
+    """Redirect to the avatar of a channel on Youtube's CDN, else its initial (docs/specs/fetch-errors.md §1)."""
+    try:
+        channel = await YoutubeApi().get_channel(channel_id)
+    except Exception as error:
+        logger.warning("Could not get the avatar of {}: {!r}", channel_id, error)
+        channel = None
+    if channel is not None and channel.avatar:
+        # The browser then loads the image from Youtube: nothing is relayed
+        return RedirectResponse(channel.avatar, headers={"Cache-Control": "public, max-age=86400"})
+    # A failure is retried later, without hammering Youtube
+    initial = n or (channel.name[:1] if channel is not None else "") or "?"
+    return Response(initial_svg(initial), media_type="image/svg+xml", headers={"Cache-Control": "public, max-age=3600"})
+
+
+class PageContext(TypedDict):
+    """What the view template gets from the statuses: sidebar entries, videos, notice."""
+
+    entries: list[SubscriptionStatus]
+    videos: list[VideoDescription]
+    summary: FetchSummary | None
+
+
+def _page_context(statuses: list[SubscriptionStatus]) -> PageContext:
+    feeds = [s.feed for s in statuses if s.feed is not None]
+    channels = {s.channel.channel_id: s.channel for s in statuses if s.channel is not None}
+    return {
+        "entries": page_entries(statuses),
+        "videos": get_videos_from_feeds(feeds, channels),
+        "summary": fetch_summary(statuses),
+    }
+
+
 @router.get("/u/{username}", response_class=HTMLResponse)
 async def user(request: Request, user: User = Depends(get_auth_user)) -> HTMLResponse:
-    api = YoutubeApi()
-    channels, feeds, errors = await async_fetch(user.channels, api=api)
-    videos = get_videos_from_feeds(feeds, channels)
-    names = canonical_names(user.channels)
-    listed, playlists = page_entries(names, channels, feeds)
+    statuses = await async_fetch(user.channels, api=YoutubeApi())
+    names = canonical_names(statuses)
     return template_page(
         request,
         "pages/view.jinja-html",
         title=f"/u/{user.name}",
-        channels=listed,
-        playlists=playlists,
-        videos=videos,
-        errors=errors,
+        **_page_context(statuses),
         # A user page is read-only: it only offers its multi channel copy
         copy_url="/" + ",".join(names) if current_config.custom_pages_enabled else None,
     )
@@ -104,17 +144,12 @@ async def page(
             ),
             home_link=True,
         )
-    api = YoutubeApi()
-    channels, feeds, errors = await async_fetch(ids, api=api)
-    videos = get_videos_from_feeds(feeds, channels)
-    listed, playlists = page_entries(ids, channels, feeds)
+    statuses = await async_fetch(ids, api=YoutubeApi())
+    context = _page_context(statuses)
     return template_page(
         request,
         "pages/view.jinja-html",
-        title=", ".join([c.name for c in listed] + [f.title for f in playlists]),
-        channels=listed,
-        playlists=playlists,
-        videos=videos,
-        errors=errors,
+        title=", ".join(entry.label or entry.name for entry in context["entries"]),
+        **context,
         page_names=ids,
     )

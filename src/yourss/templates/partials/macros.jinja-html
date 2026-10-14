@@ -2,6 +2,14 @@
 {% if channel.avatar -%}
 <img class="yourss-avatar {{ extra }}" referrerpolicy="no-referrer" src="{{ channel.avatar }}" alt="" width="{{ size }}" height="{{ size }}" />
 {%- else -%}
-<span class="yourss-avatar yourss-avatar-none {{ extra }}" aria-hidden="true">{{ channel.name[:1] }}</span>
+<img class="yourss-avatar {{ extra }}" referrerpolicy="no-referrer" src="/avatar/{{ channel.channel_id }}?n={{ channel.name[:1]|urlencode }}" alt="" width="{{ size }}" height="{{ size }}" loading="lazy" />
+{%- endif %}
+{%- endmacro %}
+
+{% macro state_marker(entry) -%}
+{% if entry.stale -%}
+<span class="yourss-state is-stale" title="Cached copy, {{ entry.age|age_text }} old: Youtube could not be reached"><svg><use href="#i-clock" /></svg></span>
+{%- elif entry.failed -%}
+<span class="yourss-state is-failed" title="{{ entry.reason }}"><svg><use href="#i-warning" /></svg></span>
 {%- endif %}
 {%- endmacro %}

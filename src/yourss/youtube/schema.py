@@ -3,7 +3,7 @@ from __future__ import annotations
 from datetime import datetime
 from urllib.parse import urlparse
 
-from pydantic import HttpUrl
+from pydantic import HttpUrl, PrivateAttr
 from pydantic_xml import BaseXmlModel, attr, element
 from rapid_api_client import ResponseModel
 
@@ -89,6 +89,9 @@ class Entry(AtomXmlModel):
 
 
 class Feed(AtomXmlModel, tag="feed"):
+    # Set by the cache reader (file mtime), None for a feed fetched live (docs/specs/fetch-errors.md §2)
+    _cached_at: datetime | None = PrivateAttr(default=None)
+
     id: str = element()
     channel_id_orig: str | None = element(tag="channelId", ns="yt", default=None)
     playlist_id: str | None = element(tag="playlistId", ns="yt", default=None)
@@ -129,3 +132,7 @@ class Feed(AtomXmlModel, tag="feed"):
     @property
     def uid(self) -> str:
         return self.playlist_id if self.playlist_id is not None else self.channel_id
+
+    @property
+    def cached_at(self) -> datetime | None:
+        return self._cached_at

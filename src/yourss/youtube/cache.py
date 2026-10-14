@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import os
-from datetime import timedelta
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
 from time import time
 
@@ -26,17 +26,18 @@ def cache_path(folder: Path, key: str, suffix: str) -> Path:
     return folder / f"{name}{suffix}"
 
 
-def _read(path: Path, max_age: timedelta | None) -> bytes | None:
-    """The file content when it exists and is younger than ``max_age`` (None: any age). Non-fatal on error."""
+def _read(path: Path, max_age: timedelta | None) -> tuple[bytes, datetime] | None:
+    """The file content and its write time when it exists and is younger than ``max_age`` (None: any age)."""
     try:
         if not path.is_file():
             return None
-        age = time() - path.stat().st_mtime
+        mtime = path.stat().st_mtime
+        age = time() - mtime
         if max_age is not None and age >= max_age.total_seconds():
             logger.debug("Cached {} is too old ({:.0f}s)", path.name, age)
             return None
         logger.debug("Reading cached {} ({:.0f}s old)", path.name, age)
-        return path.read_bytes()
+        return path.read_bytes(), datetime.fromtimestamp(mtime, UTC)
     except Exception as error:
         logger.warning("Could not read cached {}: {}", path.name, error)
         return None
@@ -69,11 +70,13 @@ def _drop(path: Path) -> None:
 
 def read_cached_feed(folder: Path, key: str, max_age: timedelta) -> Feed | None:
     """The cached feed when it exists and is younger than ``max_age``, else None."""
-    content = _read(cache_path(folder, key, ".rss"), max_age)
-    if content is None:
+    cached = _read(cache_path(folder, key, ".rss"), max_age)
+    if cached is None:
         return None
     try:
-        return Feed.from_xml(content)
+        out = Feed.from_xml(cached[0])
+        out._cached_at = cached[1]
+        return out
     except Exception as error:
         logger.warning("Could not parse the cached RSS of {}: {}", key, error)
         return None
@@ -97,11 +100,11 @@ def _channel_key(name: str) -> str:
 
 def read_cached_channel(folder: Path, name: str, max_age: timedelta | None) -> ChannelDescription | None:
     """The cached description of a channel (``UC…`` or ``@handle``) younger than ``max_age`` (None: any age)."""
-    content = _read(cache_path(folder, _channel_key(name), ".json"), max_age)
-    if content is None:
+    cached = _read(cache_path(folder, _channel_key(name), ".json"), max_age)
+    if cached is None:
         return None
     try:
-        return ChannelDescription.model_validate_json(content)
+        return ChannelDescription.model_validate_json(cached[0])
     except Exception as error:
         logger.warning("Could not parse the cached description of {}: {}", name, error)
         return None

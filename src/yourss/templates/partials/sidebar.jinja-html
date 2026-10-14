@@ -1,4 +1,4 @@
-{% from "partials/macros.jinja-html" import avatar %}
+{% from "partials/macros.jinja-html" import avatar, state_marker %}
 <aside id="yourss-sidebar" class="yourss-sidebar" aria-label="Navigation">
   <div class="yourss-sidebar-head">
     <a class="yourss-brand" href="{{ home_path|default(request.url.path) }}" title="Reload this page"><img src="{{ static_url('icons/icon-192.png') }}" width="28" height="28" alt="" /><span>You<em>RSS</em></span></a>
@@ -17,7 +17,7 @@
   </div>
 
   <nav class="yourss-nav">
-    {% if channels or playlists %}
+    {% if entries %}
     <div class="yourss-row">
       <a class="yourss-nav-item yourss-home-link" href="{{ request.url.path }}" title="The latest videos of all your channels">
         <svg><use href="#i-home" /></svg><span class="yourss-label">Home</span>
@@ -34,28 +34,28 @@
       {% endif %}
     </div>
     <ul class="yourss-channels">
-      {% for channel in channels %}
-      <li class="yourss-channel" data-channel-id="{{ channel.channel_id }}">
-        <a class="yourss-nav-item" href="{{ request.url.path }}?c={{ channel.channel_id }}" hx-get="/htmx/channel/{{ channel.channel_id }}" hx-target="#yourss-content"
-          hx-push-url="{{ request.url.path }}?c={{ channel.channel_id }}" title="{{ channel.name }}">
-          {{ avatar(channel, 28) }}
-          <span class="yourss-label">{{ channel.name }}</span>
-          <span class="yourss-badge yourss-count" data-watched-feature data-channel-id="{{ channel.channel_id }}" hidden></span>
-        </a>
-        {% if page_names is defined %}
-        <button type="button" class="yourss-icon-btn is-small yourss-row-btn yourss-remove-btn" data-action="remove-channel" data-id="{{ channel.channel_id }}" data-name="{{ channel.name }}" title="Remove {{ channel.name }} from this page" aria-label="Remove {{ channel.name }}"><svg><use href="#i-close" /></svg></button>
-        {% endif %}
-      </li>
-      {% endfor %}
-      {% for playlist in playlists %}
-      <li class="yourss-playlist" data-playlist-id="{{ playlist.playlist_id }}">
-        <a class="yourss-nav-item" href="{{ request.url.path }}?p={{ playlist.playlist_id }}" hx-get="/htmx/playlist/{{ playlist.playlist_id }}" hx-target="#yourss-content"
-          hx-push-url="{{ request.url.path }}?p={{ playlist.playlist_id }}" title="Playlist: {{ playlist.title }}">
+      {% for entry in entries %}
+      {% set label = entry.label or entry.name %}
+      {% if entry.kind == "playlist" %}
+      <li class="yourss-playlist{% if entry.failed %} is-failed{% endif %}" data-playlist-id="{{ entry.id }}">
+        <a class="yourss-nav-item" href="{{ request.url.path }}?p={{ entry.id }}" hx-get="/htmx/playlist/{{ entry.id }}" hx-target="#yourss-content" hx-sync="#yourss-content:replace"
+          hx-push-url="{{ request.url.path }}?p={{ entry.id }}" title="Playlist: {{ label }}">
           <svg><use href="#i-list" /></svg>
-          <span class="yourss-label">{{ playlist.title }}</span>
+          <span class="yourss-label">{{ label }}</span>
+          {{ state_marker(entry) }}
         </a>
+      {% else %}
+      <li class="yourss-channel{% if entry.failed %} is-failed{% endif %}" data-channel-id="{{ entry.id }}">
+        <a class="yourss-nav-item" href="{{ request.url.path }}?c={{ entry.id }}" hx-get="/htmx/channel/{{ entry.id }}" hx-target="#yourss-content" hx-sync="#yourss-content:replace"
+          hx-push-url="{{ request.url.path }}?c={{ entry.id }}" title="{{ label }}">
+          {% if entry.channel %}{{ avatar(entry.channel, 28) }}{% else %}<span class="yourss-avatar yourss-avatar-none" aria-hidden="true">{{ entry.initial }}</span>{% endif %}
+          <span class="yourss-label">{{ label }}</span>
+          {{ state_marker(entry) }}
+          <span class="yourss-badge yourss-count" data-watched-feature data-channel-id="{{ entry.id }}" hidden></span>
+        </a>
+      {% endif %}
         {% if page_names is defined %}
-        <button type="button" class="yourss-icon-btn is-small yourss-row-btn yourss-remove-btn" data-action="remove-channel" data-id="{{ playlist.playlist_id }}" data-name="{{ playlist.title }}" title="Remove {{ playlist.title }} from this page" aria-label="Remove {{ playlist.title }}"><svg><use href="#i-close" /></svg></button>
+        <button type="button" class="yourss-icon-btn is-small yourss-row-btn yourss-remove-btn" data-action="remove-channel" data-id="{{ entry.name }}" data-name="{{ label }}" title="Remove {{ label }} from this page" aria-label="Remove {{ label }}"><svg><use href="#i-close" /></svg></button>
         {% endif %}
       </li>
       {% endfor %}

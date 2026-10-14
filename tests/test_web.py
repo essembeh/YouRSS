@@ -124,12 +124,22 @@ async def test_page_content_invalid_names(client: AsyncClient) -> None:
     assert resp.status_code == 404
     assert "This page does not exist" in resp.text
 
-    # Well formed but unknown ids only add an error to the page
+    # Well formed but unknown ids stay in the sidebar, marked, and the page tells it in one line
     resp = await client.get("/" + ",".join(names[:-1]))
     assert resp.status_code == 200
     soup = BeautifulSoup(resp.text, features="html.parser")
     assert len(soup.find_all("div", id=re.compile(r"^yourss-video-"))) > 30
-    assert len(soup.find_all("div", class_="yourss-error")) == 2
+    assert soup.find("div", class_="yourss-error") is None
+    failed = soup.find_all("li", class_="is-failed")
+    # Unnamed entries are listed last, by raw id
+    assert [str(li.get("data-channel-id") or li.get("data-playlist-id")) for li in failed] == sorted(names[3:5])
+    assert all(li.find("span", class_="is-failed") is not None for li in failed)
+    (notice,) = soup.find_all("div", class_="is-warning")
+    assert "2 of 5 subscriptions could not be refreshed." in notice.get_text()
+    assert len(notice.find_all("li")) == 2
+    # A click on a failed entry is a retry: it aborts the request in flight and shows the failure state on error
+    assert all(a["hx-sync"] == "#yourss-content:replace" for li in failed for a in li.find_all("a"))
+    assert soup.find("template", id="yourss-failed-template") is not None
 
 
 @mark.parametrize("path", ["/foo", "/favicon.ico", "/robots.txt", "/foo,UCVooVnzQxPSTXTMzSi1s6uw"])
@@ -351,3 +361,23 @@ async def test_handle_in_address_points_to_the_add_form(client: AsyncClient) -> 
     soup = BeautifulSoup(resp.text, features="html.parser")
     action = soup.find("a", class_="yourss-empty-action")
     assert action is not None and action["href"] == "/"
+
+
+async def test_avatar_redirects_to_youtube(client: AsyncClient) -> None:
+    resp = await client.get(f"/avatar/{CHANNEL}")
+    assert resp.status_code == 307
+    assert "googleusercontent.com" in resp.headers["Location"]
+    assert resp.headers["Cache-Control"] == "public, max-age=86400"
+
+
+async def test_avatar_falls_back_on_the_initial(client: AsyncClient) -> None:
+    resp = await client.get("/avatar/UCAAAAAAAAAAAAAAAAAAAAAA", params={"n": "j"})
+    assert resp.status_code == 200
+    assert resp.headers["Content-Type"].startswith("image/svg+xml")
+    assert resp.headers["Cache-Control"] == "public, max-age=3600"
+    assert ">J</text>" in resp.text
+
+    resp = await client.get("/avatar/UCAAAAAAAAAAAAAAAAAAAAAA", params={"n": "<b>"})
+    assert resp.status_code == 422
+    resp = await client.get("/avatar/foo")
+    assert resp.status_code == 422

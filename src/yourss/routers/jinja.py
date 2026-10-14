@@ -10,6 +10,7 @@ from starlette.templating import Jinja2Templates, _TemplateResponse
 
 from .. import __version__
 from ..settings import current_config, static_folder, templates_folder
+from .utils import age_text
 
 
 def clean_title(text: str) -> str:
@@ -37,6 +38,7 @@ def static_url(path: str) -> str:
 jinja_env = Environment(loader=FileSystemLoader(templates_folder), autoescape=True)
 jinja_env.filters["clean_title"] = clean_title
 jinja_env.filters["date_humanize"] = date_humanize
+jinja_env.filters["age_text"] = age_text
 jinja_env.globals["static_url"] = static_url
 
 jinja = Jinja2Templates(env=jinja_env)

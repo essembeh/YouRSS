@@ -12,3 +12,6 @@ __pycache__
 
 # Tests
 /tests/feeds.txt
+
+# Development cache folder (YOURSS_CACHE_FOLDER in .env)
+/yourss-cache/

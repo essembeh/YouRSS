@@ -1,0 +1,18 @@
+{% if summary is defined %}
+<div class="yourss-notice is-warning" role="status">
+  <svg><use href="#i-warning" /></svg>
+  <span>{{ summary.line }}
+    {% if summary.details %}
+    <details>
+      <summary>Details</summary>
+      <ul>
+        {% for name, text in summary.details %}
+        <li><strong>{{ name }}</strong> <span>{{ text }}</span></li>
+        {% endfor %}
+      </ul>
+    </details>
+    {% endif %}
+  </span>
+  <button type="button" class="yourss-icon-btn is-small" data-action="dismiss" aria-label="Dismiss"><svg><use href="#i-close" /></svg></button>
+</div>
+{% endif %}

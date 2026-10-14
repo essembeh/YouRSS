@@ -171,14 +171,23 @@ html:has(dialog[open]) { overflow: hidden; }
 }
 
 /* ---- errors ---- */
-.yourss-errors { display: flex; flex-direction: column; gap: .4rem; margin-bottom: 1rem; }
-.yourss-error { display: flex; align-items: center; gap: .75rem; padding: .5rem .5rem .5rem .9rem; border-radius: var(--radius); background: var(--err-bg); border: 1px solid var(--err-line); font-size: .9rem; }
-.yourss-error span { flex: 1; word-break: break-word; }
-
-/* ---- notice (bookmark reminder after an edit) ---- */
+/* ---- notices: bookmark reminder after an edit, fetch status of the page ---- */
 .yourss-notice { display: flex; align-items: center; flex-wrap: wrap; gap: .5rem .75rem; margin-bottom: 1rem; padding: .6rem .6rem .6rem .9rem; border-radius: var(--radius); background: var(--accent-soft); border: 1px solid var(--accent); font-size: .9rem; }
 .yourss-notice > svg { width: 20px; height: 20px; color: var(--accent); }
 .yourss-notice > span { flex: 1 1 14rem; }
+.yourss-notice.is-warning { background: var(--err-bg); border-color: var(--err-line); }
+.yourss-notice.is-warning > svg { color: var(--amber); }
+.yourss-notice details { margin-top: .3rem; }
+.yourss-notice summary { cursor: pointer; color: var(--fg-muted); font-size: .85rem; }
+.yourss-notice details ul { margin: .35rem 0 0; padding-left: 1.1rem; display: grid; gap: .15rem; font-size: .85rem; }
+.yourss-notice details li span { color: var(--fg-muted); }
+
+/* ---- state of a subscription in the sidebar (stale copy, failed fetch) ---- */
+.yourss-state { display: inline-grid; place-items: center; flex: none; width: 18px; height: 18px; }
+.yourss-nav-item .yourss-state svg { width: 16px; height: 16px; }
+.yourss-nav-item .yourss-state.is-stale svg { color: var(--amber); }
+.yourss-nav-item .yourss-state.is-failed svg { color: var(--accent); }
+.yourss-channel.is-failed .yourss-label, .yourss-playlist.is-failed .yourss-label { color: var(--fg-muted); }
 
 /* ---- add a channel: form of the dialog and of the home page ---- */
 /* Wider than the other dialogs: the address of a video must fit in the field */

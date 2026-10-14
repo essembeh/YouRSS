@@ -1,6 +1,6 @@
 {% extends "pages/base.jinja-html" %}
 {% block content %}
-{% include "partials/errors.jinja-html" %}
+{% include "partials/fetch-status.jinja-html" %}
 {% if page_names is defined %}
 <div id="yourss-bookmark" class="yourss-notice" role="status" hidden>
   <svg><use href="#i-bookmark" /></svg>
