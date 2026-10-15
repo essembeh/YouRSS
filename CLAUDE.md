@@ -21,7 +21,7 @@ Principles, in order of importance when they conflict:
    density, watched videos) lives in the browser, in `localStorage`.
 4. **Cache as little as possible.** One server cache, on disk, that can be turned off: the feeds
    for a few minutes (and up to two days when YouTube fails) and the channel names and avatars for
-   a day. Nothing else, and never media.
+   a week. Nothing else, and never media.
 5. **Stay light.** One small FastAPI application, server-rendered templates, htmx for the dynamic
    parts, vanilla CSS and JavaScript. No front-end framework, no build step.
 6. **Everything is a URL.** `/UC…,PL…` (channel and playlist ids in the URL), `/u/<name>` (a

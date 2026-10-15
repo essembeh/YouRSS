@@ -34,7 +34,7 @@ the application. The meaning of each setting is documented in the
 | `yourss.cacheFolder` | `""` | `YOURSS_CACHE_FOLDER`, only set when not empty |
 | `yourss.cacheRssTtl` | `PT30M` | `YOURSS_CACHE_RSS_TTL` |
 | `yourss.cacheRssFallbackTtl` | `PT48H` | `YOURSS_CACHE_RSS_FALLBACK_TTL` |
-| `yourss.cacheMetadataTtl` | `PT24H` | `YOURSS_CACHE_METADATA_TTL` |
+| `yourss.cacheMetadataTtl` | `P7D` | `YOURSS_CACHE_METADATA_TTL` |
 | `yourss.users` | `[]` | `YOURSS_USERS_FILE`, see below |
 | `yourss.extraEnv` | `[]` | any other variable, as a list of `name` / `value` |
 

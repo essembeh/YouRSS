@@ -37,7 +37,7 @@ yourss:
   cacheRssFallbackTtl: PT48H
   # YOURSS_CACHE_METADATA_TTL: how long the name and avatar of a channel are served without
   # scraping its page (ISO-8601 duration or seconds)
-  cacheMetadataTtl: PT24H
+  cacheMetadataTtl: P7D
   # YOURSS_USERS_FILE: user pages, stored in a Secret since they may hold passwords
   users:
     []

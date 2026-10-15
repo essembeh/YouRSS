@@ -30,7 +30,7 @@ class AppSettings(BaseSettings):
     # When the fetch fails, a cached feed younger than this is served instead of the error
     cache_rss_fallback_ttl: timedelta = timedelta(hours=48)
     # A cached channel description younger than this is served without scraping Youtube
-    cache_metadata_ttl: timedelta = timedelta(hours=24)
+    cache_metadata_ttl: timedelta = timedelta(days=7)
 
     @model_validator(mode="after")
     def _check_cache_ttls(self) -> Self:
