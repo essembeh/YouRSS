@@ -2,6 +2,26 @@ apiVersion: v1
 entries:
   yourss:
   - apiVersion: v2
+    appVersion: 0.81.2
+    created: "2026-10-15T11:45:55.088242386Z"
+    description: Simple Youtube browser based on RSS feeds
+    digest: 9b0ac9d4eb39a0174e8b2132c2f1c5088caade5c183bbccfe26f3852b37587d8
+    home: https://github.com/essembeh/YouRSS
+    icon: https://raw.githubusercontent.com/essembeh/YouRSS/main/src/yourss/static/icons/icon-192.png
+    keywords:
+    - youtube
+    - rss
+    maintainers:
+    - email: essembeh@users.noreply.github.com
+      name: Sébastien MB
+    name: yourss
+    sources:
+    - https://github.com/essembeh/YouRSS
+    type: application
+    urls:
+    - https://github.com/essembeh/YouRSS/releases/download/yourss-0.81.2/yourss-0.81.2.tgz
+    version: 0.81.2
+  - apiVersion: v2
     appVersion: 0.81.1
     created: "2026-10-14T14:41:52.095573463Z"
     description: Simple Youtube browser based on RSS feeds
@@ -525,4 +545,4 @@ entries:
     urls:
     - https://github.com/essembeh/YouRSS/releases/download/yourss-0.6.0/yourss-0.6.0.tgz
     version: 0.6.0
-generated: "2026-10-14T14:41:52.095798035Z"
+generated: "2026-10-15T11:45:55.088382818Z"
