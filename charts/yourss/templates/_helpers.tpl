@@ -60,3 +60,17 @@ Create the name of the service account to use
 {{- default "default" .Values.serviceAccount.name }}
 {{- end }}
 {{- end }}
+
+{{/*
+Whether the warmup job loads the page of a user, given (list $ user): the user is selected by
+warmup.users (every user when empty) and has no password, or a clear one the job can send
+*/}}
+{{- define "yourss.warmable" -}}
+{{- $names := (index . 0).Values.warmup.users }}
+{{- $user := index . 1 }}
+{{- if and (or (not $names) (has $user.name $names)) (include "yourss.clearPassword" $user) }}true{{ end }}
+{{- end }}
+
+{{- define "yourss.clearPassword" -}}
+{{- if or (not .password) (eq (toString .password.method) "clear") }}true{{ end }}
+{{- end }}

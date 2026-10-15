@@ -138,6 +138,28 @@ autoscaling:
   targetCPUUtilizationPercentage: 80
   # targetMemoryUtilizationPercentage: 80
 
+# Keep the cache warm: a CronJob loads every user page on a schedule, so that a visitor finds the
+# feeds and the channel metadata already on disk. A page whose user has an argon2 password cannot
+# be loaded by the job and is skipped; a clear password is sent as the visitor would
+warmup:
+  enabled: false
+  # Cron expression, in yourss.timezone. A run refreshes the feeds older than yourss.cacheRssTtl
+  schedule: "0 * * * *"
+  # Names of the users to warm up, every user when empty
+  users: []
+  # Seconds given to each page, cold pages scrape one Youtube page per channel
+  timeout: 120
+  image:
+    repository: curlimages/curl
+    tag: 8.23.0
+    pullPolicy: IfNotPresent
+  resources:
+    requests:
+      cpu: 10m
+      memory: 32Mi
+    limits:
+      memory: 64Mi
+
 # Additional volumes on the output Deployment definition.
 volumes: []
 # - name: foo

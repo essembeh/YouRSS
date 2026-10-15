@@ -59,6 +59,25 @@ there.
 
 Durations are ISO-8601 (`PT30M`, `PT48H`) or a number of seconds.
 
+### Warmup
+
+`warmup.enabled: true` adds a `CronJob` that loads every user page (`/u/<name>`) on
+`warmup.schedule` (hourly by default, in `yourss.timezone`), so that the feeds and the channel
+metadata are already on disk when a visitor comes. A run refreshes what is older than
+`cacheRssTtl`: a schedule shorter than that TTL does nothing, a longer one leaves the feeds cold
+between their expiry and the next run. The job asks Youtube whether anyone visits or not, which
+is why it is off by default.
+
+`warmup.users` restricts the job to some user names, every user is loaded when it is empty. The
+job sends a clear password as a visitor would, through a curl config file stored in a `Secret`.
+A page whose user has an argon2 password cannot be loaded: it is skipped and the install notes
+list it, unless it is named in `warmup.users`, which is an error. The job fails when a page could not be loaded (pod unreachable, wrong password,
+timeout), after trying all of them; a page whose feeds failed on Youtube's side still answers
+200, those errors are in the application logs. It needs `yourss.users` and `cacheEnabled`:
+nothing is rendered otherwise.
+
+With several replicas each pod has its own cache and the job only reaches one of them.
+
 ### User pages
 
 `yourss.users` declares the pages served at `/u/<name>`. The list is rendered to a `Secret`,
@@ -99,5 +118,11 @@ A channel is a channel id (`UC…`) or a handle (`@…`), a playlist is its id (
 | `resources.requests` | `50m` CPU, `256Mi` memory | the CPU request is required by the HPA |
 | `resources.limits` | `512Mi` memory, no CPU limit | the application is I/O-bound and bursty |
 | `autoscaling.enabled` | `false` | `minReplicas` 1, `maxReplicas` 3, `targetCPUUtilizationPercentage` 80 |
+| `warmup.enabled` | `false` | a `CronJob` loading every user page, see Warmup above |
+| `warmup.schedule` | `0 * * * *` | cron expression, in `yourss.timezone` |
+| `warmup.users` | `[]` | names of the users to warm up, every user when empty |
+| `warmup.timeout` | `120` | seconds given to each page |
+| `warmup.image` | `curlimages/curl:8.23.0` | `repository`, `tag`, `pullPolicy` |
+| `warmup.resources` | `10m` CPU, `32Mi` / `64Mi` memory | |
 | `volumes`, `volumeMounts` | `[]` | extra volumes, for example a persistent cache folder |
 | `nodeSelector`, `tolerations`, `affinity` | `{}` / `[]` | |
