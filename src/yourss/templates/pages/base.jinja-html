@@ -57,7 +57,10 @@
   <button id="scroll-to-top" type="button" data-action="scroll-top" title="Back to top"><svg><use href="#i-up" /></svg></button>
 
   <script src="https://unpkg.com/htmx.org@2.0.11" integrity="sha384-2OatzQy1H+Zd/IIrjr1TcuDGqLXeHhbooAyJY1KdQMKnr4LZ22k31GBLdYKHmVjg" crossorigin="anonymous"></script>
-  <script src="{{ static_url('yourss.js') }}"></script>
+  <script type="importmap">
+    {"imports": {"yourss/core": "{{ static_url('yourss-core.js') }}", "yourss/watched": "{{ static_url('yourss-watched.js') }}", "yourss/player": "{{ static_url('yourss-player.js') }}"}}
+  </script>
+  <script type="module" src="{{ static_url('yourss.js') }}"></script>
 </body>
 
 </html>

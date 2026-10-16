@@ -4,17 +4,17 @@
 
 > A minimal Youtube RSS feed viewer for your browser: the latest videos of the channels you chose, on one page. No account, no registration, no ads, no recommendations, no tracking.
 
-![YouRSS on desktop and on mobile, with the neon theme](./images/yourss_hero.png)
+![YouRSS on desktop and on mobile: a page in folders, a channel opened inside its folder (neon theme)](./images/yourss_hero.png)
 
 <details>
 <summary>More screenshots</summary>
 
-| The player takes the whole row | A channel, opened inside the page |
+| The player takes the whole row | A channel, opened inside its folder |
 | --- | --- |
 | ![Player](./images/yourss_player.png) | ![Channel view](./images/yourss_channel.png) |
 
 <p align="center">
-  <img src="./images/yourss_mobile_menu.png" alt="YouRSS on mobile: the subscriptions" width="30%">
+  <img src="./images/yourss_mobile_menu.png" alt="YouRSS on mobile: the folders and their channels" width="30%">
   <img src="./images/yourss_mobile_settings.png" alt="YouRSS on mobile: the settings" width="30%">
 </p>
 
@@ -41,7 +41,7 @@ No account: your subscriptions are the address of your page.
 - a subscription is removed from the sidebar
 - each change gives a new address, made of ids only (example https://yourss.domain.tld/UCVooVnzQxPSTXTMzSi1s6uw,PLw-vK1_d04zZCal3yMX_T23h5nDJ2toTk): bookmark it, share it, open it on another device. Nothing is stored on the server
 
-The administrator of an instance can also declare *user* pages, short names for a list of channels and playlists (`/u/<name>`), and can turn custom pages off.
+The administrator of an instance can also declare *user* pages, short names for a list of channels and playlists (`/u/<name>`), flat or split in folders, and can turn custom pages off.
 
 ### 📰 One page for all your subscriptions
 
@@ -163,6 +163,23 @@ To configure users:
 - see [sample `users.yaml`](./samples/users.yaml) for example
 - *user* page can be protected by a *password* (configurable using plain text passwords or argon2 hash)
 
+A *user* page can be split in *folders*, one per interest, each with its own home: declare `folders` instead of `channels`.
+The sidebar lists the folders, one open at a time, and the page of a folder is `http://my-yourss-instance/u/alice?f=Fun`
+(without `?f=`, the page opens the last folder visited in this browser).
+
+```yaml
+users:
+  - name: alice
+    folders:
+      - name: Fun         # like a user name: letters, digits, - and _, 32 characters at most
+        channels:
+          - "@ben-j"
+          - "@JonnyGiger"
+      - name: Serious
+        channels:
+          - UCYO_jab_esuFRV4b17AJtAw
+```
+
 ## 🚫 Disable custom pages
 
 By default any visitor can build a page by putting channels in its URL, and the home page explains how.
@@ -181,7 +198,7 @@ The administrator of an instance can turn this off, for example to keep the inst
 - you can browse multiple channels and playlists in a single page, their ids separated by commas: `http://yourss.local/UCVooVnzQxPSTXTMzSi1s6uw,UCQsmxaMzYr76Yd1iqMEq8TA`
 - an address only holds ids: to add a channel by its handle (`@jonnygiger`) or its address, use the add form, which resolves it
 - click a channel in the sidebar of a page to browse its homepage (recent videos, videos, shorts, streams)
-- if you defined some *users*, for example `demo`, the page can be accessed at `http://yourss.local/u/demo`
+- if you defined some *users*, for example `bob`, the page can be accessed at `http://yourss.local/u/bob`, and a folder of a user in folders at `http://yourss.local/u/alice?f=Fun`
 
 > Note: replace `yourss.local` with the URL of your *YouRSS* instance.
 

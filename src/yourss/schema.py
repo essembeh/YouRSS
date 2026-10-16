@@ -1,7 +1,7 @@
 from datetime import timedelta
 from enum import Enum
 from pathlib import Path
-from typing import Self
+from typing import Annotated, Self
 
 from pydantic import BaseModel, Field, SecretStr, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -49,10 +49,37 @@ class Password(BaseModel):
     value: SecretStr
 
 
+# Channel ids, handles and playlist ids, at least one
+Channels = Annotated[list[str], Field(min_length=1)]
+# A user or folder name: in the URL (`/u/<name>`, `?f=<name>`) and a Secret key in the Helm chart
+Name = Annotated[str, Field(pattern=r"^[A-Za-z0-9][A-Za-z0-9_-]{0,31}$")]
+
+
+class Folder(BaseModel):
+    """A folder of a user page (docs/specs/folders-model.md): its name is in the URL, `?f=<name>`."""
+
+    name: Name
+    channels: Channels
+
+
 class User(BaseModel):
-    name: str
+    name: Name
     password: Password | None = None
-    channels: list[str] = Field(min_length=1)
+    # A flat page (channels) or a page in folders, never both
+    channels: Channels | None = None
+    folders: Annotated[list[Folder], Field(min_length=1)] | None = None
+
+    @model_validator(mode="after")
+    def _check_content(self) -> Self:
+        if (self.channels is None) == (self.folders is None):
+            raise ValueError("a user has either channels or folders")
+        names = [folder.name for folder in self.folders or []]
+        if len(set(names)) != len(names):
+            raise ValueError("the folders of a user have distinct names")
+        return self
+
+    def folder(self, name: str) -> Folder | None:
+        return next((folder for folder in self.folders or [] if folder.name == name), None)
 
 
 class UsersConfig(BaseModel):

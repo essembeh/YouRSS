@@ -1,6 +1,6 @@
 {% extends "pages/base.jinja-html" %}
 {% block content %}
-{% include "partials/fetch-status.jinja-html" %}
+<div id="yourss-fetch-status">{% include "partials/fetch-status.jinja-html" %}</div>
 {% if page_names is defined %}
 <div id="yourss-bookmark" class="yourss-notice" role="status" hidden>
   <svg><use href="#i-bookmark" /></svg>
@@ -10,6 +10,15 @@
 </div>
 {% endif %}
 <div id="yourss-content" hx-history-elt>
+  {% if folder is defined %}
+  <div data-folder-page="{{ folder.name }}">{% include "partials/videos-container.jinja-html" %}</div>
+  {% elif folders is defined %}
+  <div class="yourss-empty">
+    <strong>Choose a folder</strong>
+    <span>Open a folder of the sidebar to read the latest videos of its channels.</span>
+  </div>
+  {% else %}
   {% include "partials/videos-container.jinja-html" %}
+  {% endif %}
 </div>
 {% endblock %}

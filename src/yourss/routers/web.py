@@ -1,5 +1,5 @@
 from html import escape
-from typing import Annotated, TypedDict
+from typing import Annotated
 
 from fastapi import APIRouter, Depends, Path, Query, Request
 from fastapi.responses import FileResponse, RedirectResponse
@@ -8,14 +8,14 @@ from pydantic import ValidationError
 from starlette.responses import HTMLResponse, Response
 from starlette.status import HTTP_403_FORBIDDEN, HTTP_404_NOT_FOUND, HTTP_422_UNPROCESSABLE_CONTENT
 
-from ..async_utils import SubscriptionStatus, async_fetch
+from ..async_utils import async_fetch
 from ..schema import User
 from ..security import get_auth_user
 from ..settings import current_config, static_folder
-from ..youtube import VideoDescription, YoutubeApi
+from ..youtube import YoutubeApi
 from .jinja import template_page
 from .schema import SUBSCRIPTIONS, SUBSCRIPTIONS_PATTERN, TOO_MANY, ChannelId
-from .utils import FetchSummary, canonical_names, fetch_summary, get_videos_from_feeds, page_entries
+from .utils import canonical_names, folder_link_prefix, page_context
 
 router = APIRouter()
 
@@ -70,24 +70,6 @@ async def avatar(channel_id: ChannelId, n: Annotated[str, Query(max_length=1)] =
     return Response(initial_svg(initial), media_type="image/svg+xml", headers={"Cache-Control": "public, max-age=3600"})
 
 
-class PageContext(TypedDict):
-    """What the view template gets from the statuses: sidebar entries, videos, notice."""
-
-    entries: list[SubscriptionStatus]
-    videos: list[VideoDescription]
-    summary: FetchSummary | None
-
-
-def _page_context(statuses: list[SubscriptionStatus]) -> PageContext:
-    feeds = [s.feed for s in statuses if s.feed is not None]
-    channels = {s.channel.channel_id: s.channel for s in statuses if s.channel is not None}
-    return {
-        "entries": page_entries(statuses),
-        "videos": get_videos_from_feeds(feeds, channels),
-        "summary": fetch_summary(statuses),
-    }
-
-
 @router.get("/apple-touch-icon.png", response_class=FileResponse)
 @router.get("/apple-touch-icon-precomposed.png", response_class=FileResponse)
 async def apple_touch_icon() -> FileResponse:
@@ -98,16 +80,47 @@ async def apple_touch_icon() -> FileResponse:
 
 
 @router.get("/u/{username}", response_class=HTMLResponse)
-async def user(request: Request, user: User = Depends(get_auth_user)) -> HTMLResponse:
-    statuses = await async_fetch(user.channels, api=YoutubeApi())
-    names = canonical_names(statuses)
+async def user(
+    request: Request,
+    user: User = Depends(get_auth_user),
+    f: Annotated[str | None, Query(description="The folder to open, for a user in folders")] = None,
+) -> HTMLResponse:
+    if user.folders is None:
+        statuses = await async_fetch(user.channels or [], api=YoutubeApi())
+        names = canonical_names(statuses)
+        return template_page(
+            request,
+            "pages/view.jinja-html",
+            title=f"/u/{user.name}",
+            **page_context(statuses),
+            # A user page is read-only: it only offers its multi channel copy
+            copy_url="/" + ",".join(names) if current_config.custom_pages_enabled else None,
+        )
+    # A page in folders renders the folder of the URL; without one, the script picks it (docs/specs/folders-model.md)
+    folder = user.folder(f) if f else None
+    if f and folder is None:
+        return template_page(
+            request,
+            "pages/error.jinja-html",
+            status_code=HTTP_404_NOT_FOUND,
+            title="This folder does not exist",
+            message=f"The page /u/{user.name} has no such folder.",
+            home_link=True,
+        )
+    if folder is None:
+        return template_page(
+            request, "pages/view.jinja-html", title=f"/u/{user.name}", user_name=user.name, folders=user.folders
+        )
+    statuses = await async_fetch(folder.channels, api=YoutubeApi())
     return template_page(
         request,
         "pages/view.jinja-html",
-        title=f"/u/{user.name}",
-        **_page_context(statuses),
-        # A user page is read-only: it only offers its multi channel copy
-        copy_url="/" + ",".join(names) if current_config.custom_pages_enabled else None,
+        title=f"{folder.name} - /u/{user.name}",
+        link_prefix=folder_link_prefix(user.name, folder.name),
+        user_name=user.name,
+        folders=user.folders,
+        folder=folder,
+        **page_context(statuses),
     )
 
 
@@ -154,7 +167,7 @@ async def page(
             home_link=True,
         )
     statuses = await async_fetch(ids, api=YoutubeApi())
-    context = _page_context(statuses)
+    context = page_context(statuses)
     return template_page(
         request,
         "pages/view.jinja-html",

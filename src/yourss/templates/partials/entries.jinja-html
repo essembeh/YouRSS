@@ -1,0 +1,26 @@
+{% from "partials/macros.jinja-html" import avatar, state_marker %}
+    {% for entry in entries %}
+    {% set label = entry.label or entry.name %}
+    {% if entry.kind == "playlist" %}
+    <li class="yourss-playlist{% if entry.failed %} is-failed{% endif %}" data-playlist-id="{{ entry.id }}">
+      <a class="yourss-nav-item" href="{{ link_prefix }}p={{ entry.id }}" hx-get="/htmx/playlist/{{ entry.id }}" hx-target="#yourss-content" hx-sync="#yourss-content:replace"
+        hx-push-url="{{ link_prefix }}p={{ entry.id }}" title="Playlist: {{ label }}">
+        <svg><use href="#i-list" /></svg>
+        <span class="yourss-label">{{ label }}</span>
+        {{ state_marker(entry) }}
+      </a>
+    {% else %}
+    <li class="yourss-channel{% if entry.failed %} is-failed{% endif %}" data-channel-id="{{ entry.id }}">
+      <a class="yourss-nav-item" href="{{ link_prefix }}c={{ entry.id }}" hx-get="/htmx/channel/{{ entry.id }}" hx-target="#yourss-content" hx-sync="#yourss-content:replace"
+        hx-push-url="{{ link_prefix }}c={{ entry.id }}" title="{{ label }}">
+        {% if entry.channel %}{{ avatar(entry.channel, 28) }}{% else %}<span class="yourss-avatar yourss-avatar-none" aria-hidden="true">{{ entry.initial }}</span>{% endif %}
+        <span class="yourss-label">{{ label }}</span>
+        {{ state_marker(entry) }}
+        <span class="yourss-badge yourss-count" data-watched-feature data-channel-id="{{ entry.id }}" hidden></span>
+      </a>
+    {% endif %}
+      {% if page_names is defined %}
+      <button type="button" class="yourss-icon-btn is-small yourss-row-btn yourss-remove-btn" data-action="remove-channel" data-id="{{ entry.name }}" data-name="{{ label }}" title="Remove {{ label }} from this page" aria-label="Remove {{ label }}"><svg><use href="#i-close" /></svg></button>
+      {% endif %}
+    </li>
+    {% endfor %}

@@ -1,0 +1,9 @@
+{# One htmx response: the Home of the folder, then its sidebar entries, its notice and the title out of band #}
+<title>{{ folder.name }} - /u/{{ user_name }} - YouRSS</title>
+<div data-folder-page="{{ folder.name }}">
+  {% include "partials/videos-container.jinja-html" %}
+</div>
+<ul id="yourss-folder-list-{{ folder.name }}" class="yourss-channels" data-folder-list="{{ folder.name }}" hx-swap-oob="true">
+  {% include "partials/entries.jinja-html" %}
+</ul>
+<div id="yourss-fetch-status" hx-swap-oob="true">{% include "partials/fetch-status.jinja-html" %}</div>

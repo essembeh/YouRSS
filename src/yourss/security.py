@@ -30,18 +30,21 @@ def verify_password(user: User, value: str) -> bool:
     raise ValueError("Invalid password method")
 
 
-def find_user(username: str) -> User | None:
+def list_users() -> list[User]:
+    """The users of the file, in its order; none without a file or when it cannot be read."""
     from .settings import current_config
 
-    if current_config.users_file is not None and current_config.users_file.exists():
-        try:
-            config = parse_yaml_raw_as(UsersConfig, current_config.users_file.read_bytes())
-            for user in config.users:
-                if user.name == username:
-                    return user
-        except Exception as error:
-            logger.exception(error)
-    return None
+    if current_config.users_file is None or not current_config.users_file.exists():
+        return []
+    try:
+        return list(parse_yaml_raw_as(UsersConfig, current_config.users_file.read_bytes()).users)
+    except Exception as error:
+        logger.exception(error)
+        return []
+
+
+def find_user(username: str) -> User | None:
+    return next((user for user in list_users() if user.name == username), None)
 
 
 async def get_auth_user(request: Request, user: User | None = Depends(find_user)) -> User:

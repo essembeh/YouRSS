@@ -53,12 +53,19 @@ yourss:
     #     # channels can be
     #     #  a channel_id (starting with UC) like UCVooVnzQxPSTXTMzSi1s6uw
     #     #  a user (starting with @) like @jonnygiger
+    #     #  a playlist id (starting with PL)
     #     - "@jonnygiger"
     #     - "@berrics"
-    # - name: demo
-    #   channels:
-    #     - "@jonnygiger"
-    #     - "@berrics"
+    # # A page in folders, each with its own Home (/u/bob?f=skate): folders instead of channels
+    # - name: bob
+    #   folders:
+    #     - name: skate
+    #       channels:
+    #         - "@jonnygiger"
+    #         - "@berrics"
+    #     - name: magic
+    #       channels:
+    #         - UCQsmxaMzYr76Yd1iqMEq8TA
 
   # Additional environment variables for the container
   extraEnv: []

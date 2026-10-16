@@ -15,3 +15,6 @@ __pycache__
 
 # Development cache folder (YOURSS_CACHE_FOLDER in .env)
 /yourss-cache/
+
+# The users file of the private instance, generated from its GitOps values
+/samples/users-seb.yaml

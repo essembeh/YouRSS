@@ -1,6 +1,6 @@
 from datetime import UTC, datetime, timedelta
-from typing import Any
-from urllib.parse import urlencode
+from typing import Any, TypedDict
+from urllib.parse import quote, urlencode
 
 from pydantic import BaseModel
 
@@ -126,3 +126,26 @@ def get_videos_from_feeds(feeds: list[Feed], channels: dict[str, ChannelDescript
     out.sort(key=lambda v: v.published_at or _OLDEST, reverse=True)
     # A video present in two feeds (a channel and one of its playlists) is listed once
     return list({video.video_id: video for video in reversed(out)}.values())[::-1]
+
+
+class PageContext(TypedDict):
+    """What a page or a folder gets from the statuses: sidebar entries, videos, notice."""
+
+    entries: list[SubscriptionStatus]
+    videos: list[VideoDescription]
+    summary: FetchSummary | None
+
+
+def page_context(statuses: list[SubscriptionStatus]) -> PageContext:
+    feeds = [s.feed for s in statuses if s.feed is not None]
+    channels = {s.channel.channel_id: s.channel for s in statuses if s.channel is not None}
+    return {
+        "entries": page_entries(statuses),
+        "videos": get_videos_from_feeds(feeds, channels),
+        "summary": fetch_summary(statuses),
+    }
+
+
+def folder_link_prefix(user_name: str, folder_name: str) -> str:
+    """Start of the links of a folder page, `<prefix>c=<id>`: the folder is kept whatever the URL of the request."""
+    return f"/u/{quote(user_name)}?f={quote(folder_name)}&"

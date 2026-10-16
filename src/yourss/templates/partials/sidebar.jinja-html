@@ -17,7 +17,28 @@
   </div>
 
   <nav class="yourss-nav">
-    {% if entries %}
+    {% if folders is defined %}
+    {# A page in folders (docs/specs/folders-model.md): a tree, one folder open at a time, its row is its Home #}
+    {% set page = "/u/" ~ (user_name|urlencode) %}
+    {% for item in folders %}
+    {% set name = item.name|urlencode %}
+    {% set current = folder is defined and folder.name == item.name %}
+    <details class="yourss-folder" name="yourss-folder" data-folder="{{ item.name }}"{% if current %} open{% endif %}>
+      <summary class="yourss-nav-item" title="The latest videos of {{ item.name }}" hx-get="/htmx/folder/{{ user_name|urlencode }}/{{ name }}" hx-target="#yourss-content" hx-sync="#yourss-content:replace"
+        hx-push-url="{{ page }}?f={{ name }}" hx-trigger="click[!event.target.closest('.yourss-caret, [data-action]')]">
+        <button type="button" class="yourss-caret" title="Fold / unfold" aria-label="Fold / unfold"><svg><use href="#i-chevron" /></svg></button>
+        <span class="yourss-label">{{ item.name }}</span>
+        <span class="yourss-badge yourss-count" data-watched-feature data-folder-count="{{ item.name }}" hidden></span>
+        <button type="button" class="yourss-icon-btn is-small yourss-row-btn" data-watched-feature data-action="mark-feed-watched" title="Mark every video of this folder as watched"><svg><use href="#i-check-all" /></svg></button>
+      </summary>
+      <ul id="yourss-folder-list-{{ item.name }}" class="yourss-channels" data-folder-list="{{ item.name }}">
+        {% if current %}
+        {% include "partials/entries.jinja-html" %}
+        {% endif %}
+      </ul>
+    </details>
+    {% endfor %}
+    {% elif entries %}
     <div class="yourss-row">
       <a class="yourss-nav-item yourss-home-link" href="{{ request.url.path }}" title="The latest videos of all your channels">
         <svg><use href="#i-home" /></svg><span class="yourss-label">Home</span>
@@ -33,32 +54,9 @@
       <a class="yourss-icon-btn is-small yourss-row-btn yourss-copy-page" href="{{ copy_url }}" title="This page is read-only: customize a copy of it" aria-label="Customize a copy of this page"><svg><use href="#i-edit" /></svg></a>
       {% endif %}
     </div>
+    {% set link_prefix = request.url.path ~ "?" %}
     <ul class="yourss-channels">
-      {% for entry in entries %}
-      {% set label = entry.label or entry.name %}
-      {% if entry.kind == "playlist" %}
-      <li class="yourss-playlist{% if entry.failed %} is-failed{% endif %}" data-playlist-id="{{ entry.id }}">
-        <a class="yourss-nav-item" href="{{ request.url.path }}?p={{ entry.id }}" hx-get="/htmx/playlist/{{ entry.id }}" hx-target="#yourss-content" hx-sync="#yourss-content:replace"
-          hx-push-url="{{ request.url.path }}?p={{ entry.id }}" title="Playlist: {{ label }}">
-          <svg><use href="#i-list" /></svg>
-          <span class="yourss-label">{{ label }}</span>
-          {{ state_marker(entry) }}
-        </a>
-      {% else %}
-      <li class="yourss-channel{% if entry.failed %} is-failed{% endif %}" data-channel-id="{{ entry.id }}">
-        <a class="yourss-nav-item" href="{{ request.url.path }}?c={{ entry.id }}" hx-get="/htmx/channel/{{ entry.id }}" hx-target="#yourss-content" hx-sync="#yourss-content:replace"
-          hx-push-url="{{ request.url.path }}?c={{ entry.id }}" title="{{ label }}">
-          {% if entry.channel %}{{ avatar(entry.channel, 28) }}{% else %}<span class="yourss-avatar yourss-avatar-none" aria-hidden="true">{{ entry.initial }}</span>{% endif %}
-          <span class="yourss-label">{{ label }}</span>
-          {{ state_marker(entry) }}
-          <span class="yourss-badge yourss-count" data-watched-feature data-channel-id="{{ entry.id }}" hidden></span>
-        </a>
-      {% endif %}
-        {% if page_names is defined %}
-        <button type="button" class="yourss-icon-btn is-small yourss-row-btn yourss-remove-btn" data-action="remove-channel" data-id="{{ entry.name }}" data-name="{{ label }}" title="Remove {{ label }} from this page" aria-label="Remove {{ label }}"><svg><use href="#i-close" /></svg></button>
-        {% endif %}
-      </li>
-      {% endfor %}
+      {% include "partials/entries.jinja-html" %}
     </ul>
     {% endif %}
   </nav>

@@ -144,6 +144,18 @@ html:has(dialog[open]) { overflow: hidden; }
 .yourss-row { display: flex; align-items: center; gap: 2px; }
 .yourss-row .yourss-nav-item { flex: 1; }
 .yourss-channels { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 2px; }
+/* Folders page: a tree of <details>, one open at a time (docs/specs/folders-poc.md) */
+.yourss-folder > summary { list-style: none; cursor: pointer; font-weight: 600; user-select: none; }
+.yourss-folder > summary::-webkit-details-marker { display: none; }
+.yourss-caret { flex: none; display: inline-grid; place-items: center; width: 26px; height: 26px; margin-left: -4px; padding: 0; border: 0; border-radius: 6px; background: transparent; color: var(--fg-muted); cursor: pointer; }
+.yourss-caret:hover { background: var(--bg-hover); color: var(--fg); }
+.yourss-nav-item .yourss-caret svg { width: 18px; height: 18px; transition: transform .18s; }
+.yourss-folder[open] > summary .yourss-caret svg { transform: rotate(90deg); }
+.yourss-folder > .yourss-channels { margin-left: 1rem; }
+body.rail .yourss-folder > .yourss-channels { margin-left: 0; }
+body.rail .yourss-caret { display: none; }
+/* A tap leaves :hover stuck on touch screens: only the active row is highlighted there */
+@media (hover: none) { .yourss-nav-item:not(.active):hover { background: transparent; box-shadow: none; } }
 .yourss-channel, .yourss-playlist { display: flex; align-items: center; gap: 2px; }
 .yourss-channel .yourss-nav-item, .yourss-playlist .yourss-nav-item { flex: 1; }
 /* Removing a channel from an editable page: the command shows up on its row */
