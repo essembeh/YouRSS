@@ -4,7 +4,7 @@ from bs4 import BeautifulSoup
 from httpx import AsyncClient, BasicAuth
 from pytest import MonkeyPatch, mark
 
-from yourss.settings import current_config
+from yourss.settings import current_config, static_folder
 from yourss.youtube import YoutubeApi
 
 # What htmx sends with each of its requests
@@ -146,6 +146,18 @@ async def test_page_content_invalid_names(client: AsyncClient) -> None:
 async def test_stray_path_is_not_a_page(client: AsyncClient, path: str) -> None:
     resp = await client.get(path)
     assert resp.status_code == 404
+
+
+@mark.parametrize("path", ["/apple-touch-icon.png", "/apple-touch-icon-precomposed.png"])
+async def test_apple_touch_icon_at_the_root(client: AsyncClient, path: str) -> None:
+    # iOS probes these addresses when it cannot read the page, and the page links the icon without a version
+    resp = await client.get(path)
+    assert resp.status_code == 200
+    assert resp.headers["content-type"] == "image/png"
+    assert resp.headers["cache-control"] == "public, max-age=3600"
+    assert resp.content == (static_folder / "icons" / "apple-touch-icon.png").read_bytes()
+    page = await client.get("/")
+    assert '<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />' in page.text
 
 
 CHANNEL = "UCVooVnzQxPSTXTMzSi1s6uw"

@@ -2,7 +2,7 @@ from html import escape
 from typing import Annotated, TypedDict
 
 from fastapi import APIRouter, Depends, Path, Query, Request
-from fastapi.responses import RedirectResponse
+from fastapi.responses import FileResponse, RedirectResponse
 from loguru import logger
 from pydantic import ValidationError
 from starlette.responses import HTMLResponse, Response
@@ -11,7 +11,7 @@ from starlette.status import HTTP_403_FORBIDDEN, HTTP_404_NOT_FOUND, HTTP_422_UN
 from ..async_utils import SubscriptionStatus, async_fetch
 from ..schema import User
 from ..security import get_auth_user
-from ..settings import current_config
+from ..settings import current_config, static_folder
 from ..youtube import VideoDescription, YoutubeApi
 from .jinja import template_page
 from .schema import SUBSCRIPTIONS, SUBSCRIPTIONS_PATTERN, TOO_MANY, ChannelId
@@ -86,6 +86,15 @@ def _page_context(statuses: list[SubscriptionStatus]) -> PageContext:
         "videos": get_videos_from_feeds(feeds, channels),
         "summary": fetch_summary(statuses),
     }
+
+
+@router.get("/apple-touch-icon.png", response_class=FileResponse)
+@router.get("/apple-touch-icon-precomposed.png", response_class=FileResponse)
+async def apple_touch_icon() -> FileResponse:
+    """The home screen icon, where iOS looks for it when it cannot read the page (a page behind a password)."""
+    return FileResponse(
+        static_folder / "icons" / "apple-touch-icon.png", headers={"Cache-Control": "public, max-age=3600"}
+    )
 
 
 @router.get("/u/{username}", response_class=HTMLResponse)
