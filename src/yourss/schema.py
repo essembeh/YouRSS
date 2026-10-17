@@ -3,7 +3,7 @@ from enum import Enum
 from pathlib import Path
 from typing import Annotated, Self
 
-from pydantic import BaseModel, Field, SecretStr, model_validator
+from pydantic import BaseModel, ConfigDict, Field, SecretStr, StringConstraints, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -31,11 +31,15 @@ class AppSettings(BaseSettings):
     cache_rss_fallback_ttl: timedelta = timedelta(hours=48)
     # A cached channel description younger than this is served without scraping Youtube
     cache_metadata_ttl: timedelta = timedelta(days=7)
+    # Refresh the feeds of every page in the background, this often; unset, nothing runs (docs/specs/pages-users.md §8)
+    warmup_interval: timedelta | None = None
 
     @model_validator(mode="after")
     def _check_cache_ttls(self) -> Self:
         if self.cache_rss_ttl > self.cache_rss_fallback_ttl:
             raise ValueError("cache_rss_ttl must not exceed cache_rss_fallback_ttl")
+        if self.warmup_interval is not None and self.warmup_interval <= timedelta(0):
+            raise ValueError("warmup_interval must be positive")
         return self
 
 
@@ -51,36 +55,73 @@ class Password(BaseModel):
 
 # Channel ids, handles and playlist ids, at least one
 Channels = Annotated[list[str], Field(min_length=1)]
-# A user or folder name: in the URL (`/u/<name>`, `?f=<name>`) and a Secret key in the Helm chart
+# A page or user name: in the URL (`/p/<page>`, `/u/<user>/<page>`), a DOM id, a Secret key in the chart
 Name = Annotated[str, Field(pattern=r"^[A-Za-z0-9][A-Za-z0-9_-]{0,31}$")]
 
 
-class Folder(BaseModel):
-    """A folder of a user page (docs/specs/folders-model.md): its name is in the URL, `?f=<name>`."""
+class Page(BaseModel):
+    """A named list of channels, `/p/<name>`; hidden, it is only reached through the users holding it."""
+
+    # Unknown keys are refused: a typo on `visible` must not make a page public
+    model_config = ConfigDict(extra="forbid")
 
     name: Name
+    visible: bool = True
     channels: Channels
 
 
+class UserPage(BaseModel):
+    """A page of a user, with the label the user gives it (docs/specs/pages-users.md §5)."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    name: Name
+    label: Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=64)] | None = None
+
+    @property
+    def title(self) -> str:
+        return self.label or self.name
+
+
 class User(BaseModel):
+    """A user aggregates pages, its folders (`/u/<name>/<page>`); its password protects them all."""
+
+    model_config = ConfigDict(extra="forbid")
+
     name: Name
     password: Password | None = None
-    # A flat page (channels) or a page in folders, never both
-    channels: Channels | None = None
-    folders: Annotated[list[Folder], Field(min_length=1)] | None = None
+    pages: Annotated[list[UserPage], Field(min_length=1)]
 
     @model_validator(mode="after")
-    def _check_content(self) -> Self:
-        if (self.channels is None) == (self.folders is None):
-            raise ValueError("a user has either channels or folders")
-        names = [folder.name for folder in self.folders or []]
+    def _check_pages(self) -> Self:
+        names = [page.name for page in self.pages]
         if len(set(names)) != len(names):
-            raise ValueError("the folders of a user have distinct names")
+            raise ValueError("a user lists a page once")
         return self
 
-    def folder(self, name: str) -> Folder | None:
-        return next((folder for folder in self.folders or [] if folder.name == name), None)
+    def page(self, name: str) -> UserPage | None:
+        return next((page for page in self.pages if page.name == name), None)
 
 
 class UsersConfig(BaseModel):
-    users: list[User] = Field(min_length=1)
+    model_config = ConfigDict(extra="forbid")
+
+    pages: list[Page] = Field(min_length=1)
+    users: list[User] = Field(default_factory=list)
+
+    @model_validator(mode="after")
+    def _check_names(self) -> Self:
+        pages = [page.name for page in self.pages]
+        if len(set(pages)) != len(pages):
+            raise ValueError("the pages have distinct names")
+        users = [user.name for user in self.users]
+        if len(set(users)) != len(users):
+            raise ValueError("the users have distinct names")
+        for user in self.users:
+            for page in user.pages:
+                if page.name not in pages:
+                    raise ValueError(f"the user {user.name} lists an unknown page: {page.name}")
+        return self
+
+    def page(self, name: str) -> Page | None:
+        return next((page for page in self.pages if page.name == name), None)

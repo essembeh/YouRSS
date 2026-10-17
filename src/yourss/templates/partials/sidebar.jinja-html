@@ -18,16 +18,16 @@
 
   <nav class="yourss-nav">
     {% if folders is defined %}
-    {# A page in folders (docs/specs/folders-model.md): a tree, one folder open at a time, its row is its Home #}
-    {% set page = "/u/" ~ (user_name|urlencode) %}
+    {# A user (docs/specs/pages-users.md): a tree of its pages, one open at a time, its row is its Home #}
+    {% set user_path = "/u/" ~ (user_name|urlencode) %}
     {% for item in folders %}
-    {% set name = item.name|urlencode %}
+    {% set address = user_path ~ "/" ~ (item.name|urlencode) %}
     {% set current = folder is defined and folder.name == item.name %}
     <details class="yourss-folder" name="yourss-folder" data-folder="{{ item.name }}"{% if current %} open{% endif %}>
-      <summary class="yourss-nav-item" title="The latest videos of {{ item.name }}" hx-get="/htmx/folder/{{ user_name|urlencode }}/{{ name }}" hx-target="#yourss-content" hx-sync="#yourss-content:replace"
-        hx-push-url="{{ page }}?f={{ name }}" hx-trigger="click[!event.target.closest('.yourss-caret, [data-action]')]">
+      <summary class="yourss-nav-item" title="The latest videos of {{ item.title }}" hx-get="{{ address }}" hx-target="#yourss-content" hx-sync="#yourss-content:replace"
+        hx-push-url="{{ address }}" hx-trigger="click[!event.target.closest('.yourss-caret, [data-action]')]">
         <button type="button" class="yourss-caret" title="Fold / unfold" aria-label="Fold / unfold"><svg><use href="#i-chevron" /></svg></button>
-        <span class="yourss-label">{{ item.name }}</span>
+        <span class="yourss-label">{{ item.title }}</span>
         <span class="yourss-badge yourss-count" data-watched-feature data-folder-count="{{ item.name }}" hidden></span>
         <button type="button" class="yourss-icon-btn is-small yourss-row-btn" data-watched-feature data-action="mark-feed-watched" title="Mark every video of this folder as watched"><svg><use href="#i-check-all" /></svg></button>
       </summary>

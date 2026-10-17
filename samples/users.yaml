@@ -1,46 +1,45 @@
-# The user pages of an instance: /u/<name> (docs: README, "Configure user pages")
+# The pages and users of an instance (docs: README, "Configure pages and users")
 #
 # A channel is a channel_id (UC…, like UCVooVnzQxPSTXTMzSi1s6uw) or a handle (@jonnygiger),
 # a playlist is its id (PL…).
-users:
-  # A page in folders: each folder has its own Home, /u/alice?f=skate
-  - name: alice
-    folders:
-      - name: Fun
-        channels:
-          # Add handles
-          - "@ben-j"
-          - "@JonnyGiger"
-          # or add channel ids
-          - UCQsmxaMzYr76Yd1iqMEq8TA
-          - UCOaAb5oXQ9x2hSmINrffWBQ
-          # or add playlist ids
-          - PLw-vK1_d04zZCal3yMX_T23h5nDJ2toTk
-      - name: Serious
-        channels:
-          - UCYO_jab_esuFRV4b17AJtAw
-          - UCSHZKyawb77ixDdsGog4iWA
-          - UCweCc7bSMX5J4jEH7HFImng
-
-  # A flat page: one Home for every channel, /u/bob
-  - name: bob
+pages:
+  # A page has its own address, /p/fun
+  - name: fun
     channels:
-      - UCBqd6fLWpemEM2o5wlNDUfw
-      - UCVooVnzQxPSTXTMzSi1s6uw
-      - UCQsmxaMzYr76Yd1iqMEq8TA
+      # Add handles
+      - "@ben-j"
+      - "@JonnyGiger"
+      # or add channel ids
       - UCOaAb5oXQ9x2hSmINrffWBQ
+      # or add playlist ids
       - PLw-vK1_d04zZCal3yMX_T23h5nDJ2toTk
 
-  # A page behind a password (HTTP Basic), flat or in folders alike
-  - name: carol
-    password:
-      # argon2: the hash of the password (this one is the hash of "foo"), for example with
-      # https://gchq.github.io/CyberChef/#recipe=Argon2(%7B'option':'UTF8','string':'yourss%20secret%20salt'%7D,3,4096,1,32,'Argon2i','Encoded%20hash')&input=TXkgc2VjdXJlIHBhc3N3b3Jk
-      # clear: the password itself, in plain text
-      method: argon2
-      value: "$argon2i$v=19$m=4096,t=3,p=1$c29tZXNhbHQ$y+awVl4ev1h6eG8IbOrPAAjANRIbraM51FL50Pcf/B8"
+  # A hidden page has no address of its own: it is only read through the users holding it
+  - name: cards
+    visible: false
     channels:
-      - UCBqd6fLWpemEM2o5wlNDUfw
-      - UCVooVnzQxPSTXTMzSi1s6uw
       - UCQsmxaMzYr76Yd1iqMEq8TA
-      - UCOaAb5oXQ9x2hSmINrffWBQ
+
+  - name: podcast
+    channels:
+      - UCSHZKyawb77ixDdsGog4iWA
+      - UCYO_jab_esuFRV4b17AJtAw
+
+users:
+  # A user aggregates pages, its folders: /u/alice/fun, /u/alice/cards, /u/alice/podcast
+  - name: alice
+    pages:
+      - name: fun
+      - name: cards
+        label: Card magic    # the label alice gives it, the page name by default
+      - name: podcast
+
+  # A user behind a password (HTTP Basic), which protects every folder
+  - name: bob
+    # The method is argon2 (the hash of the password, this one is the hash of "foo", for example with
+    # https://gchq.github.io/CyberChef/#recipe=Argon2(%7B'option':'UTF8','string':'yourss%20secret%20salt'%7D,3,4096,1,32,'Argon2i','Encoded%20hash')&input=TXkgc2VjdXJlIHBhc3N3b3Jk)
+    # or clear (the password itself, in plain text)
+    password: { method: argon2, value: "$argon2i$v=19$m=4096,t=3,p=1$c29tZXNhbHQ$y+awVl4ev1h6eG8IbOrPAAjANRIbraM51FL50Pcf/B8" }
+    pages:
+      - name: podcast
+      - name: fun

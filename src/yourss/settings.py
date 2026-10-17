@@ -1,11 +1,21 @@
 import os
+from datetime import timedelta
 from pathlib import Path
 from tempfile import mkdtemp
 
 from loguru import logger
+from pydantic import TypeAdapter
 
 from . import __file__ as app_root
 from .schema import AppSettings
+
+_DURATION = TypeAdapter(timedelta)
+
+
+def iso_duration(value: timedelta) -> str:
+    """A duration as the settings write it (PT30M, P2D), `str(timedelta)` has a comma after the days."""
+    return str(_DURATION.dump_python(value, mode="json"))
+
 
 templates_folder = Path(app_root).parent / "templates"
 static_folder = Path(app_root).parent / "static"
@@ -40,9 +50,9 @@ def setup_cache_folder(config: AppSettings) -> None:
         raise RuntimeError(f"The cache folder {config.cache_folder} is not usable: {error}") from error
     logger.info(
         "Cache ttl: rss {}, rss fallback {}, metadata {}",
-        config.cache_rss_ttl,
-        config.cache_rss_fallback_ttl,
-        config.cache_metadata_ttl,
+        iso_duration(config.cache_rss_ttl),
+        iso_duration(config.cache_rss_fallback_ttl),
+        iso_duration(config.cache_metadata_ttl),
     )
 
 

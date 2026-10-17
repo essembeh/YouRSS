@@ -10,17 +10,11 @@ No Ingress is enabled, forward the service to reach it:
   kubectl --namespace {{ .Release.Namespace }} port-forward service/{{ include "yourss.fullname" . }} 8000:http
 then open http://localhost:8000/
 {{- end }}
-{{- if .Values.yourss.users }}
+{{- if .Values.yourss.pages }}
 
-User pages: {{ range .Values.yourss.users }}/u/{{ .name }} {{ end }}
-{{- if .Values.warmup.enabled }}
-Warmed up on {{ .Values.warmup.schedule | quote }}: {{ range .Values.yourss.users }}{{ if include "yourss.warmable" (list $ .) }}/u/{{ .name }} {{ end }}{{ end }}
-{{- $skipped := list }}
-{{- if not .Values.warmup.users }}
-{{- range .Values.yourss.users }}{{ if not (include "yourss.clearPassword" .) }}{{ $skipped = append $skipped (printf "/u/%s" .name) }}{{ end }}{{ end }}
-{{- end }}
-{{- with $skipped }}
-Not warmed up, argon2 password: {{ join " " . }}
-{{- end }}
+Pages: {{ range .Values.yourss.pages }}{{ if ne .visible false }}/p/{{ .name }} {{ end }}{{ end }}
+Users: {{ range .Values.yourss.users }}/u/{{ .name }} {{ end }}
+{{- with .Values.yourss.warmupInterval }}
+Every page is refreshed in the background every {{ . }}.
 {{- end }}
 {{- end }}

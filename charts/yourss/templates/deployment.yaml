@@ -58,11 +58,15 @@ spec:
             {{- end }}
             - name: YOURSS_CACHE_RSS_TTL
               value: {{ .Values.yourss.cacheRssTtl | quote }}
+            {{- with .Values.yourss.warmupInterval }}
+            - name: YOURSS_WARMUP_INTERVAL
+              value: {{ . | quote }}
+            {{- end }}
             - name: YOURSS_CACHE_RSS_FALLBACK_TTL
               value: {{ .Values.yourss.cacheRssFallbackTtl | quote }}
             - name: YOURSS_CACHE_METADATA_TTL
               value: {{ .Values.yourss.cacheMetadataTtl | quote }}
-            {{- if .Values.yourss.users }}
+            {{- if .Values.yourss.pages }}
             - name: YOURSS_USERS_FILE
               value: /yourss/users.yaml
             {{- end }}
@@ -86,7 +90,7 @@ spec:
           volumeMounts:
             - name: tmp
               mountPath: /tmp
-            {{- if .Values.yourss.users }}
+            {{- if .Values.yourss.pages }}
             - name: users
               mountPath: /yourss
               readOnly: true
@@ -97,7 +101,7 @@ spec:
       volumes:
         - name: tmp
           emptyDir: {}
-        {{- if .Values.yourss.users }}
+        {{- if .Values.yourss.pages }}
         - name: users
           secret:
             secretName: {{ include "yourss.fullname" . }}-users

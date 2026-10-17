@@ -1,6 +1,6 @@
 from datetime import datetime
 from typing import Any
-from urllib.parse import parse_qs, quote, urlparse
+from urllib.parse import urlparse
 
 import arrow
 from fastapi import Request
@@ -45,13 +45,11 @@ jinja = Jinja2Templates(env=jinja_env)
 
 
 def link_prefix(request: Request) -> str:
-    """Start of a link to a channel of the page (`<prefix>c=<id>`): its path, and the folder named in the URL."""
+    """Start of a link to a channel of the page (`<prefix>c=<id>`): its path, which htmx names for a fragment."""
     current = request.headers.get("hx-current-url")
-    url = urlparse(current) if current else request.url
+    path = urlparse(current).path if current else request.url.path
     # Only a local path may end in a link
-    path = url.path if url.path.startswith("/") and not url.path.startswith("//") else "/"
-    folder = parse_qs(url.query).get("f", [""])[0]
-    return f"{path}?f={quote(folder)}&" if folder else f"{path}?"
+    return f"{path}?" if path.startswith("/") and not path.startswith("//") else "/?"
 
 
 def template_page(

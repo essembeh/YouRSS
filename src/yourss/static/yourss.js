@@ -160,14 +160,18 @@ function syncChannelFromUrl() {
   markActiveChannel()
 }
 
-/* ---------- user page in folders: one open at a time, loaded on demand (docs/specs/folders-model.md) ---------- */
+/* ---------- user page: a tree of pages, one open at a time, loaded on demand (docs/specs/pages-users.md) ---------- */
 const folderEls = () => $$("details.yourss-folder")
 const folderEl = (name) => folderEls().find((el) => el.dataset.folder === name) || null
 const folderLoaded = (name) => ($(`ul[data-folder-list="${CSS.escape(name)}"]`)?.children.length || 0) > 0
 
+// The address of a folder is `/u/<user>/<page>`; the address of the user is its first segment
+const userPath = () => location.pathname.replace(/^(\/u\/[^/]+).*$/, "$1")
+
 function folderFromUrl() {
-  const name = new URLSearchParams(location.search).get("f")
-  return name !== null && folderEl(name) ? name : null
+  const match = location.pathname.match(/^\/u\/[^/]+\/([^/]+)$/)
+  const name = match && decodeURIComponent(match[1])
+  return name && folderEl(name) ? name : null
 }
 
 // One folder open at a time, whatever the browser does with the `name` attribute of <details>
@@ -187,19 +191,20 @@ function showFolder(name, { push }) {
   }
 }
 
-// Open the folder of the URL. Without one, the page goes to the last folder whose Home was shown, else the first one.
+// Open the folder of the URL. Without one, the page goes to the last folder shown of this user, else to its first one.
 function syncFolderFromUrl() {
   if (folderEls().length === 0) {
     return
   }
   const name = folderFromUrl()
   if (name === null) {
-    const remembered = store.get("folder")
-    const wanted = remembered && folderEl(remembered) ? remembered : folderEls()[0].dataset.folder
-    location.replace(`${location.pathname}?f=${encodeURIComponent(wanted)}`)
+    const user = userPath()
+    const remembered = store.get("user-page") || ""
+    const known = remembered.startsWith(`${user}/`) && folderEl(decodeURIComponent(remembered.slice(user.length + 1)))
+    location.replace(known ? remembered : `${user}/${encodeURIComponent(folderEls()[0].dataset.folder)}`)
   } else if (folderLoaded(name)) {
     unfold(folderEl(name))
-    store.set("folder", name)
+    store.set("user-page", location.pathname)
   } else {
     showFolder(name, { push: false })
   }
@@ -209,7 +214,7 @@ function syncFolderFromUrl() {
 on("htmx:afterSettle", (event) => {
   const shown = $("#yourss-content [data-folder-page]")
   if (event.detail.target?.id === "yourss-content" && shown) {
-    store.set("folder", shown.dataset.folderPage)
+    store.set("user-page", location.pathname)
     captureFeed()
     syncChannelFromUrl()
   }

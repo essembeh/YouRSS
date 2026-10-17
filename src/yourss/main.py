@@ -1,12 +1,20 @@
-from fastapi import FastAPI
+import asyncio
+from collections.abc import AsyncIterator
+from contextlib import asynccontextmanager, suppress
+
+from fastapi import FastAPI, Request
 from fastapi.staticfiles import StaticFiles
+from loguru import logger
 from starlette.responses import Response
 from starlette.types import Scope
 
 from . import __name__ as app_name
 from . import __version__ as app_version
 from .routers import api, htmx, web
-from .settings import current_config, static_folder
+from .routers.jinja import template_page
+from .security import UnknownUser
+from .settings import current_config, iso_duration, static_folder
+from .warmup import warm_forever
 
 
 class CachedStaticFiles(StaticFiles):
@@ -20,15 +28,46 @@ class CachedStaticFiles(StaticFiles):
         return out
 
 
+@asynccontextmanager
+async def lifespan(app: FastAPI) -> AsyncIterator[None]:
+    """The warm-up task runs for the life of the application, when an interval is set."""
+    interval = current_config.warmup_interval
+    task = None
+    if interval and not current_config.cache_enabled:
+        logger.warning("YOURSS_WARMUP_INTERVAL is set but the cache is disabled: nothing to warm up")
+    elif interval:
+        logger.info("Warm-up of every page every {}", iso_duration(interval))
+        task = asyncio.create_task(warm_forever(interval))
+    yield
+    if task is not None:
+        task.cancel()
+        with suppress(asyncio.CancelledError):
+            await task
+
+
+async def unknown_user(request: Request, error: UnknownUser) -> Response:
+    """An unknown user is a page, like an unknown folder or page, not a JSON detail."""
+    return template_page(
+        request,
+        "pages/error.jinja-html",
+        status_code=404,
+        title="This user does not exist",
+        message="No user of this instance has this address.",
+        home_link=True,
+    )
+
+
 def create_app(*, api_docs: bool) -> FastAPI:
     """The application, with or without the generated API documentation."""
     out = FastAPI(
         name=app_name,
         version=app_version,
+        lifespan=lifespan,
         docs_url="/docs" if api_docs else None,
         redoc_url="/redoc" if api_docs else None,
         openapi_url="/openapi.json" if api_docs else None,
     )
+    out.add_exception_handler(UnknownUser, unknown_user)  # type: ignore[arg-type]
     out.include_router(web.router)
     out.include_router(htmx.router)
     out.include_router(api.router)

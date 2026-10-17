@@ -4,13 +4,10 @@ from fastapi import APIRouter, Depends, Header, HTTPException, Query, Request
 from starlette.responses import HTMLResponse
 from starlette.status import HTTP_404_NOT_FOUND
 
-from ..async_utils import async_fetch
-from ..schema import User
-from ..security import get_auth_user
 from ..youtube import ChannelTab, Continuation, YoutubeApi
 from .jinja import template_page
 from .schema import ChannelId, PlaylistId, UserId
-from .utils import folder_link_prefix, get_videos_from_feeds, next_page_url, page_context
+from .utils import get_videos_from_feeds, next_page_url
 
 
 def require_htmx(hx_request: Annotated[str | None, Header()] = None) -> None:
@@ -41,23 +38,6 @@ async def htmx_rss(request: Request, channel: ChannelId | UserId) -> HTMLRespons
     feed = await YoutubeApi().get_channel_rss(channel)
     videos = [entry.to_video() for entry in feed.entries]
     return template_page(request, "partials/videos-container.jinja-html", videos=videos)
-
-
-@router.get("/folder/{username}/{folder}", response_class=HTMLResponse)
-async def htmx_folder(request: Request, folder: str, user: User = Depends(get_auth_user)) -> HTMLResponse:
-    """The Home of a folder with, out of band, its entries, notice and title (docs/specs/folders-model.md §4)."""
-    item = user.folder(folder)
-    if item is None:
-        raise HTTPException(HTTP_404_NOT_FOUND)
-    statuses = await async_fetch(item.channels, api=YoutubeApi())
-    return template_page(
-        request,
-        "partials/folder.jinja-html",
-        user_name=user.name,
-        folder=item,
-        link_prefix=folder_link_prefix(user.name, item.name),
-        **page_context(statuses),
-    )
 
 
 @router.get("/next", response_class=HTMLResponse)

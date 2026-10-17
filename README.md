@@ -41,7 +41,7 @@ No account: your subscriptions are the address of your page.
 - a subscription is removed from the sidebar
 - each change gives a new address, made of ids only (example https://yourss.domain.tld/UCVooVnzQxPSTXTMzSi1s6uw,PLw-vK1_d04zZCal3yMX_T23h5nDJ2toTk): bookmark it, share it, open it on another device. Nothing is stored on the server
 
-The administrator of an instance can also declare *user* pages, short names for a list of channels and playlists (`/u/<name>`), flat or split in folders, and can turn custom pages off.
+The administrator of an instance can also declare *pages*, short names for a list of channels and playlists (`/p/<name>`), and *users*, who aggregate pages into folders (`/u/<user>/<page>`), and can turn custom pages off.
 
 ### 📰 One page for all your subscriptions
 
@@ -139,46 +139,57 @@ Then visit [http://localhost:8000/](http://localhost:8000/)
 | VARIABLE | DEFAULT | HELM VALUE | DESCRIPTION |
 |----------|---------|------------|-------------|
 | YOURSS_CUSTOM_PAGES_ENABLED | `True` | `yourss.customPagesEnabled` | Let visitors build their own page by putting channels in its URL. If set to `false`, the home page and the multi channel pages show an error (`403`), and only the *user* pages remain |
-| YOURSS_MAX_PAGE_ITEMS | `12` | `yourss.maxPageItems` | How many channels and playlists the address of a custom page may hold. A longer address is refused (`422`) before anything is asked to Youtube. *User* pages are not limited |
+| YOURSS_MAX_PAGE_ITEMS | `12` | `yourss.maxPageItems` | How many channels and playlists the address of a custom page may hold. A longer address is refused (`422`) before anything is asked to Youtube. Configured pages are not limited |
 | YOURSS_API_DOCS_ENABLED | `False` | `yourss.apiDocsEnabled` | If set to `true`, the generated API documentation is served at `/docs`, `/redoc` and `/openapi.json`. Meant for development: it is off in the docker image and in the Helm chart |
-| YOURSS_USERS_FILE |  | `yourss.users` | You can declare user pages in a dedicated file (the Helm chart builds it from the values and stores it in a *Secret*) |
+| YOURSS_USERS_FILE |  | `yourss.pages`, `yourss.users` | The pages and users of the instance, in a YAML file (the Helm chart builds it from the values and stores it in a *Secret*) |
 | YOURSS_CLEAN_TITLES | `False` | `yourss.cleanTitles` | If set to `true`, videos titles are cleaned to prevent UPPERCASE TITLES |
 | YOURSS_CACHE_ENABLED | `True` | `yourss.cacheEnabled` | Keep the RSS feeds and the channel metadata (name, avatar) on disk. A feed younger than `YOURSS_CACHE_RSS_TTL` is served without asking Youtube, and when the fetch fails (Youtube's daily transient `404` windows, errors, timeouts) a feed younger than `YOURSS_CACHE_RSS_FALLBACK_TTL` is served instead of the error. If set to `false`, nothing is cached: every page load fetches its feeds and scrapes a page per channel |
 | YOURSS_CACHE_FOLDER |  | `yourss.cacheFolder` | Where the cache lives (created at startup, the application refuses to start if it cannot write there). If unset, a temporary folder `yourss-*` is created at startup |
 | YOURSS_CACHE_RSS_TTL | `PT30M` | `yourss.cacheRssTtl` | How long a cached feed is served without asking Youtube (ISO-8601 duration, e.g. `PT30M`, or a number of seconds) |
 | YOURSS_CACHE_RSS_FALLBACK_TTL | `PT48H` | `yourss.cacheRssFallbackTtl` | How long a cached feed may replace a failed fetch, at least `YOURSS_CACHE_RSS_TTL`. An older feed is deleted and the error is propagated |
 | YOURSS_CACHE_METADATA_TTL | `P7D` | `yourss.cacheMetadataTtl` | How long the name and avatar of a channel are served without scraping its page on Youtube (ISO-8601 duration or seconds). When the scrape fails, the cached ones are served whatever their age |
+| YOURSS_WARMUP_INTERVAL |  | `yourss.warmupInterval` | Refresh the feeds of every configured page in the background, this often (ISO-8601 duration or seconds): a first round at startup, then one per interval, so that the pages are ready when a visitor comes, Youtube's bad hours included (the fallback cache). Unset, nothing runs. Each process refreshes its own cache: run one worker per cache |
 
-> Note: in the users file, a channel is a *channel_id* (24 characters, like `UCa_Dlwrwv3ktrhCy91HpVRw`) or a handle (like `@JonnyGiger`), and a playlist is its id (`PL…`). The address of a page only holds ids.
+> Note: in the pages and users file, a channel is a *channel_id* (24 characters, like `UCa_Dlwrwv3ktrhCy91HpVRw`) or a handle (like `@JonnyGiger`), and a playlist is its id (`PL…`). The address of a page only holds ids.
 
 See [`.env`](./.env) for example.
 
-## 👤 Configure user pages
+## 👤 Configure pages and users
 
-You can create *user* pages with as many *channels* as you want, *user* pages are easier to type or remember.
-For example you can have http://my-yourss-instance/u/skate with some *channels* configured instead of bookmarking http://my-yourss-instance/UCVooVnzQxPSTXTMzSi1s6uw,UCQsmxaMzYr76Yd1iqMEq8TA 
+A *page* is a named list of channels and playlists, easier to type and to remember than an address full of ids:
+`http://my-yourss-instance/p/fun` instead of `http://my-yourss-instance/UCVooVnzQxPSTXTMzSi1s6uw,UCQsmxaMzYr76Yd1iqMEq8TA`.
 
-To configure users:
-- set `YOURSS_USERS_FILE` and point to a *YAML* file where you'll declare your *users*
+A *user* aggregates pages, which become its folders: `http://my-yourss-instance/u/alice/fun`. The sidebar lists the
+folders, one open at a time, each with its own Home; `http://my-yourss-instance/u/alice` opens the last folder visited
+in this browser. A user can give a page the label it likes, and can be protected by a *password* (plain text or
+argon2 hash). A page can be hidden (`visible: false`): it has no address of its own and is only read through the users
+holding it.
+
+To configure them:
+- set `YOURSS_USERS_FILE` and point to a *YAML* file where you'll declare your *pages* and *users*
 - see [sample `users.yaml`](./samples/users.yaml) for example
-- *user* page can be protected by a *password* (configurable using plain text passwords or argon2 hash)
-
-A *user* page can be split in *folders*, one per interest, each with its own home: declare `folders` instead of `channels`.
-The sidebar lists the folders, one open at a time, and the page of a folder is `http://my-yourss-instance/u/alice?f=Fun`
-(without `?f=`, the page opens the last folder visited in this browser).
 
 ```yaml
+pages:
+  - name: fun                # letters, digits, - and _, 32 characters at most: /p/fun
+    channels:
+      - "@ben-j"
+      - "@JonnyGiger"
+  - name: cards
+    visible: false           # only through the users holding it
+    channels:
+      - UCQsmxaMzYr76Yd1iqMEq8TA
 users:
-  - name: alice
-    folders:
-      - name: Fun         # like a user name: letters, digits, - and _, 32 characters at most
-        channels:
-          - "@ben-j"
-          - "@JonnyGiger"
-      - name: Serious
-        channels:
-          - UCYO_jab_esuFRV4b17AJtAw
+  - name: alice              # /u/alice/fun, /u/alice/cards
+    pages:
+      - name: fun
+      - name: cards
+        label: Card magic    # optional, free text shown in the sidebar instead of the name
 ```
+
+> Migrating from 0.82.0: a user with `channels` becomes a page, plus a user of that one page if its `/u/` address must
+> keep working; a user with `folders` becomes one page per folder, plus the user listing them, with the folder names as
+> labels.
 
 ## 🚫 Disable custom pages
 
@@ -187,7 +198,7 @@ The administrator of an instance can turn this off, for example to keep the inst
 
 - set `YOURSS_CUSTOM_PAGES_ENABLED=false`, or `yourss.customPagesEnabled: false` in the Helm values
 - the home page and the multi channel pages (`/UCVooVnzQxPSTXTMzSi1s6uw,UCQsmxaMzYr76Yd1iqMEq8TA`) then show an error (`403`), and channels can no longer be added
-- the *user* pages (`/u/<name>`) keep working
+- the configured pages (`/p/<name>`) and users (`/u/<name>`) keep working
 
 > Note: this does not make the instance private, the routes which feed the pages (`/htmx/...`) still answer for any channel.
 
@@ -198,7 +209,7 @@ The administrator of an instance can turn this off, for example to keep the inst
 - you can browse multiple channels and playlists in a single page, their ids separated by commas: `http://yourss.local/UCVooVnzQxPSTXTMzSi1s6uw,UCQsmxaMzYr76Yd1iqMEq8TA`
 - an address only holds ids: to add a channel by its handle (`@jonnygiger`) or its address, use the add form, which resolves it
 - click a channel in the sidebar of a page to browse its homepage (recent videos, videos, shorts, streams)
-- if you defined some *users*, for example `bob`, the page can be accessed at `http://yourss.local/u/bob`, and a folder of a user in folders at `http://yourss.local/u/alice?f=Fun`
+- if you defined some *pages*, for example `fun`, the page can be accessed at `http://yourss.local/p/fun`, and a folder of a *user* at `http://yourss.local/u/alice/fun`
 
 > Note: replace `yourss.local` with the URL of your *YouRSS* instance.
 

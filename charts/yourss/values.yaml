@@ -38,7 +38,25 @@ yourss:
   # YOURSS_CACHE_METADATA_TTL: how long the name and avatar of a channel are served without
   # scraping its page (ISO-8601 duration or seconds)
   cacheMetadataTtl: P7D
-  # YOURSS_USERS_FILE: user pages, stored in a Secret since they may hold passwords
+  # YOURSS_WARMUP_INTERVAL: refresh the feeds of every page in the background this often (ISO-8601
+  # duration or seconds), so that they are on disk when a visitor comes; empty, nothing runs
+  warmupInterval: ""
+  # YOURSS_USERS_FILE: the pages and users, stored in a Secret since users may hold passwords
+  pages:
+    []
+    # - name: fun
+    #   channels:
+    #     # channels can be
+    #     #  a channel_id (starting with UC) like UCVooVnzQxPSTXTMzSi1s6uw
+    #     #  a user (starting with @) like @jonnygiger
+    #     #  a playlist id (starting with PL)
+    #     - "@jonnygiger"
+    #     - "@berrics"
+    # # A hidden page is only read through the users holding it
+    # - name: cards
+    #   visible: false
+    #   channels:
+    #     - UCQsmxaMzYr76Yd1iqMEq8TA
   users:
     []
     # - name: alice
@@ -49,23 +67,11 @@ yourss:
     #     #  clear: password are store in plain text
     #     method: argon2
     #     value: "$argon2i$v=19$m=4096,t=3,p=1$c29tZXNhbHQ$y+awVl4ev1h6eG8IbOrPAAjANRIbraM51FL50Pcf/B8"
-    #   channels:
-    #     # channels can be
-    #     #  a channel_id (starting with UC) like UCVooVnzQxPSTXTMzSi1s6uw
-    #     #  a user (starting with @) like @jonnygiger
-    #     #  a playlist id (starting with PL)
-    #     - "@jonnygiger"
-    #     - "@berrics"
-    # # A page in folders, each with its own Home (/u/bob?f=skate): folders instead of channels
-    # - name: bob
-    #   folders:
-    #     - name: skate
-    #       channels:
-    #         - "@jonnygiger"
-    #         - "@berrics"
-    #     - name: magic
-    #       channels:
-    #         - UCQsmxaMzYr76Yd1iqMEq8TA
+    #   # the pages of the user, its folders: /u/alice/fun, /u/alice/cards
+    #   pages:
+    #     - name: fun
+    #     - name: cards
+    #       label: Card magic # optional, shown instead of the name
 
   # Additional environment variables for the container
   extraEnv: []
@@ -145,29 +151,6 @@ autoscaling:
   targetCPUUtilizationPercentage: 80
   # targetMemoryUtilizationPercentage: 80
 
-# Keep the cache warm: a CronJob loads every user page on a schedule, so that a visitor finds the
-# feeds and the channel metadata already on disk. A page whose user has an argon2 password cannot
-# be loaded by the job and is skipped; a clear password is sent as the visitor would
-warmup:
-  enabled: false
-  # Cron expression, in yourss.timezone. A run refreshes the feeds older than yourss.cacheRssTtl
-  schedule: "0 * * * *"
-  # Names of the users to warm up, every user when empty
-  users: []
-  # Seconds given to each page, cold pages scrape one Youtube page per channel
-  timeout: 120
-  image:
-    repository: curlimages/curl
-    tag: 8.23.0
-    pullPolicy: IfNotPresent
-  resources:
-    requests:
-      cpu: 10m
-      memory: 32Mi
-    limits:
-      memory: 64Mi
-
-# Additional volumes on the output Deployment definition.
 volumes: []
 # - name: foo
 #   secret:

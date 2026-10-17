@@ -7,9 +7,9 @@ from fastapi import Depends, HTTPException, Request
 from fastapi.security import HTTPBasic
 from loguru import logger
 from pydantic_yaml import parse_yaml_raw_as
-from starlette.status import HTTP_401_UNAUTHORIZED, HTTP_404_NOT_FOUND
+from starlette.status import HTTP_401_UNAUTHORIZED
 
-from .schema import PasswordMethod, User, UsersConfig
+from .schema import Page, PasswordMethod, User, UsersConfig
 
 security = HTTPBasic()
 argon2hasher = PasswordHasher()
@@ -30,21 +30,31 @@ def verify_password(user: User, value: str) -> bool:
     raise ValueError("Invalid password method")
 
 
-def list_users() -> list[User]:
-    """The users of the file, in its order; none without a file or when it cannot be read."""
+def read_config() -> UsersConfig | None:
+    """The pages and users file; none without a file or when it cannot be read."""
     from .settings import current_config
 
     if current_config.users_file is None or not current_config.users_file.exists():
-        return []
+        return None
     try:
-        return list(parse_yaml_raw_as(UsersConfig, current_config.users_file.read_bytes()).users)
+        return parse_yaml_raw_as(UsersConfig, current_config.users_file.read_bytes())
     except Exception as error:
         logger.exception(error)
-        return []
+        return None
 
 
-def find_user(username: str) -> User | None:
-    return next((user for user in list_users() if user.name == username), None)
+class UnknownUser(Exception):
+    """No user of this name: the application answers its 404 page (see `main.py`)."""
+
+
+def find_user(username: str, config: UsersConfig | None = Depends(read_config)) -> User | None:
+    return next((user for user in config.users if user.name == username), None) if config else None
+
+
+def find_page(page: str, config: UsersConfig | None = Depends(read_config)) -> Page | None:
+    """A visible page; a hidden one is only served inside a user."""
+    found = config.page(page) if config else None
+    return found if found is not None and found.visible else None
 
 
 async def get_auth_user(request: Request, user: User | None = Depends(find_user)) -> User:
@@ -52,7 +62,7 @@ async def get_auth_user(request: Request, user: User | None = Depends(find_user)
     See https://fastapi.tiangolo.com/advanced/security/http-basic-auth/
     """
     if user is None:
-        raise HTTPException(status_code=HTTP_404_NOT_FOUND, detail="User not found")
+        raise UnknownUser()
 
     if user.password is not None:
         logger.debug("User needs a password: {}", user.name)

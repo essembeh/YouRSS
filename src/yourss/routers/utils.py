@@ -146,6 +146,6 @@ def page_context(statuses: list[SubscriptionStatus]) -> PageContext:
     }
 
 
-def folder_link_prefix(user_name: str, folder_name: str) -> str:
-    """Start of the links of a folder page, `<prefix>c=<id>`: the folder is kept whatever the URL of the request."""
-    return f"/u/{quote(user_name)}?f={quote(folder_name)}&"
+def folder_link_prefix(user_name: str, page_name: str) -> str:
+    """Start of the links of a folder, `<prefix>c=<id>`: its own address, whatever the page the visitor comes from."""
+    return f"/u/{quote(user_name)}/{quote(page_name)}?"

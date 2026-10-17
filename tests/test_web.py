@@ -30,8 +30,8 @@ async def test_page_is_editable(client: AsyncClient) -> None:
     assert len(soup.find_all("button", attrs={"data-action": "remove-channel"})) == 2
 
 
-async def test_user_page_is_read_only(client: AsyncClient) -> None:
-    resp = await client.get("/u/bob")
+async def test_page_is_read_only(client: AsyncClient) -> None:
+    resp = await client.get("/p/fun")
     assert resp.status_code == 200
     soup = BeautifulSoup(resp.text, features="html.parser")
     assert soup.body is not None and not soup.body.has_attr("data-page-names")
@@ -71,31 +71,38 @@ async def test_watch(client: AsyncClient) -> None:
 
 
 async def test_user(client: AsyncClient) -> None:
-    # Carol's password is foo
-    resp = await client.get("/u/carol")
-    assert resp.status_code == 401
+    # Bob's password is foo, it protects the user and its folders
+    for path in ("/u/bob", "/u/bob/podcast"):
+        resp = await client.get(path)
+        assert resp.status_code == 401
+        resp = await client.get(path, auth=BasicAuth("bob", "password"))
+        assert resp.status_code == 401
+        resp = await client.get(path, auth=BasicAuth("bob", "foo"))
+        assert resp.status_code == 200
 
-    # The page is the identity: the name typed in the browser prompt is not checked, only the password
-    resp = await client.get("/u/carol", auth=BasicAuth("anyone", "foo"))
+    # The user is the identity: the name typed in the browser prompt is not checked, only the password
+    resp = await client.get("/u/bob", auth=BasicAuth("anyone", "foo"))
     assert resp.status_code == 200
 
-    resp = await client.get("/u/carol", auth=BasicAuth("carol", "password"))
-    assert resp.status_code == 401
-
-    resp = await client.get("/u/carol", auth=BasicAuth("carol", "foo"))
+    # Alice has no password
+    resp = await client.get("/u/alice")
     assert resp.status_code == 200
 
-    # Bob has no password
-    resp = await client.get("/u/bob")
-    assert resp.status_code == 200
+    # Unknown user, unknown page, and the addresses of 0.82
+    for path in ("/u/unknown", "/p/unknown", "/user/bob", "/htmx/folder/alice/fun"):
+        resp = await client.get(path, headers=HTMX)
+        assert resp.status_code == 404
+    # An unknown user is a page, not a JSON detail
+    for path in ("/u/unknown", "/u/unknown/fun"):
+        resp = await client.get(path)
+        assert resp.status_code == 404 and resp.headers["content-type"].startswith("text/html")
+        assert "This user does not exist" in resp.text
 
-    # Unknown page
-    resp = await client.get("/u/unknown")
+    # A hidden page has no address of its own, it is read inside a user
+    resp = await client.get("/p/cards")
     assert resp.status_code == 404
-
-    # /u/ is the only address of a user page
-    resp = await client.get("/user/bob")
-    assert resp.status_code == 404
+    resp = await client.get("/u/alice/cards")
+    assert resp.status_code == 200
 
 
 async def test_page_content(client: AsyncClient) -> None:
@@ -149,90 +156,92 @@ async def test_stray_path_is_not_a_page(client: AsyncClient, path: str) -> None:
     assert resp.status_code == 404
 
 
-FOLDERS = ["Fun", "Serious"]
+FOLDERS = ["fun", "cards", "podcast"]
 
 
-async def test_folders_page_without_folder(client: AsyncClient) -> None:
+async def test_user_without_folder(client: AsyncClient) -> None:
     resp = await client.get("/u/alice")
     assert resp.status_code == 200
     soup = BeautifulSoup(resp.text, "html.parser")
     assert [str(folder["data-folder"]) for folder in soup.select("details.yourss-folder")] == FOLDERS
+    # The row shows the label of the user, its address is the page
+    assert [row.get_text(strip=True) for row in soup.select("details.yourss-folder > summary .yourss-label")] == [
+        "fun",
+        "Card magic",
+        "podcast",
+    ]
     # Every folder is closed and empty, the script picks the one to open: nothing was asked to Youtube
     assert soup.select("details.yourss-folder[open]") == []
     assert soup.select("details.yourss-folder li") == []
     assert soup.select("#yourss-content .yourss-video") == []
-    (row,) = soup.select("details[data-folder=Fun] > summary")
-    assert row["hx-get"] == "/htmx/folder/alice/Fun"
-    assert row["hx-push-url"] == "/u/alice?f=Fun"
-    # A page in folders offers no flat copy
+    (row,) = soup.select("details[data-folder=cards] > summary")
+    assert row["hx-get"] == "/u/alice/cards" and row["hx-push-url"] == "/u/alice/cards"
+    # A user offers no flat copy
     assert soup.select("a.yourss-copy-page") == []
 
 
-async def test_folder_page(client: AsyncClient) -> None:
-    resp = await client.get("/u/alice?f=Fun")
+async def test_user_folder(client: AsyncClient) -> None:
+    resp = await client.get("/u/alice/fun")
     assert resp.status_code == 200
     soup = BeautifulSoup(resp.text, "html.parser")
     (title,) = soup.select("title")
-    assert title.get_text() == "Fun - /u/alice - YouRSS"
-    # The folder of the URL is open with its entries, its Home is the content
-    assert [str(folder["data-folder"]) for folder in soup.select("details.yourss-folder[open]")] == ["Fun"]
-    links = [str(a["hx-push-url"]) for a in soup.select("ul[data-folder-list=Fun] a")]
-    assert len(links) == 5
-    assert all(link.startswith("/u/alice?f=Fun&c=UC") or link.startswith("/u/alice?f=Fun&p=PL") for link in links)
-    assert soup.select("ul[data-folder-list=Serious] li") == []
-    assert soup.select("#yourss-content [data-folder-page=Fun] .yourss-video")
+    assert title.get_text() == "fun - /u/alice - YouRSS"
+    # The folder of the address is open with its entries, its Home is the content
+    assert [str(folder["data-folder"]) for folder in soup.select("details.yourss-folder[open]")] == ["fun"]
+    links = [str(a["hx-push-url"]) for a in soup.select("ul[data-folder-list=fun] a")]
+    assert len(links) == 4
+    assert all(link.startswith("/u/alice/fun?c=UC") or link.startswith("/u/alice/fun?p=PL") for link in links)
+    assert soup.select("ul[data-folder-list=cards] li") == []
+    assert soup.select("#yourss-content [data-folder-page=fun] .yourss-video")
     # The channel link of a card keeps the folder
     cards = {str(a["hx-push-url"]) for a in soup.select(".yourss-video a.yourss-video-channel")}
-    assert cards and all(link.startswith("/u/alice?f=Fun&c=UC") for link in cards)
+    assert cards and all(link.startswith("/u/alice/fun?c=UC") for link in cards)
 
-    for unknown in ("unknown", "a" * 33):
-        resp = await client.get(f"/u/alice?f={unknown}")
+    # A hidden page, under the label of the user
+    resp = await client.get("/u/alice/cards")
+    (title,) = BeautifulSoup(resp.text, "html.parser").select("title")
+    assert title.get_text() == "Card magic - /u/alice - YouRSS"
+
+    for unknown in ("unknown", "a" * 33, "podcast/more"):
+        resp = await client.get(f"/u/alice/{unknown}")
         assert resp.status_code == 404
         assert unknown not in resp.text
-    # An empty parameter is no parameter
-    resp = await client.get("/u/alice?f=")
-    assert resp.status_code == 200
-    assert BeautifulSoup(resp.text, "html.parser").select("[data-folder-page]") == []
-    # A flat page ignores the parameter
-    resp = await client.get("/u/bob?f=Fun")
-    assert resp.status_code == 200
+    # A page the user does not hold
+    resp = await client.get("/u/bob/cards", auth=BasicAuth("bob", "foo"))
+    assert resp.status_code == 404
 
 
-async def test_folder_fragment(client: AsyncClient) -> None:
-    # The links of the fragment name its folder, not the folder of the page the visitor comes from
-    resp = await client.get(
-        "/htmx/folder/alice/Fun", headers=HTMX | {"HX-Current-URL": "http://test/u/alice?f=Serious"}
-    )
+async def test_user_folder_fragment(client: AsyncClient) -> None:
+    # Same address, the header of htmx: the fragment. Its links name its folder, not the page the visitor comes from
+    resp = await client.get("/u/alice/fun", headers=HTMX | {"HX-Current-URL": "http://test/u/alice/podcast"})
     assert resp.status_code == 200
     soup = BeautifulSoup(resp.text, "html.parser")
+    assert soup.select("html") == []
     (title,) = soup.select("title")
-    assert title.get_text() == "Fun - /u/alice - YouRSS"
-    assert soup.select("[data-folder-page=Fun] div.yourss-video")
+    assert title.get_text() == "fun - /u/alice - YouRSS"
+    assert soup.select("[data-folder-page=fun] div.yourss-video")
     cards = {str(a["hx-push-url"]) for a in soup.select(".yourss-video a.yourss-video-channel")}
-    assert cards and all(link.startswith("/u/alice?f=Fun&c=UC") for link in cards)
-    (entries,) = soup.select("ul#yourss-folder-list-Fun")
+    assert cards and all(link.startswith("/u/alice/fun?c=UC") for link in cards)
+    (entries,) = soup.select("ul#yourss-folder-list-fun")
     assert entries["hx-swap-oob"] == "true"
     links = [str(a["hx-push-url"]) for a in entries.select("a")]
-    assert len(links) == 5
-    assert all(link.startswith("/u/alice?f=Fun&c=UC") or link.startswith("/u/alice?f=Fun&p=PL") for link in links)
+    assert len(links) == 4
+    assert all(link.startswith("/u/alice/fun?c=UC") or link.startswith("/u/alice/fun?p=PL") for link in links)
     (status,) = soup.select("div#yourss-fetch-status")
     assert status["hx-swap-oob"] == "true"
 
 
 @mark.parametrize(
-    "path, headers, http_status",
+    "path, http_status",
     [
-        ("/htmx/folder/alice/Fun", {}, 404),  # not an htmx request
-        ("/htmx/folder/alice/unknown", HTMX, 404),
-        ("/htmx/folder/bob/Fun", HTMX, 404),  # a flat page has no folder
-        ("/htmx/folder/unknown/Fun", HTMX, 404),
-        ("/htmx/folder/carol/Fun", HTMX, 401),  # the password of the page protects its fragments
+        ("/u/alice/unknown", 404),
+        ("/u/bob/cards", 401),  # bob is protected: the password first
+        ("/u/unknown/fun", 404),
+        ("/u/bob/podcast", 401),  # the password of the user protects its fragments, before any 404
     ],
 )
-async def test_folder_fragment_refused(
-    client: AsyncClient, path: str, headers: dict[str, str], http_status: int
-) -> None:
-    resp = await client.get(path, headers=headers)
+async def test_user_folder_fragment_refused(client: AsyncClient, path: str, http_status: int) -> None:
+    resp = await client.get(path, headers=HTMX)
     assert resp.status_code == http_status
 
 
@@ -313,7 +322,7 @@ async def test_page_items_are_limited(client: AsyncClient, monkeypatch: MonkeyPa
     assert "at most 2" in resp.text
 
     # A user page is chosen by the administrator: it is not limited
-    resp = await client.get("/u/bob")
+    resp = await client.get("/p/fun")
     assert resp.status_code == 200
 
 
@@ -378,7 +387,7 @@ async def test_custom_pages_disabled(client: AsyncClient, monkeypatch: MonkeyPat
     assert resp.status_code == 403
 
     # User pages remain, without the way to a custom copy
-    resp = await client.get("/u/bob")
+    resp = await client.get("/p/fun")
     assert resp.status_code == 200
     assert "yourss-copy-page" not in resp.text
 

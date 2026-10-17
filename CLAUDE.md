@@ -24,10 +24,11 @@ Principles, in order of importance when they conflict:
    a week. Nothing else, and never media.
 5. **Stay light.** One small FastAPI application, server-rendered templates, htmx for the dynamic
    parts, vanilla CSS and JavaScript. No front-end framework, no build step.
-6. **Everything is a URL.** `/UC…,PL…` (channel and playlist ids in the URL), `/u/<name>` (a
-   configured list, flat or in folders: `/u/<name>?f=<folder>`); a channel opened inside a page
-   is `<page>?c=<id>`. A page can be bookmarked and shared as is. A visitor builds a page by
-   adding and removing channels: its address is the subscription list, the home page explains it.
+6. **Everything is a URL.** `/UC…,PL…` (channel and playlist ids in the URL), `/p/<page>` (a
+   list configured by the administrator), `/u/<user>/<page>` (a user aggregates pages, its
+   folders); a channel opened inside a page is `<page>?c=<id>`. A page can be bookmarked and
+   shared as is. A visitor builds a page by adding and removing channels: its address is the
+   subscription list, the home page explains it.
 
 Not goals: accounts, comments, searching videos, recommendations, downloads, relaying or storing
 media.
@@ -43,12 +44,13 @@ Python 3.13, FastAPI, Jinja2, Pydantic (settings, models, `pydantic-xml` for the
 | Path | Content |
 | --- | --- |
 | `src/yourss/main.py` | the FastAPI application |
-| `src/yourss/schema.py`, `settings.py` | settings (`YOURSS_*`) and the users file model |
+| `src/yourss/schema.py`, `settings.py` | settings (`YOURSS_*`) and the pages and users file model |
+| `src/yourss/warmup.py` | the background refresh of every page, started by the `lifespan` of the application |
 | `src/yourss/routers/` | pages (`web`), htmx fragments (`htmx`), `api` |
 | `src/yourss/youtube/` | HTTP client, RSS feed models, video and channel models |
 | `src/yourss/templates/`, `static/` | Jinja templates, `yourss.css`, the `yourss*.js` modules, icons |
 | `charts/yourss/` | Helm chart, one value per setting, same defaults as the application |
-| `samples/users.yaml` | example of a users file, also used by the development `.env` |
+| `samples/users.yaml` | example of a pages and users file, also used by the development `.env` |
 | `tests/` | pytest suite, its RSS fixtures are in `tests/data/` |
 
 ## Commands
