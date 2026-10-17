@@ -1,0 +1,19 @@
+# The test suite against the real Youtube: tells when Youtube changed, without blocking a release
+name: Live Youtube
+
+on:
+  schedule:
+    # Every Monday at noon, UTC
+    - cron: "0 12 * * 1"
+  workflow_dispatch:
+
+jobs:
+  live:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: astral-sh/setup-uv@c18668ad3cf93ea998bef934396af7bb5c839dc7 # v10.2.0
+        with:
+          enable-cache: true
+      - run: uv sync --locked
+      - run: YOURSS_TEST_YOUTUBE=live uv run --no-sync -- pytest

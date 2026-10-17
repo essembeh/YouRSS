@@ -13,6 +13,13 @@ check:
 test pytest_args="":
     uv run -- pytest --cov=yourss --cov-report=term-missing {{pytest_args}}
 
+# Same suite against the real Youtube (CI: live.yml), or recording the answers it gives
+test-live pytest_args="":
+    YOURSS_TEST_YOUTUBE=live uv run -- pytest {{pytest_args}}
+
+test-record pytest_args="":
+    YOURSS_TEST_YOUTUBE=record uv run -- pytest {{pytest_args}}
+
 # Same thing, with a browsable HTML report
 test-html pytest_args="":
     uv run -- pytest --cov=yourss --cov-report=html {{pytest_args}}

@@ -1,0 +1,351 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feed xmlns:yt="http://www.youtube.com/xml/schemas/2015" xmlns:media="http://search.yahoo.com/mrss/" xmlns="http://www.w3.org/2005/Atom">
+ <link rel="self" href="http://www.youtube.com/feeds/videos.xml?channel_id=UCBqd6fLWpemEM2o5wlNDUfw"/>
+ <id>yt:channel:Bqd6fLWpemEM2o5wlNDUfw</id>
+ <yt:channelId>Bqd6fLWpemEM2o5wlNDUfw</yt:channelId>
+ <title>Ben-J</title>
+ <link rel="alternate" href="https://www.youtube.com/channel/UCBqd6fLWpemEM2o5wlNDUfw"/>
+ <author>
+  <name>Ben-J</name>
+  <uri>https://www.youtube.com/channel/UCBqd6fLWpemEM2o5wlNDUfw</uri>
+ </author>
+ <published>2007-08-19T19:09:25+00:00</published>
+ <entry>
+  <id>yt:video:LJ8w38FtcUE</id>
+  <yt:videoId>LJ8w38FtcUE</yt:videoId>
+  <yt:channelId>UCBqd6fLWpemEM2o5wlNDUfw</yt:channelId>
+  <title>Speedflying - Bella Cha (Aravis) &amp; Männlichen (Switzerland)</title>
+  <link rel="alternate" href="https://www.youtube.com/watch?v=LJ8w38FtcUE"/>
+  <author>
+   <name>Ben-J</name>
+   <uri>https://www.youtube.com/channel/UCBqd6fLWpemEM2o5wlNDUfw</uri>
+  </author>
+  <published>2026-08-09T08:08:13+00:00</published>
+  <updated>2026-10-15T05:22:11+00:00</updated>
+  <media:group>
+   <media:title>Speedflying - Bella Cha (Aravis) &amp; Männlichen (Switzerland)</media:title>
+   <media:content url="https://www.youtube.com/v/LJ8w38FtcUE?version=3" type="application/x-shockwave-flash" width="640" height="390"/>
+   <media:thumbnail url="https://i1.ytimg.com/vi/LJ8w38FtcUE/hqdefault.jpg" width="480" height="360"/>
+   <media:description>R3X 8</media:description>
+   <media:community>
+    <media:starRating count="6" average="5.00" min="1" max="5"/>
+    <media:statistics views="148"/>
+   </media:community>
+  </media:group>
+ </entry>
+ <entry>
+  <id>yt:video:p1gQsZ6DSqU</id>
+  <yt:videoId>p1gQsZ6DSqU</yt:videoId>
+  <yt:channelId>UCBqd6fLWpemEM2o5wlNDUfw</yt:channelId>
+  <title>Speedflying - Grand Billare - Mirage 2RS 8.5</title>
+  <link rel="alternate" href="https://www.youtube.com/watch?v=p1gQsZ6DSqU"/>
+  <author>
+   <name>Ben-J</name>
+   <uri>https://www.youtube.com/channel/UCBqd6fLWpemEM2o5wlNDUfw</uri>
+  </author>
+  <published>2025-06-14T21:54:22+00:00</published>
+  <updated>2026-10-05T14:13:03+00:00</updated>
+  <media:group>
+   <media:title>Speedflying - Grand Billare - Mirage 2RS 8.5</media:title>
+   <media:content url="https://www.youtube.com/v/p1gQsZ6DSqU?version=3" type="application/x-shockwave-flash" width="640" height="390"/>
+   <media:thumbnail url="https://i1.ytimg.com/vi/p1gQsZ6DSqU/hqdefault.jpg" width="480" height="360"/>
+   <media:description>Date : 06/2025
+Wing : Mirage 2RS 8.5
+Camera : GoPro 11
+TOW : 70kg</media:description>
+   <media:community>
+    <media:starRating count="23" average="5.00" min="1" max="5"/>
+    <media:statistics views="730"/>
+   </media:community>
+  </media:group>
+ </entry>
+ <entry>
+  <id>yt:video:iIdW6IgdFIw</id>
+  <yt:videoId>iIdW6IgdFIw</yt:videoId>
+  <yt:channelId>UCBqd6fLWpemEM2o5wlNDUfw</yt:channelId>
+  <title>Speedflying - Novembre 2024</title>
+  <link rel="alternate" href="https://www.youtube.com/watch?v=iIdW6IgdFIw"/>
+  <author>
+   <name>Ben-J</name>
+   <uri>https://www.youtube.com/channel/UCBqd6fLWpemEM2o5wlNDUfw</uri>
+  </author>
+  <published>2024-11-29T13:48:03+00:00</published>
+  <updated>2026-10-05T03:05:25+00:00</updated>
+  <media:group>
+   <media:title>Speedflying - Novembre 2024</media:title>
+   <media:content url="https://www.youtube.com/v/iIdW6IgdFIw?version=3" type="application/x-shockwave-flash" width="640" height="390"/>
+   <media:thumbnail url="https://i2.ytimg.com/vi/iIdW6IgdFIw/hqdefault.jpg" width="480" height="360"/>
+   <media:description>Date : 11/2024
+Wing : Mirage 2RS 8.5
+Camera : GoPro 11
+TOW : 70kg</media:description>
+   <media:community>
+    <media:starRating count="14" average="5.00" min="1" max="5"/>
+    <media:statistics views="382"/>
+   </media:community>
+  </media:group>
+ </entry>
+ <entry>
+  <id>yt:video:8OOsDhzfthw</id>
+  <yt:videoId>8OOsDhzfthw</yt:videoId>
+  <yt:channelId>UCBqd6fLWpemEM2o5wlNDUfw</yt:channelId>
+  <title>Speedflying - Aiguille rouge de Varan</title>
+  <link rel="alternate" href="https://www.youtube.com/watch?v=8OOsDhzfthw"/>
+  <author>
+   <name>Ben-J</name>
+   <uri>https://www.youtube.com/channel/UCBqd6fLWpemEM2o5wlNDUfw</uri>
+  </author>
+  <published>2024-10-15T05:25:45+00:00</published>
+  <updated>2026-10-03T23:52:11+00:00</updated>
+  <media:group>
+   <media:title>Speedflying - Aiguille rouge de Varan</media:title>
+   <media:content url="https://www.youtube.com/v/8OOsDhzfthw?version=3" type="application/x-shockwave-flash" width="640" height="390"/>
+   <media:thumbnail url="https://i1.ytimg.com/vi/8OOsDhzfthw/hqdefault.jpg" width="480" height="360"/>
+   <media:description>Date : 03/02/2024
+Wing : Mirage 2RS 8.5
+Camera : GoPro 11
+TOW : 70kg</media:description>
+   <media:community>
+    <media:starRating count="15" average="5.00" min="1" max="5"/>
+    <media:statistics views="405"/>
+   </media:community>
+  </media:group>
+ </entry>
+ <entry>
+  <id>yt:video:nZTvrq0OUVw</id>
+  <yt:videoId>nZTvrq0OUVw</yt:videoId>
+  <yt:channelId>UCBqd6fLWpemEM2o5wlNDUfw</yt:channelId>
+  <title>Snowy Hike and Speedfly - Layens - Mirage 2RS 9.5</title>
+  <link rel="alternate" href="https://www.youtube.com/watch?v=nZTvrq0OUVw"/>
+  <author>
+   <name>Ben-J</name>
+   <uri>https://www.youtube.com/channel/UCBqd6fLWpemEM2o5wlNDUfw</uri>
+  </author>
+  <published>2024-08-23T07:24:06+00:00</published>
+  <updated>2026-10-03T20:25:52+00:00</updated>
+  <media:group>
+   <media:title>Snowy Hike and Speedfly - Layens - Mirage 2RS 9.5</media:title>
+   <media:content url="https://www.youtube.com/v/nZTvrq0OUVw?version=3" type="application/x-shockwave-flash" width="640" height="390"/>
+   <media:thumbnail url="https://i3.ytimg.com/vi/nZTvrq0OUVw/hqdefault.jpg" width="480" height="360"/>
+   <media:description>Date : 17/12/2023
+Wing : Mirage 2RS 9.5
+Camera : GoPro 11
+TOW : 70kg</media:description>
+   <media:community>
+    <media:starRating count="10" average="5.00" min="1" max="5"/>
+    <media:statistics views="134"/>
+   </media:community>
+  </media:group>
+ </entry>
+ <entry>
+  <id>yt:video:_YfpSQlDBaA</id>
+  <yt:videoId>_YfpSQlDBaA</yt:videoId>
+  <yt:channelId>UCBqd6fLWpemEM2o5wlNDUfw</yt:channelId>
+  <title>Speedflying Cabaliros avec la Team - Mirage 2 RS 8.5</title>
+  <link rel="alternate" href="https://www.youtube.com/watch?v=_YfpSQlDBaA"/>
+  <author>
+   <name>Ben-J</name>
+   <uri>https://www.youtube.com/channel/UCBqd6fLWpemEM2o5wlNDUfw</uri>
+  </author>
+  <published>2024-07-20T19:24:07+00:00</published>
+  <updated>2026-10-05T12:52:24+00:00</updated>
+  <media:group>
+   <media:title>Speedflying Cabaliros avec la Team - Mirage 2 RS 8.5</media:title>
+   <media:content url="https://www.youtube.com/v/_YfpSQlDBaA?version=3" type="application/x-shockwave-flash" width="640" height="390"/>
+   <media:thumbnail url="https://i4.ytimg.com/vi/_YfpSQlDBaA/hqdefault.jpg" width="480" height="360"/>
+   <media:description>Date : 16/06/2024
+Wing : Mirage 2RS 8.5
+Camera : GoPro 11
+TOW : 70kg
+
+Run de malade, y'a tellement à faire !
+Attention, l'atterrissage utilisé était en fait à éviter, car foins en cours ! Bien se renseigner avant d'y aller...</media:description>
+   <media:community>
+    <media:starRating count="17" average="5.00" min="1" max="5"/>
+    <media:statistics views="377"/>
+   </media:community>
+  </media:group>
+ </entry>
+ <entry>
+  <id>yt:video:R2QkCixxmos</id>
+  <yt:videoId>R2QkCixxmos</yt:videoId>
+  <yt:channelId>UCBqd6fLWpemEM2o5wlNDUfw</yt:channelId>
+  <title>Speedflying - Cabaliros</title>
+  <link rel="alternate" href="https://www.youtube.com/watch?v=R2QkCixxmos"/>
+  <author>
+   <name>Ben-J</name>
+   <uri>https://www.youtube.com/channel/UCBqd6fLWpemEM2o5wlNDUfw</uri>
+  </author>
+  <published>2024-06-12T20:53:02+00:00</published>
+  <updated>2026-10-03T13:12:45+00:00</updated>
+  <media:group>
+   <media:title>Speedflying - Cabaliros</media:title>
+   <media:content url="https://www.youtube.com/v/R2QkCixxmos?version=3" type="application/x-shockwave-flash" width="640" height="390"/>
+   <media:thumbnail url="https://i3.ytimg.com/vi/R2QkCixxmos/hqdefault.jpg" width="480" height="360"/>
+   <media:description>Date : 03/02/2024
+Wing : Mirage 2RS 9.5
+Camera : GoPro 11
+TOW : 70kg</media:description>
+   <media:community>
+    <media:starRating count="14" average="5.00" min="1" max="5"/>
+    <media:statistics views="412"/>
+   </media:community>
+  </media:group>
+ </entry>
+ <entry>
+  <id>yt:video:J9HqfcZoj5M</id>
+  <yt:videoId>J9HqfcZoj5M</yt:videoId>
+  <yt:channelId>UCBqd6fLWpemEM2o5wlNDUfw</yt:channelId>
+  <title>Speedriding - A perfect day in Gourette</title>
+  <link rel="alternate" href="https://www.youtube.com/watch?v=J9HqfcZoj5M"/>
+  <author>
+   <name>Ben-J</name>
+   <uri>https://www.youtube.com/channel/UCBqd6fLWpemEM2o5wlNDUfw</uri>
+  </author>
+  <published>2024-03-18T23:24:17+00:00</published>
+  <updated>2026-10-03T07:55:10+00:00</updated>
+  <media:group>
+   <media:title>Speedriding - A perfect day in Gourette</media:title>
+   <media:content url="https://www.youtube.com/v/J9HqfcZoj5M?version=3" type="application/x-shockwave-flash" width="640" height="390"/>
+   <media:thumbnail url="https://i3.ytimg.com/vi/J9HqfcZoj5M/hqdefault.jpg" width="480" height="360"/>
+   <media:description>Ascension du pic de Ger à ski de rando puis ride toute la journée sur la station de Gourette. 
+Gear :
+ - Wing : Mirage 2RS 9.5
+ - Harness : Everest 3
+ - Skis : Zag UBAC
+ - Camera : GoPro 11
+
+00:00 Intro
+00:05 Pic de Ger
+01:21 Flancs du Ger Gourette</media:description>
+   <media:community>
+    <media:starRating count="28" average="5.00" min="1" max="5"/>
+    <media:statistics views="846"/>
+   </media:community>
+  </media:group>
+ </entry>
+ <entry>
+  <id>yt:video:JZQKolZX3jY</id>
+  <yt:videoId>JZQKolZX3jY</yt:videoId>
+  <yt:channelId>UCBqd6fLWpemEM2o5wlNDUfw</yt:channelId>
+  <title>High speed chase in le Grand Bornand</title>
+  <link rel="alternate" href="https://www.youtube.com/watch?v=JZQKolZX3jY"/>
+  <author>
+   <name>Ben-J</name>
+   <uri>https://www.youtube.com/channel/UCBqd6fLWpemEM2o5wlNDUfw</uri>
+  </author>
+  <published>2024-03-05T07:08:28+00:00</published>
+  <updated>2026-10-01T01:27:44+00:00</updated>
+  <media:group>
+   <media:title>High speed chase in le Grand Bornand</media:title>
+   <media:content url="https://www.youtube.com/v/JZQKolZX3jY?version=3" type="application/x-shockwave-flash" width="640" height="390"/>
+   <media:thumbnail url="https://i3.ytimg.com/vi/JZQKolZX3jY/hqdefault.jpg" width="480" height="360"/>
+   <media:description>Wings : Mirage 2RS 9.5
+Camera : GoPro 11
+TOW : 70kg</media:description>
+   <media:community>
+    <media:starRating count="17" average="5.00" min="1" max="5"/>
+    <media:statistics views="531"/>
+   </media:community>
+  </media:group>
+ </entry>
+ <entry>
+  <id>yt:video:cgnC6fM6joY</id>
+  <yt:videoId>cgnC6fM6joY</yt:videoId>
+  <yt:channelId>UCBqd6fLWpemEM2o5wlNDUfw</yt:channelId>
+  <title>Hike &amp; Speedfly - Soum de Nère (le vénère)</title>
+  <link rel="alternate" href="https://www.youtube.com/watch?v=cgnC6fM6joY"/>
+  <author>
+   <name>Ben-J</name>
+   <uri>https://www.youtube.com/channel/UCBqd6fLWpemEM2o5wlNDUfw</uri>
+  </author>
+  <published>2024-02-06T15:41:43+00:00</published>
+  <updated>2026-10-03T23:13:15+00:00</updated>
+  <media:group>
+   <media:title>Hike &amp; Speedfly - Soum de Nère (le vénère)</media:title>
+   <media:content url="https://www.youtube.com/v/cgnC6fM6joY?version=3" type="application/x-shockwave-flash" width="640" height="390"/>
+   <media:thumbnail url="https://i4.ytimg.com/vi/cgnC6fM6joY/hqdefault.jpg" width="480" height="360"/>
+   <media:description></media:description>
+   <media:community>
+    <media:starRating count="25" average="5.00" min="1" max="5"/>
+    <media:statistics views="777"/>
+   </media:community>
+  </media:group>
+ </entry>
+ <entry>
+  <id>yt:video:997e1IjbIdA</id>
+  <yt:videoId>997e1IjbIdA</yt:videoId>
+  <yt:channelId>UCBqd6fLWpemEM2o5wlNDUfw</yt:channelId>
+  <title>Hike &amp; Speedfly - Petit Rey solo</title>
+  <link rel="alternate" href="https://www.youtube.com/watch?v=997e1IjbIdA"/>
+  <author>
+   <name>Ben-J</name>
+   <uri>https://www.youtube.com/channel/UCBqd6fLWpemEM2o5wlNDUfw</uri>
+  </author>
+  <published>2023-10-04T17:35:06+00:00</published>
+  <updated>2026-10-11T04:20:53+00:00</updated>
+  <media:group>
+   <media:title>Hike &amp; Speedfly - Petit Rey solo</media:title>
+   <media:content url="https://www.youtube.com/v/997e1IjbIdA?version=3" type="application/x-shockwave-flash" width="640" height="390"/>
+   <media:thumbnail url="https://i2.ytimg.com/vi/997e1IjbIdA/hqdefault.jpg" width="480" height="360"/>
+   <media:description>On se fait plaisir avec un petit Rey en solo. Conditions au top pour un max de plaisir :)</media:description>
+   <media:community>
+    <media:starRating count="21" average="5.00" min="1" max="5"/>
+    <media:statistics views="579"/>
+   </media:community>
+  </media:group>
+ </entry>
+ <entry>
+  <id>yt:video:WqpxaLJh62I</id>
+  <yt:videoId>WqpxaLJh62I</yt:videoId>
+  <yt:channelId>UCBqd6fLWpemEM2o5wlNDUfw</yt:channelId>
+  <title>Speedflying -  Les 2 Alpes World meet 2023</title>
+  <link rel="alternate" href="https://www.youtube.com/watch?v=WqpxaLJh62I"/>
+  <author>
+   <name>Ben-J</name>
+   <uri>https://www.youtube.com/channel/UCBqd6fLWpemEM2o5wlNDUfw</uri>
+  </author>
+  <published>2023-09-29T22:57:04+00:00</published>
+  <updated>2026-10-01T19:59:01+00:00</updated>
+  <media:group>
+   <media:title>Speedflying -  Les 2 Alpes World meet 2023</media:title>
+   <media:content url="https://www.youtube.com/v/WqpxaLJh62I?version=3" type="application/x-shockwave-flash" width="640" height="390"/>
+   <media:thumbnail url="https://i4.ytimg.com/vi/WqpxaLJh62I/hqdefault.jpg" width="480" height="360"/>
+   <media:description>On s'est fait plaisir à découvrir ce gros gros spot des deuzzz avec le meilleur ever @lulu.speed64</media:description>
+   <media:community>
+    <media:starRating count="26" average="5.00" min="1" max="5"/>
+    <media:statistics views="1059"/>
+   </media:community>
+  </media:group>
+ </entry>
+ <entry>
+  <id>yt:video:72l4tRmmMFI</id>
+  <yt:videoId>72l4tRmmMFI</yt:videoId>
+  <yt:channelId>UCBqd6fLWpemEM2o5wlNDUfw</yt:channelId>
+  <title>Hike &amp; Speedfly : Layens - Vallée d'Aspe</title>
+  <link rel="alternate" href="https://www.youtube.com/watch?v=72l4tRmmMFI"/>
+  <author>
+   <name>Ben-J</name>
+   <uri>https://www.youtube.com/channel/UCBqd6fLWpemEM2o5wlNDUfw</uri>
+  </author>
+  <published>2023-09-11T14:28:08+00:00</published>
+  <updated>2026-10-01T04:32:29+00:00</updated>
+  <media:group>
+   <media:title>Hike &amp; Speedfly : Layens - Vallée d'Aspe</media:title>
+   <media:content url="https://www.youtube.com/v/72l4tRmmMFI?version=3" type="application/x-shockwave-flash" width="640" height="390"/>
+   <media:thumbnail url="https://i4.ytimg.com/vi/72l4tRmmMFI/hqdefault.jpg" width="480" height="360"/>
+   <media:description>Nice morning Hike &amp; Speedfly with @Rippey64.
+
+Date : 2023-09-10
+Wing : Swing Mirage 2RS 9.5m
+Harness : Supair Everest 3
+
+Summit / Takeoff : https://fatmap.com/waypoint/Layens/Nouvelle-Aquitaine_France/1061838/@43.0172842,-0.6331161,5000,-90,0,0,satellite?fmid=cp
+Landing / Parking : https://www.google.com/maps/dir//43.001576,-0.608463/@43.0015759,-0.6129477,17z/data=!4m2!4m1!3e0</media:description>
+   <media:community>
+    <media:starRating count="11" average="5.00" min="1" max="5"/>
+    <media:statistics views="215"/>
+   </media:community>
+  </media:group>
+ </entry>
+</feed>

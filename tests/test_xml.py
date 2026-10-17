@@ -58,6 +58,7 @@ def test_feed_playlist_xml() -> None:
     assert str(entry.media_info.thumbnail.url) == "https://i4.ytimg.com/vi/Ol_D2iPR9so/hqdefault.jpg"
 
 
+@mark.live
 @mark.skipif(not FEEDS_FILE.exists(), reason="Missing feeds urls")
 def test_multiple_feeds() -> None:
     client = Client(timeout=5)

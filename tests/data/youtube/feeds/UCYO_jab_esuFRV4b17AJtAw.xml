@@ -1,0 +1,550 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feed xmlns:yt="http://www.youtube.com/xml/schemas/2015" xmlns:media="http://search.yahoo.com/mrss/" xmlns="http://www.w3.org/2005/Atom">
+ <link rel="self" href="http://www.youtube.com/feeds/videos.xml?channel_id=UCYO_jab_esuFRV4b17AJtAw"/>
+ <id>yt:channel:YO_jab_esuFRV4b17AJtAw</id>
+ <yt:channelId>YO_jab_esuFRV4b17AJtAw</yt:channelId>
+ <title>3Blue1Brown</title>
+ <link rel="alternate" href="https://www.youtube.com/channel/UCYO_jab_esuFRV4b17AJtAw"/>
+ <author>
+  <name>3Blue1Brown</name>
+  <uri>https://www.youtube.com/channel/UCYO_jab_esuFRV4b17AJtAw</uri>
+ </author>
+ <published>2015-03-03T23:11:55+00:00</published>
+ <entry>
+  <id>yt:video:LKrwhjOI8Nc</id>
+  <yt:videoId>LKrwhjOI8Nc</yt:videoId>
+  <yt:channelId>UCYO_jab_esuFRV4b17AJtAw</yt:channelId>
+  <title>There's never been a better time to go into math</title>
+  <link rel="alternate" href="https://www.youtube.com/watch?v=LKrwhjOI8Nc"/>
+  <author>
+   <name>3Blue1Brown</name>
+   <uri>https://www.youtube.com/channel/UCYO_jab_esuFRV4b17AJtAw</uri>
+  </author>
+  <published>2026-10-16T16:15:20+00:00</published>
+  <updated>2026-10-16T20:00:46+00:00</updated>
+  <media:group>
+   <media:title>There's never been a better time to go into math</media:title>
+   <media:content url="https://www.youtube.com/v/LKrwhjOI8Nc?version=3" type="application/x-shockwave-flash" width="640" height="390"/>
+   <media:thumbnail url="https://i1.ytimg.com/vi/LKrwhjOI8Nc/hqdefault.jpg" width="480" height="360"/>
+   <media:description>Sharing a few thoughts on the future of math
+These videos are funded directly by viewers: https://3b1b.co/support
+An equally valuable form of support is to simply share the videos.
+Home page: https://www.3blue1brown.com
+
+If you want a finger on the pulse of how mathematicians are feeling right now, take a look at this post on Proofs and Prompt: 
+https://proofsandprompts.com/2026/10/08/100-reactions-to-100-solutions/
+
+Timestamps
+0:00 - Math student angst
+3:10 - How does math work?
+11:24 - A proof machine
+25:12 - A conjecture machine
+26:59 - A theory machine
+31:31 - If AI is better at everything
+34:58 - The best time to enter math
+
+Secret Endscreen Vlog: https://youtu.be/4GV1qlv_3qU
+
+------------------
+
+These animations are largely made using a custom Python library, manim.  See the FAQ comments here:
+https://3b1b.co/faq#manim
+
+Music by Vincent Rubinetti.
+https://vincerubinetti.bandcamp.com/album/the-music-of-3blue1brown
+https://open.spotify.com/album/1dVyjwS8FBqXhRunaG5W5u
+
+------------------
+
+3blue1brown is a channel about animating math, in all senses of the word animate. If you're reading the bottom of a video description, I'm guessing you're more interested than the average viewer in lessons here. It would mean a lot to me if you chose to stay up to date on new ones, either by subscribing here on YouTube or otherwise following on whichever platform below you check most regularly.
+
+Mailing list: https://3blue1brown.substack.com
+Twitter: https://twitter.com/3blue1brown
+Bluesky: https://bsky.app/profile/3blue1brown.com
+Instagram: https://www.instagram.com/3blue1brown
+Reddit: https://www.reddit.com/r/3blue1brown
+Facebook: https://www.facebook.com/3blue1brown
+Patreon: https://patreon.com/3blue1brown
+Website: https://www.3blue1brown.com</media:description>
+   <media:community>
+    <media:starRating count="14785" average="5.00" min="1" max="5"/>
+    <media:statistics views="666221"/>
+   </media:community>
+  </media:group>
+ </entry>
+ <entry>
+  <id>yt:video:ausLKMojXaY</id>
+  <yt:videoId>ausLKMojXaY</yt:videoId>
+  <yt:channelId>UCYO_jab_esuFRV4b17AJtAw</yt:channelId>
+  <title>The Phone Number puzzle</title>
+  <link rel="alternate" href="https://www.youtube.com/shorts/ausLKMojXaY"/>
+  <author>
+   <name>3Blue1Brown</name>
+   <uri>https://www.youtube.com/channel/UCYO_jab_esuFRV4b17AJtAw</uri>
+  </author>
+  <published>2026-09-25T13:35:02+00:00</published>
+  <updated>2026-09-30T13:19:50+00:00</updated>
+  <media:group>
+   <media:title>The Phone Number puzzle</media:title>
+   <media:content url="https://www.youtube.com/v/ausLKMojXaY?version=3" type="application/x-shockwave-flash" width="640" height="390"/>
+   <media:thumbnail url="https://i2.ytimg.com/vi/ausLKMojXaY/hqdefault.jpg" width="480" height="360"/>
+   <media:description>Part of a monthly series of puzzles: https://momath.org/mindbenders/</media:description>
+   <media:community>
+    <media:starRating count="17686" average="5.00" min="1" max="5"/>
+    <media:statistics views="693757"/>
+   </media:community>
+  </media:group>
+ </entry>
+ <entry>
+  <id>yt:video:bRQEWPA832A</id>
+  <yt:videoId>bRQEWPA832A</yt:videoId>
+  <yt:channelId>UCYO_jab_esuFRV4b17AJtAw</yt:channelId>
+  <title>The last IMO problem AI could not solve</title>
+  <link rel="alternate" href="https://www.youtube.com/shorts/bRQEWPA832A"/>
+  <author>
+   <name>3Blue1Brown</name>
+   <uri>https://www.youtube.com/channel/UCYO_jab_esuFRV4b17AJtAw</uri>
+  </author>
+  <published>2026-09-18T17:14:08+00:00</published>
+  <updated>2026-10-04T22:57:46+00:00</updated>
+  <media:group>
+   <media:title>The last IMO problem AI could not solve</media:title>
+   <media:content url="https://www.youtube.com/v/bRQEWPA832A?version=3" type="application/x-shockwave-flash" width="640" height="390"/>
+   <media:thumbnail url="https://i3.ytimg.com/vi/bRQEWPA832A/hqdefault.jpg" width="480" height="360"/>
+   <media:description>Full video: https://youtu.be/Nbwv5wHQoj0</media:description>
+   <media:community>
+    <media:starRating count="23426" average="5.00" min="1" max="5"/>
+    <media:statistics views="695769"/>
+   </media:community>
+  </media:group>
+ </entry>
+ <entry>
+  <id>yt:video:Nbwv5wHQoj0</id>
+  <yt:videoId>Nbwv5wHQoj0</yt:videoId>
+  <yt:channelId>UCYO_jab_esuFRV4b17AJtAw</yt:channelId>
+  <title>The last IMO problem AI could not solve</title>
+  <link rel="alternate" href="https://www.youtube.com/watch?v=Nbwv5wHQoj0"/>
+  <author>
+   <name>3Blue1Brown</name>
+   <uri>https://www.youtube.com/channel/UCYO_jab_esuFRV4b17AJtAw</uri>
+  </author>
+  <published>2026-09-18T17:12:53+00:00</published>
+  <updated>2026-10-07T03:10:47+00:00</updated>
+  <media:group>
+   <media:title>The last IMO problem AI could not solve</media:title>
+   <media:content url="https://www.youtube.com/v/Nbwv5wHQoj0?version=3" type="application/x-shockwave-flash" width="640" height="390"/>
+   <media:thumbnail url="https://i3.ytimg.com/vi/Nbwv5wHQoj0/hqdefault.jpg" width="480" height="360"/>
+   <media:description>A beautiful puzzle that eluded AI, and the intuition it requires.
+Check out our virtual career fair: https://3b1b.co/talent
+See new videos early: https://3b1b.co/support
+An equally valuable form of support is to simply share the videos.
+Home page: https://www.3blue1brown.com
+
+Note for the quote at the end: The person who wrote that wanted me to relay a desired edit to the second paragraph, asking that it instead read, &quot;I believe the value of this question as a mathematical discovery is no less real than that of frontier mathematics, albeit different in nature.&quot;
+
+Guest post I referenced on Terry Tao's blog:
+https://terrytao.wordpress.com/2026/09/18/if-math-is-more-than-proof-we-need-to-better-celebrate-the-rest-of-it/
+
+Evan Chen also wrote up nice solution notes for this problem, along with all the others on that year's test.
+https://web.evanchen.cc/exams/IMO-2025-notes.pdf
+
+The channel Dedekind Cuts has a video about this solution:
+https://youtu.be/fgXg9CdCDcs
+
+Timestamps:
+0:00 - The one that AI missed
+4:09 - Problem statement
+6:45 - Finding the Optimal Construction
+18:51 - A weak lower bound
+23:45 - 3b1b Talent
+24:41 - Proving the Construction is Optimal
+34:08 - One final conjecture
+39:42 - The Erdos-Szkeres Theorem
+45:56 - Reflections on AI in Math
+
+Secret Endscreen Vlog: https://youtu.be/UbHoWA0X1e8
+
+------------------
+
+These animations are largely made using a custom Python library, manim.  See the FAQ comments here:
+https://3b1b.co/faq#manim
+
+Music by Vincent Rubinetti.
+https://vincerubinetti.bandcamp.com/album/the-music-of-3blue1brown
+https://open.spotify.com/album/1dVyjwS8FBqXhRunaG5W5u
+
+------------------
+
+3blue1brown is a channel about animating math, in all senses of the word animate. If you're reading the bottom of a video description, I'm guessing you're more interested than the average viewer in lessons here. It would mean a lot to me if you chose to stay up to date on new ones, either by subscribing here on YouTube or otherwise following on whichever platform below you check most regularly.
+
+Mailing list: https://3blue1brown.substack.com
+Twitter: https://twitter.com/3blue1brown
+Bluesky: https://bsky.app/profile/3blue1brown.com
+Instagram: https://www.instagram.com/3blue1brown
+Reddit: https://www.reddit.com/r/3blue1brown
+Facebook: https://www.facebook.com/3blue1brown
+Patreon: https://patreon.com/3blue1brown
+Website: https://www.3blue1brown.com</media:description>
+   <media:community>
+    <media:starRating count="31640" average="5.00" min="1" max="5"/>
+    <media:statistics views="2985832"/>
+   </media:community>
+  </media:group>
+ </entry>
+ <entry>
+  <id>yt:video:rYyJm1tD3d0</id>
+  <yt:videoId>rYyJm1tD3d0</yt:videoId>
+  <yt:channelId>UCYO_jab_esuFRV4b17AJtAw</yt:channelId>
+  <title>The jumping pegs puzzle</title>
+  <link rel="alternate" href="https://www.youtube.com/shorts/rYyJm1tD3d0"/>
+  <author>
+   <name>3Blue1Brown</name>
+   <uri>https://www.youtube.com/channel/UCYO_jab_esuFRV4b17AJtAw</uri>
+  </author>
+  <published>2026-08-18T14:54:17+00:00</published>
+  <updated>2026-10-04T20:41:52+00:00</updated>
+  <media:group>
+   <media:title>The jumping pegs puzzle</media:title>
+   <media:content url="https://www.youtube.com/v/rYyJm1tD3d0?version=3" type="application/x-shockwave-flash" width="640" height="390"/>
+   <media:thumbnail url="https://i3.ytimg.com/vi/rYyJm1tD3d0/hqdefault.jpg" width="480" height="360"/>
+   <media:description>Part of a series of monthly puzzles with MoMath.</media:description>
+   <media:community>
+    <media:starRating count="12647" average="5.00" min="1" max="5"/>
+    <media:statistics views="547991"/>
+   </media:community>
+  </media:group>
+ </entry>
+ <entry>
+  <id>yt:video:6XPlmCDNLNc</id>
+  <yt:videoId>6XPlmCDNLNc</yt:videoId>
+  <yt:channelId>UCYO_jab_esuFRV4b17AJtAw</yt:channelId>
+  <title>The 64 sugar cubes puzzle</title>
+  <link rel="alternate" href="https://www.youtube.com/shorts/6XPlmCDNLNc"/>
+  <author>
+   <name>3Blue1Brown</name>
+   <uri>https://www.youtube.com/channel/UCYO_jab_esuFRV4b17AJtAw</uri>
+  </author>
+  <published>2026-07-24T15:05:39+00:00</published>
+  <updated>2026-10-02T03:45:30+00:00</updated>
+  <media:group>
+   <media:title>The 64 sugar cubes puzzle</media:title>
+   <media:content url="https://www.youtube.com/v/6XPlmCDNLNc?version=3" type="application/x-shockwave-flash" width="640" height="390"/>
+   <media:thumbnail url="https://i3.ytimg.com/vi/6XPlmCDNLNc/hqdefault.jpg" width="480" height="360"/>
+   <media:description>See all monthly puzzles: https://momath.org/mindbenders/</media:description>
+   <media:community>
+    <media:starRating count="9054" average="5.00" min="1" max="5"/>
+    <media:statistics views="341522"/>
+   </media:community>
+  </media:group>
+ </entry>
+ <entry>
+  <id>yt:video:GlYgs6v2YfU</id>
+  <yt:videoId>GlYgs6v2YfU</yt:videoId>
+  <yt:channelId>UCYO_jab_esuFRV4b17AJtAw</yt:channelId>
+  <title>But what is cross-entropy? | Compression is Intelligence Part 2</title>
+  <link rel="alternate" href="https://www.youtube.com/watch?v=GlYgs6v2YfU"/>
+  <author>
+   <name>3Blue1Brown</name>
+   <uri>https://www.youtube.com/channel/UCYO_jab_esuFRV4b17AJtAw</uri>
+  </author>
+  <published>2026-07-16T11:56:04+00:00</published>
+  <updated>2026-10-04T05:32:18+00:00</updated>
+  <media:group>
+   <media:title>But what is cross-entropy? | Compression is Intelligence Part 2</media:title>
+   <media:content url="https://www.youtube.com/v/GlYgs6v2YfU?version=3" type="application/x-shockwave-flash" width="640" height="390"/>
+   <media:thumbnail url="https://i4.ytimg.com/vi/GlYgs6v2YfU/hqdefault.jpg" width="480" height="360"/>
+   <media:description>Where the loss function for training LLMs comes from.
+Job opportunities aligned to this audience: https://3b1b.co/talent
+Early views and other perks for supporters: https://3b1b.co/support
+Home page: https://www.3blue1brown.com
+
+Part 1: https://youtu.be/l6DKRf-fAAM
+
+If you want to learn more about Lagrange Multipliers, I made multiple videos and articles for the topic back in my Khan Academy days: https://www.khanacademy.org/math/multivariable-calculus/applications-of-multivariable-derivatives/lagrange-multipliers-and-constrained-optimization/v/constrained-optimization-introduction
+
+Manim animations by Aaron Gostein and Grant Sanderson
+NanoGPT animation by Clayton Rabideau
+3d black-box model by Paul Dancstep
+Chess game and Lagrange Multiplier scenes by Nishad Deulkar
+Music by Vince Rubinetti
+
+Timestamps
+
+0:00 - Language trees and zipping
+3:02 - Recap optimal codes
+5:20 - Defining cross-entropy
+8:26 - Intuition and examples
+12:59 - Application to language trees
+14:55 - Pre-training LLMs
+20:38 - What makes this loss function best?
+26:13 - Distillation
+30:12 - 3b1b Talent
+31:35 - KL Divergence
+
+------------------
+
+These animations are largely made using a custom Python library, manim.  See the FAQ comments here:
+https://3b1b.co/faq#manim
+
+Music by Vincent Rubinetti.
+https://vincerubinetti.bandcamp.com/album/the-music-of-3blue1brown
+https://open.spotify.com/album/1dVyjwS8FBqXhRunaG5W5u
+
+------------------
+
+3blue1brown is a channel about animating math, in all senses of the word animate. If you're reading the bottom of a video description, I'm guessing you're more interested than the average viewer in lessons here. It would mean a lot to me if you chose to stay up to date on new ones, either by subscribing here on YouTube or otherwise following on whichever platform below you check most regularly.
+
+Mailing list: https://3blue1brown.substack.com
+Twitter: https://twitter.com/3blue1brown
+Bluesky: https://bsky.app/profile/3blue1brown.com
+Instagram: https://www.instagram.com/3blue1brown
+Reddit: https://www.reddit.com/r/3blue1brown
+Facebook: https://www.facebook.com/3blue1brown
+Patreon: https://patreon.com/3blue1brown
+Website: https://www.3blue1brown.com</media:description>
+   <media:community>
+    <media:starRating count="22190" average="5.00" min="1" max="5"/>
+    <media:statistics views="870609"/>
+   </media:community>
+  </media:group>
+ </entry>
+ <entry>
+  <id>yt:video:wGffBCfrAsE</id>
+  <yt:videoId>wGffBCfrAsE</yt:videoId>
+  <yt:channelId>UCYO_jab_esuFRV4b17AJtAw</yt:channelId>
+  <title>100 random chords, how many intersections?</title>
+  <link rel="alternate" href="https://www.youtube.com/shorts/wGffBCfrAsE"/>
+  <author>
+   <name>3Blue1Brown</name>
+   <uri>https://www.youtube.com/channel/UCYO_jab_esuFRV4b17AJtAw</uri>
+  </author>
+  <published>2026-06-16T18:04:05+00:00</published>
+  <updated>2026-10-05T05:29:41+00:00</updated>
+  <media:group>
+   <media:title>100 random chords, how many intersections?</media:title>
+   <media:content url="https://www.youtube.com/v/wGffBCfrAsE?version=3" type="application/x-shockwave-flash" width="640" height="390"/>
+   <media:thumbnail url="https://i4.ytimg.com/vi/wGffBCfrAsE/hqdefault.jpg" width="480" height="360"/>
+   <media:description>Part of a series of monthly puzzles done in collaboration with MoMath.</media:description>
+   <media:community>
+    <media:starRating count="14933" average="5.00" min="1" max="5"/>
+    <media:statistics views="609101"/>
+   </media:community>
+  </media:group>
+ </entry>
+ <entry>
+  <id>yt:video:-7etvZSBxlk</id>
+  <yt:videoId>-7etvZSBxlk</yt:videoId>
+  <yt:channelId>UCYO_jab_esuFRV4b17AJtAw</yt:channelId>
+  <title>Measuring the entropy of English</title>
+  <link rel="alternate" href="https://www.youtube.com/shorts/-7etvZSBxlk"/>
+  <author>
+   <name>3Blue1Brown</name>
+   <uri>https://www.youtube.com/channel/UCYO_jab_esuFRV4b17AJtAw</uri>
+  </author>
+  <published>2026-06-12T13:22:02+00:00</published>
+  <updated>2026-10-03T07:42:13+00:00</updated>
+  <media:group>
+   <media:title>Measuring the entropy of English</media:title>
+   <media:content url="https://www.youtube.com/v/-7etvZSBxlk?version=3" type="application/x-shockwave-flash" width="640" height="390"/>
+   <media:thumbnail url="https://i2.ytimg.com/vi/-7etvZSBxlk/hqdefault.jpg" width="480" height="360"/>
+   <media:description>Full video: https://youtu.be/l6DKRf-fAAM</media:description>
+   <media:community>
+    <media:starRating count="22732" average="5.00" min="1" max="5"/>
+    <media:statistics views="505302"/>
+   </media:community>
+  </media:group>
+ </entry>
+ <entry>
+  <id>yt:video:7L_eTem1SQ4</id>
+  <yt:videoId>7L_eTem1SQ4</yt:videoId>
+  <yt:channelId>UCYO_jab_esuFRV4b17AJtAw</yt:channelId>
+  <title>What's the perfect encoding? How do you know?</title>
+  <link rel="alternate" href="https://www.youtube.com/shorts/7L_eTem1SQ4"/>
+  <author>
+   <name>3Blue1Brown</name>
+   <uri>https://www.youtube.com/channel/UCYO_jab_esuFRV4b17AJtAw</uri>
+  </author>
+  <published>2026-06-10T13:26:34+00:00</published>
+  <updated>2026-10-03T14:06:34+00:00</updated>
+  <media:group>
+   <media:title>What's the perfect encoding? How do you know?</media:title>
+   <media:content url="https://www.youtube.com/v/7L_eTem1SQ4?version=3" type="application/x-shockwave-flash" width="640" height="390"/>
+   <media:thumbnail url="https://i4.ytimg.com/vi/7L_eTem1SQ4/hqdefault.jpg" width="480" height="360"/>
+   <media:description>Full video: https://youtu.be/l6DKRf-fAAM</media:description>
+   <media:community>
+    <media:starRating count="7085" average="5.00" min="1" max="5"/>
+    <media:statistics views="248860"/>
+   </media:community>
+  </media:group>
+ </entry>
+ <entry>
+  <id>yt:video:l6DKRf-fAAM</id>
+  <yt:videoId>l6DKRf-fAAM</yt:videoId>
+  <yt:channelId>UCYO_jab_esuFRV4b17AJtAw</yt:channelId>
+  <title>Reinventing Entropy | Compression is Intelligence Part 1</title>
+  <link rel="alternate" href="https://www.youtube.com/watch?v=l6DKRf-fAAM"/>
+  <author>
+   <name>3Blue1Brown</name>
+   <uri>https://www.youtube.com/channel/UCYO_jab_esuFRV4b17AJtAw</uri>
+  </author>
+  <published>2026-06-07T11:49:51+00:00</published>
+  <updated>2026-10-06T18:26:17+00:00</updated>
+  <media:group>
+   <media:title>Reinventing Entropy | Compression is Intelligence Part 1</media:title>
+   <media:content url="https://www.youtube.com/v/l6DKRf-fAAM?version=3" type="application/x-shockwave-flash" width="640" height="390"/>
+   <media:thumbnail url="https://i1.ytimg.com/vi/l6DKRf-fAAM/hqdefault.jpg" width="480" height="360"/>
+   <media:description>How to study the compressibility of language.
+Check out our virtual career fair: https://3b1b.co/talent
+See new projects before they go live: https://3b1b.co/support
+
+Animation credit:
+Manim scenes by Aaron Gostein and Grant Sanderson
+Shannon’s story, as well as those for various pi creatures, by Mitchell Zemil.
+Lunar robot and prediction/compression coin by Paul Dancstep
+NanoGPT animations by Clayton Rabideau
+
+The way of visualizing entropy shown here is something I first came across in this excellent post by Chris Olah:
+https://colah.github.io/posts/2015-09-Visual-Information/
+
+Shannon’s “A Mathematical Theory of Communication”
+https://people.math.harvard.edu/~ctm/home/text/others/shannon/entropy/entropy.pdf
+
+Shannon’s “Prediction and Entropy of Printed English”
+https://www.princeton.edu/~wbialek/rome/refs/shannon_51.pdf
+
+Scientific American article that mentions the story with Von Neumann suggesting the name Entropy:
+https://www.esalq.usp.br/lepse/imgs/conteudo_thumb/Energy-and-Information.pdf
+
+
+Timestamps:
+
+0:00 - On “Compression is intelligence.”
+3:28 - The warmup example
+10:46 - What perfect compression looks like
+14:47 - Defining information
+17:40 - Information of language
+24:29 - Defining Entropy
+31:14 - 3b1b Talent
+
+------------------
+
+These animations are largely made using a custom Python library, manim.  See the FAQ comments here:
+https://3b1b.co/faq#manim
+
+Music by Vincent Rubinetti.
+https://vincerubinetti.bandcamp.com/album/the-music-of-3blue1brown
+https://open.spotify.com/album/1dVyjwS8FBqXhRunaG5W5u
+
+------------------
+
+3blue1brown is a channel about animating math, in all senses of the word animate. If you're reading the bottom of a video description, I'm guessing you're more interested than the average viewer in lessons here. It would mean a lot to me if you chose to stay up to date on new ones, either by subscribing here on YouTube or otherwise following on whichever platform below you check most regularly.
+
+Mailing list: https://3blue1brown.substack.com
+Twitter: https://twitter.com/3blue1brown
+Bluesky: https://bsky.app/profile/3blue1brown.com
+Instagram: https://www.instagram.com/3blue1brown
+Reddit: https://www.reddit.com/r/3blue1brown
+Facebook: https://www.facebook.com/3blue1brown
+Patreon: https://patreon.com/3blue1brown
+Website: https://www.3blue1brown.com</media:description>
+   <media:community>
+    <media:starRating count="55186" average="5.00" min="1" max="5"/>
+    <media:statistics views="1650302"/>
+   </media:community>
+  </media:group>
+ </entry>
+ <entry>
+  <id>yt:video:ZHXt0-_gSj4</id>
+  <yt:videoId>ZHXt0-_gSj4</yt:videoId>
+  <yt:channelId>UCYO_jab_esuFRV4b17AJtAw</yt:channelId>
+  <title>Tie random ends: How many loops?</title>
+  <link rel="alternate" href="https://www.youtube.com/shorts/ZHXt0-_gSj4"/>
+  <author>
+   <name>3Blue1Brown</name>
+   <uri>https://www.youtube.com/channel/UCYO_jab_esuFRV4b17AJtAw</uri>
+  </author>
+  <published>2026-05-21T21:49:47+00:00</published>
+  <updated>2026-10-04T11:49:37+00:00</updated>
+  <media:group>
+   <media:title>Tie random ends: How many loops?</media:title>
+   <media:content url="https://www.youtube.com/v/ZHXt0-_gSj4?version=3" type="application/x-shockwave-flash" width="640" height="390"/>
+   <media:thumbnail url="https://i3.ytimg.com/vi/ZHXt0-_gSj4/hqdefault.jpg" width="480" height="360"/>
+   <media:description>Recent puzzle solutions on Patreon:
+https://members.3blue1brown.com/posts/158885046?pr=true</media:description>
+   <media:community>
+    <media:starRating count="18337" average="5.00" min="1" max="5"/>
+    <media:statistics views="535201"/>
+   </media:community>
+  </media:group>
+ </entry>
+ <entry>
+  <id>yt:video:QLu_ZsRc_G0</id>
+  <yt:videoId>QLu_ZsRc_G0</yt:videoId>
+  <yt:channelId>UCYO_jab_esuFRV4b17AJtAw</yt:channelId>
+  <title>Covering 10 points, a surprisingly tricky puzzle.</title>
+  <link rel="alternate" href="https://www.youtube.com/shorts/QLu_ZsRc_G0"/>
+  <author>
+   <name>3Blue1Brown</name>
+   <uri>https://www.youtube.com/channel/UCYO_jab_esuFRV4b17AJtAw</uri>
+  </author>
+  <published>2026-04-16T16:08:21+00:00</published>
+  <updated>2026-10-01T16:44:32+00:00</updated>
+  <media:group>
+   <media:title>Covering 10 points, a surprisingly tricky puzzle.</media:title>
+   <media:content url="https://www.youtube.com/v/QLu_ZsRc_G0?version=3" type="application/x-shockwave-flash" width="640" height="390"/>
+   <media:thumbnail url="https://i2.ytimg.com/vi/QLu_ZsRc_G0/hqdefault.jpg" width="480" height="360"/>
+   <media:description>Made as part of a monthly series of puzzles for the 2026 Year of Math.</media:description>
+   <media:community>
+    <media:starRating count="19547" average="5.00" min="1" max="5"/>
+    <media:statistics views="832141"/>
+   </media:community>
+  </media:group>
+ </entry>
+ <entry>
+  <id>yt:video:Y7ImxZ_YhJk</id>
+  <yt:videoId>Y7ImxZ_YhJk</yt:videoId>
+  <yt:channelId>UCYO_jab_esuFRV4b17AJtAw</yt:channelId>
+  <title>Escher's most mind-bending piece</title>
+  <link rel="alternate" href="https://www.youtube.com/shorts/Y7ImxZ_YhJk"/>
+  <author>
+   <name>3Blue1Brown</name>
+   <uri>https://www.youtube.com/channel/UCYO_jab_esuFRV4b17AJtAw</uri>
+  </author>
+  <published>2026-03-27T20:56:02+00:00</published>
+  <updated>2026-10-04T03:30:17+00:00</updated>
+  <media:group>
+   <media:title>Escher's most mind-bending piece</media:title>
+   <media:content url="https://www.youtube.com/v/Y7ImxZ_YhJk?version=3" type="application/x-shockwave-flash" width="640" height="390"/>
+   <media:thumbnail url="https://i2.ytimg.com/vi/Y7ImxZ_YhJk/hqdefault.jpg" width="480" height="360"/>
+   <media:description>On &quot;The Print Gallery&quot;, by M.C. Escher
+Full video: https://youtu.be/ldxFjLJ3rVY</media:description>
+   <media:community>
+    <media:starRating count="10912" average="5.00" min="1" max="5"/>
+    <media:statistics views="355304"/>
+   </media:community>
+  </media:group>
+ </entry>
+ <entry>
+  <id>yt:video:4h5BEALuh44</id>
+  <yt:videoId>4h5BEALuh44</yt:videoId>
+  <yt:channelId>UCYO_jab_esuFRV4b17AJtAw</yt:channelId>
+  <title>The subset sum puzzle</title>
+  <link rel="alternate" href="https://www.youtube.com/shorts/4h5BEALuh44"/>
+  <author>
+   <name>3Blue1Brown</name>
+   <uri>https://www.youtube.com/channel/UCYO_jab_esuFRV4b17AJtAw</uri>
+  </author>
+  <published>2026-03-25T20:59:04+00:00</published>
+  <updated>2026-10-01T14:32:33+00:00</updated>
+  <media:group>
+   <media:title>The subset sum puzzle</media:title>
+   <media:content url="https://www.youtube.com/v/4h5BEALuh44?version=3" type="application/x-shockwave-flash" width="640" height="390"/>
+   <media:thumbnail url="https://i1.ytimg.com/vi/4h5BEALuh44/hqdefault.jpg" width="480" height="360"/>
+   <media:description>Part of a series of monthly puzzlers. Stay subscribed to see the solution</media:description>
+   <media:community>
+    <media:starRating count="11072" average="5.00" min="1" max="5"/>
+    <media:statistics views="431852"/>
+   </media:community>
+  </media:group>
+ </entry>
+</feed>

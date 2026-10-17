@@ -56,7 +56,9 @@ Python 3.13, FastAPI, Jinja2, Pydantic (settings, models, `pydantic-xml` for the
 The `Justfile` is the interface of the project:
 
 - `just check`: ruff format, ruff check, mypy strict on `src` and `tests`
-- `just test`: pytest with coverage (the tests call YouTube for real, they need the network)
+- `just test`: pytest with coverage, offline: Youtube is a fake transport replaying the answers recorded
+  under `tests/data/youtube/` (`docs/specs/youtube-fake.md`)
+- `just test-live`: the same suite against the real Youtube; `just test-record`: refresh the recorded answers
 - `just webapp`: development server on http://localhost:8000
 - `just format`, `just audit`, `just outdated`, `just release`, `just publish`
 

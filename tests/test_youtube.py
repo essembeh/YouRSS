@@ -3,7 +3,7 @@ from typing import Any
 
 from bs4 import BeautifulSoup
 from httpx import get
-from pytest import MonkeyPatch, mark, raises
+from pytest import MonkeyPatch, mark, raises, skip
 
 from yourss.settings import current_config
 from yourss.youtube import ScrapingError, YoutubeApi
@@ -20,8 +20,10 @@ def is_rgpd_applicable() -> bool:
     return resp.status_code == 200 and resp.text.strip() == "FR"
 
 
-@mark.skipif(not is_rgpd_applicable(), reason="Not applicable outside Europe")
+@mark.live
 async def test_rgpd() -> None:
+    if not is_rgpd_applicable():
+        skip("Not applicable outside Europe")
     api = YoutubeApi()
 
     url = "/@jonnygiger"
