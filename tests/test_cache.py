@@ -105,6 +105,30 @@ async def test_fresh_feed_skips_the_fetch(api: ApiFixture) -> None:
     assert (tmp_path / f"{CHANNEL_ID}.rss").is_file()
 
 
+async def test_refresh_fetches_a_fresh_feed(api: ApiFixture) -> None:
+    instance, calls, tmp_path = api
+    path = tmp_path / f"{CHANNEL_ID}.rss"
+
+    await instance.get_channel_rss(CHANNEL_ID)
+    written = path.stat().st_mtime_ns
+    await instance.get_channel_rss(CHANNEL_ID, refresh=True)
+
+    assert calls["count"] == 2
+    assert path.stat().st_mtime_ns >= written  # rewritten
+
+
+@mark.parametrize("error", FETCH_ERRORS, ids=type)
+async def test_refresh_error_keeps_the_fresh_feed(monkeypatch: MonkeyPatch, api: ApiFixture, error: Exception) -> None:
+    instance, calls, tmp_path = api
+
+    await instance.get_channel_rss(CHANNEL_ID)
+    _fail_with(monkeypatch, instance, calls, error)
+    feed = await instance.get_channel_rss(CHANNEL_ID, refresh=True)
+
+    assert calls["count"] == 2
+    assert feed.uid == CHANNEL_ID and (tmp_path / f"{CHANNEL_ID}.rss").is_file()
+
+
 async def test_expired_feed_is_fetched_again(api: ApiFixture) -> None:
     instance, calls, tmp_path = api
     path = tmp_path / f"{CHANNEL_ID}.rss"

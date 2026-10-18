@@ -59,12 +59,12 @@ class YoutubeApi(RapidApi):
     @get("/feeds/videos.xml")
     async def _get_playlist_rss_raw(self, playlist_id: Annotated[str, Query()]) -> Feed: ...  # type: ignore[empty-body]
 
-    async def _fetch_rss(self, key: str, fetch: Callable[[str], Awaitable[Feed]]) -> Feed:
-        """Fetch a feed through the optional disk cache (docs/specs/disk-cache.md)."""
+    async def _fetch_rss(self, key: str, fetch: Callable[[str], Awaitable[Feed]], *, refresh: bool) -> Feed:
+        """Fetch a feed through the optional disk cache (docs/specs/disk-cache.md); `refresh` ignores a fresh copy."""
         folder = cache_folder()
         if folder is None:
             return await fetch(key)
-        cached = read_cached_feed(folder, key, current_config.cache_rss_ttl)
+        cached = None if refresh else read_cached_feed(folder, key, current_config.cache_rss_ttl)
         if cached is not None:
             return cached
         try:
@@ -80,11 +80,11 @@ class YoutubeApi(RapidApi):
         write_cached_feed(folder, key, feed._response.content)
         return feed
 
-    async def get_channel_rss(self, channel_id: str) -> Feed:
-        return await self._fetch_rss(channel_id, self._get_channel_rss_raw)
+    async def get_channel_rss(self, channel_id: str, *, refresh: bool = False) -> Feed:
+        return await self._fetch_rss(channel_id, self._get_channel_rss_raw, refresh=refresh)
 
-    async def get_playlist_rss(self, playlist_id: str) -> Feed:
-        return await self._fetch_rss(playlist_id, self._get_playlist_rss_raw)
+    async def get_playlist_rss(self, playlist_id: str, *, refresh: bool = False) -> Feed:
+        return await self._fetch_rss(playlist_id, self._get_playlist_rss_raw, refresh=refresh)
 
     # --- oEmbed, the public endpoint which names the channel of a video
 

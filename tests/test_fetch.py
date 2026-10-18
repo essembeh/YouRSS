@@ -38,12 +38,12 @@ def api(monkeypatch: MonkeyPatch, tmp_path: Path) -> YoutubeApi:
     monkeypatch.setattr(current_config, "cache_rss_ttl", timedelta(minutes=30))
     instance = YoutubeApi()
 
-    async def get_channel_rss(channel_id: str) -> Feed:
+    async def get_channel_rss(channel_id: str, *, refresh: bool = False) -> Feed:
         if channel_id == CHANNEL_ID:
             return _feed(channel_id)
         raise _http_error(404)
 
-    async def get_playlist_rss(playlist_id: str) -> Feed:
+    async def get_playlist_rss(playlist_id: str, *, refresh: bool = False) -> Feed:
         if playlist_id == PLAYLIST_ID:
             return _feed(playlist_id)
         raise _http_error(404)
@@ -102,7 +102,7 @@ async def test_failed_feed(api: YoutubeApi, tmp_path: Path) -> None:
 
 
 async def test_stale_feed(monkeypatch: MonkeyPatch, api: YoutubeApi) -> None:
-    async def get_channel_rss(channel_id: str) -> Feed:
+    async def get_channel_rss(channel_id: str, *, refresh: bool = False) -> Feed:
         return _feed(CHANNEL_ID, cached_at=datetime.now(UTC) - timedelta(hours=3))
 
     monkeypatch.setattr(api, "get_channel_rss", get_channel_rss)

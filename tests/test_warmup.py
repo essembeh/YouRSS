@@ -1,5 +1,6 @@
 import asyncio
 from datetime import timedelta
+from pathlib import Path
 
 from loguru import logger
 from pytest import MonkeyPatch
@@ -19,6 +20,20 @@ async def test_warm_round_refreshes_every_page() -> None:
     (summary,) = [line for line in lines if line.startswith("Warm-up:")]
     # The three pages of the sample file, their channels counted once each per page
     assert summary.startswith("Warm-up: 3 pages, 7 channels, 0 failed, ")
+
+
+def _feed_mtimes(folder: Path) -> dict[Path, int]:
+    return {path: path.stat().st_mtime_ns for path in folder.glob("*.rss")}
+
+
+async def test_warm_round_refreshes_whatever_the_age(test_cache_folder: Path) -> None:
+    await warm_round()
+    before = _feed_mtimes(test_cache_folder)
+    await asyncio.sleep(0.01)
+    await warm_round()
+    # Every feed was fresh (younger than the TTL), every one was written again
+    after = _feed_mtimes(test_cache_folder)
+    assert before and all(after[path] > mtime for path, mtime in before.items())
 
 
 async def test_warm_round_without_a_file(monkeypatch: MonkeyPatch) -> None:

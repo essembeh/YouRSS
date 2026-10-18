@@ -14,7 +14,8 @@ from .youtube import YoutubeApi
 
 
 async def warm_round() -> None:
-    """Fetch every page in the order of the file: a channel in several pages is asked once, the cache answers next."""
+    """Refresh every page in the order of the file, whatever the age of the cached feeds (a channel in several pages
+    is asked once per round); a feed Youtube fails to give keeps its cached copy."""
     config = read_config()
     if config is None:
         logger.warning("Warm-up: no pages to refresh")
@@ -23,7 +24,7 @@ async def warm_round() -> None:
     api = YoutubeApi()
     channels = failed = 0
     for page in config.pages:
-        statuses = await async_fetch(page.channels, api=api)
+        statuses = await async_fetch(page.channels, api=api, refresh=True)
         channels += len(statuses)
         failed += sum(status.state == State.FAILED for status in statuses)
     logger.info(

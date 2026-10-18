@@ -96,7 +96,7 @@ def _fetched(name: str, kind: Kind, feed: Feed, resolved: ChannelDescription | N
     return SubscriptionStatus(name=name, kind=kind, state=State.OK, feed=feed, channel=channel)
 
 
-async def async_fetch(names: list[str], api: YoutubeApi) -> list[SubscriptionStatus]:
+async def async_fetch(names: list[str], api: YoutubeApi, *, refresh: bool = False) -> list[SubscriptionStatus]:
     """One status per name of the page, in its order: the feeds come first, the metadata is read from the cache."""
     # A handle (user pages only) must be resolved to its id before its feed can be asked
     handles = [name for name in names if is_user(name)]
@@ -114,7 +114,12 @@ async def async_fetch(names: list[str], api: YoutubeApi) -> list[SubscriptionSta
         zip(
             targets,
             await asyncio.gather(
-                *[api.get_playlist_rss(t) if is_playlist_id(t) else api.get_channel_rss(t) for t in targets.values()],
+                *[
+                    api.get_playlist_rss(t, refresh=refresh)
+                    if is_playlist_id(t)
+                    else api.get_channel_rss(t, refresh=refresh)
+                    for t in targets.values()
+                ],
                 return_exceptions=True,
             ),
             strict=True,

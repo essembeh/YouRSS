@@ -66,8 +66,9 @@ Durations are ISO-8601 (`PT30M`, `PT48H`) or a number of seconds.
 `yourss.warmupInterval` (an ISO-8601 duration like `PT1H`, or seconds) makes the application
 refresh the feeds of every page in the background: a first round at startup, then one per
 interval, so that the feeds and the channel metadata are on disk when a visitor comes, and still
-served from the fallback cache during Youtube's bad hours. A round only refreshes what is older
-than `cacheRssTtl`. It asks Youtube whether anyone visits or not, which is why it is off by default.
+served from the fallback cache during Youtube's bad hours. A round refreshes every feed whatever
+its age, `cacheRssTtl` only rules the visits: set it to the interval or more and a visitor never
+waits for Youtube. It asks Youtube whether anyone visits or not, which is why it is off by default.
 Each pod refreshes its own cache; the failures are in the application logs.
 
 ### Pages and users
