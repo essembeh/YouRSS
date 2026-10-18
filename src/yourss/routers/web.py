@@ -137,7 +137,7 @@ async def user_folder(
     return template_page(
         request,
         "partials/folder.jinja-html" if hx_request == "true" else "pages/view.jinja-html",
-        title=f"{folder.title} - /u/{user.name}",
+        title=f"/u/{user.name}/{folder.name}",
         link_prefix=folder_link_prefix(user.name, folder.name),
         user_name=user.name,
         folders=user.pages,
