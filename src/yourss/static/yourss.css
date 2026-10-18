@@ -285,7 +285,7 @@ body.hide-watched.watched-ready .yourss-grid:not(:has(.yourss-video:not(.is-watc
 .yourss-play-badge { position: absolute; inset: 0; display: grid; place-items: center; pointer-events: none; opacity: 0; transition: opacity .15s; background: rgba(0,0,0,.25); }
 .yourss-play-badge svg { width: 56px; height: 56px; fill: #fff; stroke: none; filter: drop-shadow(0 2px 8px rgba(0,0,0,.6)); }
 .yourss-media:hover .yourss-play-badge { opacity: 1; }
-.yourss-player-container.is-active ~ .yourss-play-badge { display: none; }
+.yourss-video.is-playing .yourss-play-badge { display: none; }
 /* Setting "Show new videos" off: every marker, counter and command of the feature disappears */
 body.no-watched [data-watched-feature] { display: none !important; }
 
@@ -426,14 +426,18 @@ button.yourss-nav-item { width: 100%; border: 0; background: transparent; text-a
 @keyframes yourss-loading { from { background-position: -50% 0; } to { background-position: 150% 0; } }
 /* The animation overlay must not swallow a second swipe */
 ::view-transition { pointer-events: none; }
-#yourss-content { view-transition-name: content; }
+/* Only the root is animated, a snapshot of the screen and nothing more: a feed of a hundred cards is long to capture.
+   The bars and the sidebar are captured apart so that they stay still. */
+.yourss-topbar { view-transition-name: topbar; }
+.yourss-sidebar { view-transition-name: sidebar; }
+.yourss-loading { view-transition-name: loading; }
 #tab-content { view-transition-name: tab; }
-::view-transition-old(content), ::view-transition-new(content) { animation-duration: .22s; animation-timing-function: ease; }
+::view-transition-old(root), ::view-transition-new(root) { animation-duration: .22s; animation-timing-function: ease; }
 /* A folder reached by a swipe or a chevron: the old content leaves on one side, the new one enters from the other */
 html[data-slide="next"] { --slide-dir: 1; }
 html[data-slide="prev"] { --slide-dir: -1; }
-html[data-slide]::view-transition-old(content) { animation: yourss-slide-out .3s ease-in; }
-html[data-slide]::view-transition-new(content) { animation: yourss-slide-in .3s ease-out; }
+html[data-slide]::view-transition-old(root) { animation: yourss-slide-out .2s ease-in; }
+html[data-slide]::view-transition-new(root) { animation: yourss-slide-in .2s ease-out; }
 @keyframes yourss-slide-out { to { opacity: .2; transform: translateX(calc(var(--slide-dir) * -100%)); } }
 @keyframes yourss-slide-in { from { transform: translateX(calc(var(--slide-dir) * 100%)); } }
 /* The content under the finger during a swipe, then leaving while the next folder loads */
@@ -453,6 +457,8 @@ html[data-slide]::view-transition-new(content) { animation: yourss-slide-in .3s 
 
 /* ---- scroll offset of a card brought to the top (sticky top bar on phones) ---- */
 .yourss-video { scroll-margin-top: 1rem; }
+/* A card far from the screen is neither laid out nor painted until it comes close (a playing card hosts the player) */
+.yourss-video:not(.is-playing) { content-visibility: auto; contain-intrinsic-size: auto 380px; }
 @media (max-width: 899px) { .yourss-video { scroll-margin-top: 4.25rem; } }
 
 /* ---- phones: the playing card fills the screen under the top bar ---- */

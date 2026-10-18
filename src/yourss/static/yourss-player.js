@@ -73,16 +73,26 @@ function createPlayer(YT, host, videoId, onEnded) {
 
 /* ---------- player embedded in a card (one at a time), closed or docked when the card leaves the screen ---------- */
 const embedded = { player: null, videoId: null, observer: null, seen: false }
+const CHROME = ".yourss-playing-bar, .yourss-player-container, .yourss-dock-bar, .yourss-dock-placeholder"
+
+// The chrome of the player lives in one <template>: a card only carries it while it plays, which keeps the cards light.
+function mountChrome(video) {
+  const chrome = $("#yourss-player-template").content.cloneNode(true)
+  const title = $(".yourss-video-title", video).textContent.trim()
+  $$("[data-player-title]", chrome).forEach((el) => (el.textContent = title))
+  const media = $(".yourss-media", video)
+  video.prepend($(".yourss-playing-bar", chrome))
+  media.append($(".yourss-player-container", chrome), $(".yourss-dock-bar", chrome))
+  media.after($(".yourss-dock-placeholder", chrome))
+  return $(".yourss-player-container", video)
+}
 
 export function closePlayer() {
   embedded.observer?.disconnect()
   embedded.player?.destroy()
   Object.assign(embedded, { player: null, videoId: null, observer: null, seen: false })
   stopPlaybackTracking()
-  $$(".yourss-player-container").forEach((el) => {
-    el.replaceChildren()
-    el.classList.remove("is-active")
-  })
+  $$(CHROME).forEach((el) => el.remove())
   $$(".yourss-video.is-playing, .yourss-video.is-docked").forEach((el) => el.classList.remove("is-playing", "is-docked"))
 }
 
@@ -106,13 +116,12 @@ export function play(videoId) {
   }
   closePlayer()
   const video = videoById(videoId)
-  const container = video && $(".yourss-player-container", video)
-  if (!container) {
+  if (!video) {
     return
   }
   embedded.videoId = videoId
   video.classList.add("is-playing")
-  container.classList.add("is-active")
+  const container = mountChrome(video)
   focusVideo(video, false)
   // The expanded card goes to the top of the viewport (CSS scroll-margin-top clears the sticky top bar of phones).
   video.scrollIntoView({ block: "start", behavior: "smooth" })

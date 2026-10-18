@@ -3,7 +3,7 @@
  *
  * DOM conventions used by the templates:
  *  - a video is `.yourss-video#yourss-video-<id>` with `data-video-id` and optional `data-channel-id`;
- *    its media box is `.yourss-media` (thumbnail `img.yourss-thumbnail`, `.yourss-player-container`)
+ *    its media box is `.yourss-media` (thumbnail `img.yourss-thumbnail`; the player chrome is cloned in while it plays)
  *  - every command is a `[data-action]` element handled by the `actions` table below
  *  - a channel avatar is `img.yourss-avatar` (retried when it fails to load)
  *  - `template#yourss-empty-template` holds the empty state of a tab, `template#yourss-failed-template` the

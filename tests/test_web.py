@@ -490,3 +490,11 @@ async def test_avatar_falls_back_on_the_initial(client: AsyncClient) -> None:
     assert resp.status_code == 422
     resp = await client.get("/avatar/foo")
     assert resp.status_code == 422
+
+
+async def test_pages_are_compressed_on_request(client: AsyncClient) -> None:
+    resp = await client.get("/u/alice/fun", headers={"Accept-Encoding": "gzip", "HX-Request": "true"})
+    assert resp.status_code == 200 and resp.headers["content-encoding"] == "gzip"
+    assert int(resp.headers["content-length"]) < len(resp.content) / 5  # the body is decompressed by the client
+    plain = await client.get("/u/alice/fun", headers={"Accept-Encoding": "identity"})
+    assert plain.status_code == 200 and "content-encoding" not in plain.headers

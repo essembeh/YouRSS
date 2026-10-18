@@ -3,6 +3,7 @@ from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager, suppress
 
 from fastapi import FastAPI, Request
+from fastapi.middleware.gzip import GZipMiddleware
 from fastapi.staticfiles import StaticFiles
 from loguru import logger
 from starlette.responses import Response
@@ -68,6 +69,8 @@ def create_app(*, api_docs: bool) -> FastAPI:
         openapi_url="/openapi.json" if api_docs else None,
     )
     out.add_exception_handler(UnknownUser, unknown_user)  # type: ignore[arg-type]
+    # A folder of videos is a few hundred kB of HTML, twenty times less once compressed
+    out.add_middleware(GZipMiddleware, minimum_size=1000)
     out.include_router(web.router)
     out.include_router(htmx.router)
     out.include_router(api.router)
