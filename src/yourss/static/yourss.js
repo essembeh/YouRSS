@@ -194,36 +194,92 @@ function syncFolderNav() {
   })
 }
 
-// Open the previous or the next folder, like a tap on its row: nothing happens at both ends
+// Open the previous or the next folder, like a tap on its row: nothing happens at both ends.
+// The direction is kept on <html> until the swap settles: the CSS slides the content that way.
 function stepFolder(step) {
   const els = folderEls()
   const target = els.findIndex((el) => el.open) + step
   if (els.length > 0 && target >= 0 && target < els.length) {
+    document.documentElement.dataset.slide = step > 0 ? "next" : "prev"
     showFolder(els[target].dataset.folder, { push: true })
   }
 }
+const clearSlide = () => delete document.documentElement.dataset.slide
+// The swap settles when the animation starts: the direction stays until the view transition ends
+// A transition cut short by the next swap rejects its promise: the direction is cleared either way
+on("htmx:afterSettle", () => (document.activeViewTransition?.finished ?? Promise.resolve()).then(clearSlide, clearSlide))
+on("htmx:responseError", clearSlide)
+on("htmx:sendError", clearSlide)
 
-// A horizontal swipe on the content (phones) moves to the next or the previous folder
-const SWIPE = { minDistance: 60, maxDuration: 800, edge: 25 }
-let swipeStart = null
+// A horizontal swipe on the content (phones) moves to the next or the previous folder. The content follows
+// the finger, resists when there is no folder on that side, then leaves while the next one loads.
+const SWIPE = { lock: 12, minDistance: 60, maxDuration: 800, edge: 25, follow: 0.6, resist: 0.2 }
+let swipe = null
+const content = () => $("#yourss-content")
+function canStep(step) {
+  const target = folderEls().findIndex((el) => el.open) + step
+  return target >= 0 && target < folderEls().length
+}
+// Back in place at once, with no transition: the new content must not slide after a swap
+function resetContent() {
+  const el = content()
+  if (el) {
+    el.classList.remove("is-swiping", "is-leaving")
+    el.style.transition = "none"
+    el.style.transform = ""
+    void el.offsetWidth
+    el.style.transition = ""
+  }
+}
 on("touchstart", (event) => {
   const touch = event.touches[0]
-  const onContent = event.touches.length === 1 && event.target.closest(".yourss-main")
+  // While a view transition plays, the touch lands on <html>: it is the content unless the drawer is open
+  const onContent =
+    event.touches.length === 1 &&
+    (event.target.closest(".yourss-main") ||
+      (event.target === document.documentElement && !document.body.classList.contains("menu-open")))
   const fromEdge = touch.clientX < SWIPE.edge || touch.clientX > window.innerWidth - SWIPE.edge
-  swipeStart = onContent && !fromEdge ? { x: touch.clientX, y: touch.clientY, time: event.timeStamp } : null
+  swipe = onContent && !fromEdge && content() ? { x: touch.clientX, y: touch.clientY, time: event.timeStamp, axis: null } : null
 }, { passive: true })
-on("touchend", (event) => {
-  const start = swipeStart
-  swipeStart = null
-  if (!start || event.timeStamp - start.time > SWIPE.maxDuration) {
+on("touchmove", (event) => {
+  if (!swipe) {
     return
   }
-  const dx = event.changedTouches[0].clientX - start.x
-  const dy = event.changedTouches[0].clientY - start.y
-  if (Math.abs(dx) >= SWIPE.minDistance && Math.abs(dy) < Math.abs(dx) / 2) {
-    stepFolder(dx < 0 ? 1 : -1)
+  const dx = event.touches[0].clientX - swipe.x
+  const dy = event.touches[0].clientY - swipe.y
+  // The first clear move locks the axis: a vertical one is a scroll, left to the browser
+  if (swipe.axis === null && Math.max(Math.abs(dx), Math.abs(dy)) >= SWIPE.lock) {
+    swipe.axis = Math.abs(dx) > Math.abs(dy) * 1.5 ? "x" : "y"
+  }
+  // Moving the content while a view transition captures it aborts that transition: no follow until it ends
+  if (swipe.axis === "x" && !document.activeViewTransition) {
+    content().classList.add("is-swiping")
+    content().style.transform = `translateX(${dx * (canStep(dx < 0 ? 1 : -1) ? SWIPE.follow : SWIPE.resist)}px)`
   }
 }, { passive: true })
+function endSwipe(event) {
+  const start = swipe
+  swipe = null
+  if (!start || !content()) {
+    return
+  }
+  const dx = event.type === "touchend" ? event.changedTouches[0].clientX - start.x : 0
+  const step = dx < 0 ? 1 : -1
+  const done = start.axis === "x" && Math.abs(dx) >= SWIPE.minDistance && event.timeStamp - start.time <= SWIPE.maxDuration
+  content().classList.remove("is-swiping")
+  if (done && canStep(step)) {
+    content().classList.add("is-leaving")
+    content().style.transform = `translateX(${-step * 30}%)`
+    stepFolder(step)
+  } else {
+    content().style.transform = ""
+  }
+}
+on("touchend", endSwipe, { passive: true })
+on("touchcancel", endSwipe, { passive: true })
+on("htmx:afterSwap", (event) => event.detail.target?.id === "yourss-content" && resetContent())
+on("htmx:responseError", resetContent)
+on("htmx:sendError", resetContent)
 
 // Open a folder and load its Home: through a click on its row (htmx pushes the URL) or silently, for the URL of a load.
 function showFolder(name, { push }) {

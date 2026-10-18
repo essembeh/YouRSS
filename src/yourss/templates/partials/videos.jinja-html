@@ -1,7 +1,7 @@
 {% from "partials/macros.jinja-html" import avatar %}
 {% for video in videos %}
 <div id="yourss-video-{{ video.video_id }}" class="yourss-video" data-video-id="{{ video.video_id }}"{% if video.channel %} data-channel-id="{{ video.channel.channel_id }}"{% endif %}
-  {% if loop.last and next_page_url %} hx-get="{{ next_page_url }}" hx-trigger="revealed" hx-swap="afterend"{% endif %}>
+  {% if loop.last and next_page_url %} hx-get="{{ next_page_url }}" hx-trigger="revealed" hx-swap="afterend transition:false"{% endif %}>
   <div class="yourss-playing-bar">
     <span>{{ video.title|clean_title }}</span>
     <button type="button" class="yourss-icon-btn is-small yourss-close-player" data-action="close-player" title="Close the player (Esc)"><svg><use href="#i-close" /></svg></button>

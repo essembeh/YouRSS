@@ -420,6 +420,28 @@ button.yourss-nav-item { width: 100%; border: 0; background: transparent; text-a
   .yourss-main { touch-action: pan-y pinch-zoom; }
 }
 
+/* ---- loading and transitions: a bar while a request runs, a view transition around every swap ---- */
+.yourss-loading { position: fixed; top: 0; left: 0; right: 0; height: 3px; z-index: 300; pointer-events: none; opacity: 0; background: linear-gradient(90deg, transparent, var(--accent) 50%, transparent); background-size: 50% 100%; background-repeat: no-repeat; transition: opacity .15s; }
+.yourss-loading.htmx-request { opacity: 1; animation: yourss-loading 1s linear infinite; }
+@keyframes yourss-loading { from { background-position: -50% 0; } to { background-position: 150% 0; } }
+/* The animation overlay must not swallow a second swipe */
+::view-transition { pointer-events: none; }
+#yourss-content { view-transition-name: content; }
+#tab-content { view-transition-name: tab; }
+::view-transition-old(content), ::view-transition-new(content) { animation-duration: .22s; animation-timing-function: ease; }
+/* A folder reached by a swipe or a chevron: the old content leaves on one side, the new one enters from the other */
+html[data-slide="next"] { --slide-dir: 1; }
+html[data-slide="prev"] { --slide-dir: -1; }
+html[data-slide]::view-transition-old(content) { animation: yourss-slide-out .3s ease-in; }
+html[data-slide]::view-transition-new(content) { animation: yourss-slide-in .3s ease-out; }
+@keyframes yourss-slide-out { to { opacity: .2; transform: translateX(calc(var(--slide-dir) * -100%)); } }
+@keyframes yourss-slide-in { from { transform: translateX(calc(var(--slide-dir) * 100%)); } }
+/* The content under the finger during a swipe, then leaving while the next folder loads */
+#yourss-content { transition: transform .25s ease, opacity .25s ease; }
+#yourss-content.is-swiping { transition: none; }
+#yourss-content.is-leaving { opacity: .4; }
+@media (prefers-reduced-motion: reduce) { ::view-transition-group(*), ::view-transition-old(*), ::view-transition-new(*) { animation: none !important; } }
+
 /* ---- misc ---- */
 #scroll-to-top { position: fixed; left: 50%; transform: translateX(-50%); bottom: 1rem; z-index: 60; width: 42px; height: 42px; border-radius: 50%; border: 0; background: var(--fg); color: var(--bg); display: grid; place-items: center; box-shadow: 0 6px 20px rgba(0,0,0,.5); opacity: 0; visibility: hidden; transition: opacity .3s, visibility .3s; }
 #scroll-to-top.visible { opacity: 1; visibility: visible; }

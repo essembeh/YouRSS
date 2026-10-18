@@ -6,6 +6,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <meta name="color-scheme" content="dark light" />
+  {# Every htmx swap runs inside a view transition (the CSS animates it where the browser supports them) #}
+  <meta name="htmx-config" content='{"globalViewTransitions": true}' />
   <script>
     // Neon is the default theme; a theme chosen in this browser is applied before first paint.
     try {
@@ -25,8 +27,9 @@
   <meta name="theme-color" content="#0a0718" />
 </head>
 
-<body class="no-watched"{% if page_names is defined %} data-page-names="{{ page_names|join(',') }}" data-page-max="{{ max_page_items }}"{% endif %}>
+<body class="no-watched" hx-indicator="#yourss-loading"{% if page_names is defined %} data-page-names="{{ page_names|join(',') }}" data-page-max="{{ max_page_items }}"{% endif %}>
   {% include "partials/icons.jinja-html" %}
+  <div id="yourss-loading" class="yourss-loading" aria-hidden="true"></div>
 
   <div class="yourss-app">
     <header class="yourss-topbar">
