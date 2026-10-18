@@ -7,7 +7,7 @@ from pytest import MonkeyPatch
 
 from yourss.main import lifespan
 from yourss.settings import current_config
-from yourss.warmup import warm_forever, warm_round
+from yourss.warmup import warm_forever, warm_interval, warm_round
 
 
 async def test_warm_round_refreshes_every_page() -> None:
@@ -67,7 +67,14 @@ async def test_warm_forever_survives_a_failing_round(monkeypatch: MonkeyPatch) -
     assert rounds >= 2 and all(line.startswith("Warm-up round failed: boom") for line in lines) and lines
 
 
-async def test_lifespan_starts_the_warm_up_when_set(monkeypatch: MonkeyPatch) -> None:
+def test_warm_interval_is_a_minute_before_the_ttl() -> None:
+    assert warm_interval(timedelta(minutes=30)) == timedelta(minutes=29)
+    assert warm_interval(timedelta(hours=1)) == timedelta(minutes=59)
+    # A very short TTL still gets a positive interval, shorter than itself
+    assert warm_interval(timedelta(minutes=1)) == timedelta(seconds=30)
+
+
+async def test_lifespan_starts_the_warm_up_when_enabled(monkeypatch: MonkeyPatch) -> None:
     started: list[timedelta] = []
 
     async def fake_forever(interval: timedelta) -> None:
@@ -75,16 +82,17 @@ async def test_lifespan_starts_the_warm_up_when_set(monkeypatch: MonkeyPatch) ->
         await asyncio.sleep(3600)
 
     monkeypatch.setattr("yourss.main.warm_forever", fake_forever)
-    monkeypatch.setattr(current_config, "warmup_interval", None)
+    monkeypatch.setattr(current_config, "cache_rss_ttl", timedelta(minutes=30))
+    monkeypatch.setattr(current_config, "warmup_enabled", False)
     async with lifespan(None):  # type: ignore[arg-type]
         pass
     assert started == []
-    monkeypatch.setattr(current_config, "warmup_interval", timedelta(minutes=5))
+    monkeypatch.setattr(current_config, "warmup_enabled", True)
     async with lifespan(None):  # type: ignore[arg-type]
         await asyncio.sleep(0)
-    assert started == [timedelta(minutes=5)]
+    assert started == [timedelta(minutes=29)]
     # Without a cache there is nothing to warm up
     monkeypatch.setattr(current_config, "cache_enabled", False)
     async with lifespan(None):  # type: ignore[arg-type]
         await asyncio.sleep(0)
-    assert started == [timedelta(minutes=5)]
+    assert started == [timedelta(minutes=29)]

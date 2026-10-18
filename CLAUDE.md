@@ -19,9 +19,9 @@ Principles, in order of importance when they conflict:
    relays media.
 3. **Stateless server.** No database, no session, no cookie. What belongs to a visitor (theme,
    density, watched videos) lives in the browser, in `localStorage`.
-4. **Cache as little as possible.** One server cache, on disk, that can be turned off: the feeds
-   for a few minutes (and up to two days when YouTube fails) and the channel names and avatars for
-   a week. Nothing else, and never media.
+4. **Cache as little as possible.** No cache by default. One server cache, on disk, can be turned
+   on: the feeds for a few minutes (and up to two days when YouTube fails) and the channel names
+   and avatars for a week. Nothing else, and never media.
 5. **Stay light.** One small FastAPI application, server-rendered templates, htmx for the dynamic
    parts, vanilla CSS and JavaScript. No front-end framework, no build step.
 6. **Everything is a URL.** `/UC…,PL…` (channel and playlist ids in the URL), `/p/<page>` (a

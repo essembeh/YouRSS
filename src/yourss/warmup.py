@@ -32,6 +32,11 @@ async def warm_round() -> None:
     )
 
 
+def warm_interval(ttl: timedelta) -> timedelta:
+    """A round a minute before the feeds expire, so that a visit never finds a stale one."""
+    return max(ttl - timedelta(minutes=1), ttl / 2)
+
+
 async def warm_forever(interval: timedelta) -> None:
     """A round now, then one per interval; a round that fails is logged and the next one still comes."""
     while True:

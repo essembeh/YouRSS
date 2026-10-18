@@ -15,7 +15,7 @@ from .routers import api, htmx, web
 from .routers.jinja import template_page
 from .security import UnknownUser
 from .settings import current_config, iso_duration, static_folder
-from .warmup import warm_forever
+from .warmup import warm_forever, warm_interval
 
 
 class CachedStaticFiles(StaticFiles):
@@ -31,12 +31,12 @@ class CachedStaticFiles(StaticFiles):
 
 @asynccontextmanager
 async def lifespan(app: FastAPI) -> AsyncIterator[None]:
-    """The warm-up task runs for the life of the application, when an interval is set."""
-    interval = current_config.warmup_interval
+    """The warm-up task runs for the life of the application, when enabled."""
     task = None
-    if interval and not current_config.cache_enabled:
-        logger.warning("YOURSS_WARMUP_INTERVAL is set but the cache is disabled: nothing to warm up")
-    elif interval:
+    if current_config.warmup_enabled and not current_config.cache_enabled:
+        logger.warning("YOURSS_WARMUP_ENABLED is set but the cache is disabled: nothing to warm up")
+    elif current_config.warmup_enabled:
+        interval = warm_interval(current_config.cache_rss_ttl)
         logger.info("Warm-up of every page every {}", iso_duration(interval))
         task = asyncio.create_task(warm_forever(interval))
     yield

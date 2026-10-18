@@ -58,9 +58,9 @@ spec:
             {{- end }}
             - name: YOURSS_CACHE_RSS_TTL
               value: {{ .Values.yourss.cacheRssTtl | quote }}
-            {{- with .Values.yourss.warmupInterval }}
-            - name: YOURSS_WARMUP_INTERVAL
-              value: {{ . | quote }}
+            {{- if .Values.yourss.warmupEnabled }}
+            - name: YOURSS_WARMUP_ENABLED
+              value: "true"
             {{- end }}
             - name: YOURSS_CACHE_RSS_FALLBACK_TTL
               value: {{ .Values.yourss.cacheRssFallbackTtl | quote }}

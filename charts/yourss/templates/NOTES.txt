@@ -14,7 +14,7 @@ then open http://localhost:8000/
 
 Pages: {{ range .Values.yourss.pages }}{{ if ne .visible false }}/p/{{ .name }} {{ end }}{{ end }}
 Users: {{ range .Values.yourss.users }}/u/{{ .name }} {{ end }}
-{{- with .Values.yourss.warmupInterval }}
-Every page is refreshed in the background every {{ . }}.
+{{- if .Values.yourss.warmupEnabled }}
+Every page is refreshed in the background, a round every {{ .Values.yourss.cacheRssTtl }} minus a minute.
 {{- end }}
 {{- end }}

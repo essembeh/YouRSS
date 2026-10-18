@@ -25,7 +25,7 @@ yourss:
   # feed younger than cacheRssTtl is served without asking Youtube; when the fetch fails (Youtube's
   # daily transient 404 windows), a feed younger than cacheRssFallbackTtl is served instead of the
   # error. When false, nothing is cached: every page load scrapes a page per channel
-  cacheEnabled: true
+  cacheEnabled: false
   # YOURSS_CACHE_FOLDER: where the cache lives; empty means a temporary folder under /tmp (an
   # emptyDir), lost with the pod. The pod does not start if it cannot write there
   cacheFolder: ""
@@ -38,9 +38,9 @@ yourss:
   # YOURSS_CACHE_METADATA_TTL: how long the name and avatar of a channel are served without
   # scraping its page (ISO-8601 duration or seconds)
   cacheMetadataTtl: P7D
-  # YOURSS_WARMUP_INTERVAL: refresh the feeds of every page in the background this often (ISO-8601
-  # duration or seconds), so that they are on disk when a visitor comes; empty, nothing runs
-  warmupInterval: ""
+  # YOURSS_WARMUP_ENABLED: refresh the feeds of every page in the background, a round every
+  # cacheRssTtl minus a minute, so that a visitor always finds them on disk
+  warmupEnabled: false
   # YOURSS_USERS_FILE: the pages and users, stored in a Secret since users may hold passwords
   pages:
     []

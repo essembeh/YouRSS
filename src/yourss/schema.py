@@ -22,8 +22,9 @@ class AppSettings(BaseSettings):
     users_file: Path | None = None
     # Capitalize the titles to tame UPPERCASE ones
     clean_titles: bool = False
-    # Disk cache of the feeds and channel metadata (docs/specs/disk-cache.md), a temporary folder when none is given
-    cache_enabled: bool = True
+    # Disk cache of the feeds and channel metadata (docs/specs/disk-cache.md), off by default; a temporary folder when
+    # none is given
+    cache_enabled: bool = False
     cache_folder: Path | None = None
     # A cached feed younger than the TTL is served without asking Youtube
     cache_rss_ttl: timedelta = timedelta(minutes=30)
@@ -32,14 +33,13 @@ class AppSettings(BaseSettings):
     # A cached channel description younger than this is served without scraping Youtube
     cache_metadata_ttl: timedelta = timedelta(days=7)
     # Refresh the feeds of every page in the background, this often; unset, nothing runs (docs/specs/pages-users.md §8)
-    warmup_interval: timedelta | None = None
+    # Refresh the feeds of every page in the background, a round every cache_rss_ttl minus a minute
+    warmup_enabled: bool = False
 
     @model_validator(mode="after")
     def _check_cache_ttls(self) -> Self:
         if self.cache_rss_ttl > self.cache_rss_fallback_ttl:
             raise ValueError("cache_rss_ttl must not exceed cache_rss_fallback_ttl")
-        if self.warmup_interval is not None and self.warmup_interval <= timedelta(0):
-            raise ValueError("warmup_interval must be positive")
         return self
 
 

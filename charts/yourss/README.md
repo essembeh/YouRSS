@@ -30,12 +30,12 @@ the application. The meaning of each setting is documented in the
 | `yourss.maxPageItems` | `12` | `YOURSS_MAX_PAGE_ITEMS` |
 | `yourss.apiDocsEnabled` | `false` | `YOURSS_API_DOCS_ENABLED` |
 | `yourss.cleanTitles` | `false` | `YOURSS_CLEAN_TITLES` |
-| `yourss.cacheEnabled` | `true` | `YOURSS_CACHE_ENABLED` |
+| `yourss.cacheEnabled` | `false` | `YOURSS_CACHE_ENABLED` |
 | `yourss.cacheFolder` | `""` | `YOURSS_CACHE_FOLDER`, only set when not empty |
 | `yourss.cacheRssTtl` | `PT30M` | `YOURSS_CACHE_RSS_TTL` |
 | `yourss.cacheRssFallbackTtl` | `PT48H` | `YOURSS_CACHE_RSS_FALLBACK_TTL` |
 | `yourss.cacheMetadataTtl` | `P7D` | `YOURSS_CACHE_METADATA_TTL` |
-| `yourss.warmupInterval` | `""` | `YOURSS_WARMUP_INTERVAL`, see below |
+| `yourss.warmupEnabled` | `false` | `YOURSS_WARMUP_ENABLED`, see below |
 | `yourss.pages` | `[]` | `YOURSS_USERS_FILE`, see below |
 | `yourss.users` | `[]` | `YOURSS_USERS_FILE`, see below |
 | `yourss.extraEnv` | `[]` | any other variable, as a list of `name` / `value` |
@@ -52,8 +52,8 @@ avatar, handle to id resolution):
 - the name and avatar of a channel are served without scraping its page for `cacheMetadataTtl`,
   and whatever their age when the scrape fails.
 
-With `cacheEnabled: false` nothing is cached: every page load fetches its feeds and scrapes a
-1 MB page per channel. The pods share nothing, each one has its own cache. With `cacheFolder`
+With `cacheEnabled: false`, the default, nothing is cached: every page load fetches its feeds
+and scrapes a 1 MB page per channel. The pods share nothing, each one has its own cache. With `cacheFolder`
 empty the files go to a temporary folder under `/tmp`, an `emptyDir` that disappears with the
 pod. The root filesystem is read-only, so a custom `cacheFolder` must live under `/tmp` or on a
 volume added with `volumes` and `volumeMounts`; the pod refuses to start when it cannot write
@@ -63,13 +63,12 @@ Durations are ISO-8601 (`PT30M`, `PT48H`) or a number of seconds.
 
 ### Warmup
 
-`yourss.warmupInterval` (an ISO-8601 duration like `PT1H`, or seconds) makes the application
-refresh the feeds of every page in the background: a first round at startup, then one per
-interval, so that the feeds and the channel metadata are on disk when a visitor comes, and still
-served from the fallback cache during Youtube's bad hours. A round refreshes every feed whatever
-its age, `cacheRssTtl` only rules the visits: set it to the interval or more and a visitor never
-waits for Youtube. It asks Youtube whether anyone visits or not, which is why it is off by default.
-Each pod refreshes its own cache; the failures are in the application logs.
+With the cache on, `yourss.warmupEnabled: true` makes the application refresh the feeds of every
+page in the background: a first round at startup, then one every `cacheRssTtl` minus a minute, so that a
+visitor always finds fresh feeds and channel metadata on disk, and still gets them from the
+fallback cache during Youtube's bad hours. It asks Youtube whether anyone visits or not, which is
+why it is off by default. Each pod refreshes its own cache; the failures are in the application
+logs.
 
 ### Pages and users
 
