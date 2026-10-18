@@ -177,7 +177,53 @@ function folderFromUrl() {
 // One folder open at a time, whatever the browser does with the `name` attribute of <details>
 function unfold(el) {
   folderEls().forEach((other) => (other.open = other === el))
+  syncFolderNav()
 }
+
+// The top bar of a phone names the open folder; its chevrons are disabled at both ends
+function syncFolderNav() {
+  const name = $("#yourss-folder-name")
+  if (!name) {
+    return
+  }
+  const open = folderEls().findIndex((el) => el.open)
+  name.textContent = open < 0 ? "" : $(".yourss-label", folderEls()[open]).textContent
+  $$('[data-action="folder-step"]').forEach((btn) => {
+    const target = open + Number(btn.dataset.step)
+    btn.disabled = open < 0 || target < 0 || target >= folderEls().length
+  })
+}
+
+// Open the previous or the next folder, like a tap on its row: nothing happens at both ends
+function stepFolder(step) {
+  const els = folderEls()
+  const target = els.findIndex((el) => el.open) + step
+  if (els.length > 0 && target >= 0 && target < els.length) {
+    showFolder(els[target].dataset.folder, { push: true })
+  }
+}
+
+// A horizontal swipe on the content (phones) moves to the next or the previous folder
+const SWIPE = { minDistance: 60, maxDuration: 800, edge: 25 }
+let swipeStart = null
+on("touchstart", (event) => {
+  const touch = event.touches[0]
+  const onContent = event.touches.length === 1 && event.target.closest(".yourss-main")
+  const fromEdge = touch.clientX < SWIPE.edge || touch.clientX > window.innerWidth - SWIPE.edge
+  swipeStart = onContent && !fromEdge ? { x: touch.clientX, y: touch.clientY, time: event.timeStamp } : null
+}, { passive: true })
+on("touchend", (event) => {
+  const start = swipeStart
+  swipeStart = null
+  if (!start || event.timeStamp - start.time > SWIPE.maxDuration) {
+    return
+  }
+  const dx = event.changedTouches[0].clientX - start.x
+  const dy = event.changedTouches[0].clientY - start.y
+  if (Math.abs(dx) >= SWIPE.minDistance && Math.abs(dy) < Math.abs(dx) / 2) {
+    stepFolder(dx < 0 ? 1 : -1)
+  }
+}, { passive: true })
 
 // Open a folder and load its Home: through a click on its row (htmx pushes the URL) or silently, for the URL of a load.
 function showFolder(name, { push }) {
@@ -366,6 +412,7 @@ function retryAvatar(event) {
 /* ---------- commands: one entry per `data-action` value ---------- */
 const actions = {
   play: (el) => play(videoOf(el).dataset.videoId),
+  "folder-step": (el) => stepFolder(Number(el.dataset.step)),
   modal: (el) => openModal(videoOf(el).dataset.videoId),
   "close-player": closePlayer,
   undock,

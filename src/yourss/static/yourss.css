@@ -410,6 +410,14 @@ button.yourss-nav-item { width: 100%; border: 0; background: transparent; text-a
   .yourss-rail-toggle { display: none; }
   .yourss-sidebar .yourss-filter { display: none; }
   .yourss-video.is-docked .yourss-media { right: 10px; bottom: 10px; width: min(300px, calc(100vw - 20px)); }
+  /* Folder navigation: the open folder between its two chevrons, the brand keeps its icon only */
+  .yourss-folder-nav { display: inline-flex; align-items: center; min-width: 0; }
+  .yourss-folder-nav .is-flipped { transform: scaleX(-1); }
+  .yourss-folder-nav .yourss-icon-btn:disabled { opacity: .3; }
+  .yourss-folder-name { border: 0; background: transparent; color: var(--fg); font-weight: 600; font-size: .95rem; max-width: 34vw; padding: 0 .1rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .yourss-topbar:has(.yourss-folder-nav) .yourss-brand span { display: none; }
+  /* Horizontal swipes on the content are ours, vertical pans and zoom stay with the browser */
+  .yourss-main { touch-action: pan-y pinch-zoom; }
 }
 
 /* ---- misc ---- */

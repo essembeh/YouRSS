@@ -3,7 +3,7 @@
  */
 export const $ = (selector, root = document) => root.querySelector(selector)
 export const $$ = (selector, root = document) => [...root.querySelectorAll(selector)]
-export const on = (name, handler) => document.addEventListener(name, handler)
+export const on = (name, handler, options) => document.addEventListener(name, handler, options)
 
 /* ---------- storage: plain strings under a `yourss-` prefix, never fatal ---------- */
 export const store = {
