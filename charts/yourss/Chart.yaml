@@ -1,8 +1,8 @@
 apiVersion: v2
 name: yourss
 type: application
-version: 0.82.5
-appVersion: 0.82.5
+version: 0.82.6
+appVersion: 0.82.6
 description: Simple Youtube browser based on RSS feeds
 home: https://github.com/essembeh/YouRSS
 icon: https://raw.githubusercontent.com/essembeh/YouRSS/main/src/yourss/static/icons/icon-192.png
