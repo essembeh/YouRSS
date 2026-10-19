@@ -26,7 +26,7 @@
  */
 import { $, $$, flag, focusVideo, focusedVideo, on, store, videoOf, visibleVideos } from "yourss/core"
 import { applyWatched, captureFeed, feedIds, setWatched } from "yourss/watched"
-import { closePlayer, destroyModalPlayer, openModal, play, playRelative, undock } from "yourss/player"
+import { closePlayer, destroyModalPlayer, dismissPlayer, openModal, play, playRelative, undock } from "yourss/player"
 
 /* ---------- settings: theme, density and on/off flags ---------- */
 const THEMES = ["neon", "dark", "light"]
@@ -470,7 +470,7 @@ const actions = {
   play: (el) => play(videoOf(el).dataset.videoId),
   "folder-step": (el) => stepFolder(Number(el.dataset.step)),
   modal: (el) => openModal(videoOf(el).dataset.videoId),
-  "close-player": closePlayer,
+  "close-player": dismissPlayer,
   undock,
   "toggle-watched": (el) => {
     const video = videoOf(el)
@@ -595,7 +595,7 @@ on("keydown", (event) => {
       event.target.blur()
       applySearch()
     } else if (!$("dialog[open]")) {
-      closePlayer()
+      dismissPlayer()
     }
     return
   }
@@ -628,7 +628,7 @@ on("keydown", (event) => {
     w: () => video && setWatched([video.dataset.videoId], !video.classList.contains("is-watched")),
     h: () => flag("new-videos") && setSetting("hide-watched", flag("hide-watched") ? "0" : "1"),
     a: openAddDialog,
-    x: closePlayer,
+    x: dismissPlayer,
   }
   if (event.key in shortcuts && shortcuts[event.key]() !== false) {
     event.preventDefault()

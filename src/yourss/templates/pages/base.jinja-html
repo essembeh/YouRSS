@@ -38,9 +38,9 @@
       {% if folders is defined %}
       {# Phones: the open folder and its neighbours, the same move as a swipe on the content #}
       <nav class="yourss-folder-nav" aria-label="Folders">
-        <button type="button" class="yourss-icon-btn is-small" data-action="folder-step" data-step="-1" aria-label="Previous folder"><svg class="is-flipped"><use href="#i-chevron" /></svg></button>
+        <button type="button" class="yourss-icon-btn" data-action="folder-step" data-step="-1" aria-label="Previous folder"><svg class="is-flipped"><use href="#i-chevron" /></svg></button>
         <button type="button" class="yourss-folder-name" id="yourss-folder-name" data-action="menu" title="Choose a folder"></button>
-        <button type="button" class="yourss-icon-btn is-small" data-action="folder-step" data-step="1" aria-label="Next folder"><svg><use href="#i-chevron" /></svg></button>
+        <button type="button" class="yourss-icon-btn" data-action="folder-step" data-step="1" aria-label="Next folder"><svg><use href="#i-chevron" /></svg></button>
       </nav>
       {% endif %}
       <span class="yourss-spacer"></span>

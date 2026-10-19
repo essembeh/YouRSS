@@ -93,7 +93,17 @@ export function closePlayer() {
   Object.assign(embedded, { player: null, videoId: null, observer: null, seen: false })
   stopPlaybackTracking()
   $$(CHROME).forEach((el) => el.remove())
-  $$(".yourss-video.is-playing, .yourss-video.is-docked").forEach((el) => el.classList.remove("is-playing", "is-docked"))
+  $$(".yourss-video.is-playing, .yourss-video.is-docked").forEach((el) => {
+    el.classList.remove("is-playing", "is-docked")
+    el.style.minHeight = ""
+  })
+}
+
+// The close command of the visitor: the card, back to its place in the grid, stays at the top of the screen.
+export function dismissPlayer() {
+  const video = $(".yourss-video.is-playing:not(.is-docked)")
+  closePlayer()
+  video?.scrollIntoView({ block: "start", behavior: "smooth" })
 }
 
 // Playing card out of the screen: mini player when the "dock" setting is on, else the player is closed.
@@ -104,6 +114,8 @@ function onPlayingCardVisibility(video, visible) {
     return
   }
   if (flag("dock")) {
+    // The card keeps its height while its player floats: the page does not shift under the reader
+    video.style.minHeight = visible ? "" : `${video.offsetHeight}px`
     video.classList.toggle("is-docked", !visible)
   } else if (!visible) {
     closePlayer()
@@ -163,6 +175,7 @@ export function undock() {
   const video = $(".yourss-video.is-docked")
   if (video) {
     video.classList.remove("is-docked")
+    video.style.minHeight = ""
     video.scrollIntoView({ block: "start", behavior: "smooth" })
   }
 }
