@@ -96,7 +96,7 @@ async def page_of_the_file(request: Request, found: Page | None = Depends(find_p
     return template_page(
         request,
         "pages/view.jinja-html",
-        title=f"/p/{found.name}",
+        title=f"p/{found.name}",
         **page_context(statuses),
         # A page is read-only: it only offers its multi channel copy
         copy_url="/" + ",".join(names) if current_config.custom_pages_enabled else None,
@@ -107,7 +107,7 @@ async def page_of_the_file(request: Request, found: Page | None = Depends(find_p
 async def user_tree(request: Request, user: User = Depends(get_auth_user)) -> HTMLResponse:
     """The folders of a user, none open: the script opens the last one shown, else the first (§6)."""
     return template_page(
-        request, "pages/view.jinja-html", title=f"/u/{user.name}", user_name=user.name, folders=user.pages
+        request, "pages/view.jinja-html", title=f"u/{user.name}", user_name=user.name, folders=user.pages
     )
 
 
@@ -137,7 +137,7 @@ async def user_folder(
     return template_page(
         request,
         "partials/folder.jinja-html" if hx_request == "true" else "pages/view.jinja-html",
-        title=f"/u/{user.name}/{folder.name}",
+        title=f"u/{user.name}/{folder.name}",
         link_prefix=folder_link_prefix(user.name, folder.name),
         user_name=user.name,
         folders=user.pages,
@@ -193,7 +193,8 @@ async def page(
     return template_page(
         request,
         "pages/view.jinja-html",
-        title=", ".join(entry.label or entry.name for entry in context["entries"]),
+        title=f"{len(ids)} subscription{'s' if len(ids) > 1 else ''}",
+        title_sep=", ",
         **context,
         page_names=ids,
     )

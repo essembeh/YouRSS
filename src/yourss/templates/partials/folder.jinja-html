@@ -1,5 +1,5 @@
 {# One htmx response: the Home of the folder, then its sidebar entries, its notice and the title out of band #}
-<title>{{ title }} - YouRSS</title>
+<title>YouRSS{{ title_sep|default(" - ") }}{{ title }}</title>
 <div data-folder-page="{{ folder.name }}">
   {% include "partials/videos-container.jinja-html" %}
 </div>

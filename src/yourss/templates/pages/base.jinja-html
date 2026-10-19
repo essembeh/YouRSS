@@ -2,7 +2,7 @@
 <html lang="en" data-theme="neon">
 
 <head>
-  <title>{{ title }} - YouRSS</title>
+  <title>YouRSS{{ title_sep|default(" - ") }}{{ title }}</title>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <meta name="color-scheme" content="dark light" />
