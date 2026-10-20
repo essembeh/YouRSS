@@ -331,12 +331,16 @@ const PAGE_PATH = /^\/(?:UC[\w-]{22}|PL[\w-]{32})(?:,(?:UC[\w-]{22}|PL[\w-]{32})
 // Navigate to the page made of `names`. The next page asks for a new bookmark, or, when it is the
 // first one built from the home page, shows how to add more subscriptions.
 function goToPage(names) {
+  flagEdited(pageNames().length === 0 ? "first" : "1")
+  location.assign(names.length > 0 ? `/${names.join(",")}` : "/")
+}
+
+function flagEdited(value) {
   try {
-    sessionStorage.setItem(EDITED_FLAG, pageNames().length === 0 ? "first" : "1")
+    sessionStorage.setItem(EDITED_FLAG, value)
   } catch {
     /* private mode */
   }
-  location.assign(names.length > 0 ? `/${names.join(",")}` : "/")
 }
 
 function removeChannel(el) {
@@ -408,7 +412,10 @@ function initEditablePage() {
   const resume = $("#yourss-my-page")
   const page = store.get("page")
   if (resume && page && PAGE_PATH.test(page)) {
+    const count = page.split(",").length
     resume.href = page
+    $("#yourss-my-page-count").textContent = `${count} subscription${count > 1 ? "s" : ""}`
+    $("#yourss-my-page-path").textContent = page
     resume.hidden = false
   }
   try {
@@ -506,6 +513,8 @@ const actions = {
     $("#yourss-search").focus()
   },
   "add-channel": openAddDialog,
+  // The demo page is welcomed like a first page built from the home page; the link then navigates
+  "open-demo": () => flagEdited("first"),
   "welcome-add": (el) => {
     el.closest("dialog").close()
     openAddDialog()

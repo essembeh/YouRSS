@@ -18,6 +18,15 @@ async def test_home(client: AsyncClient) -> None:
     soup = BeautifulSoup(resp.text, features="html.parser")
     assert soup.body is not None and soup.body["data-page-names"] == ""
     assert soup.find("form", class_="yourss-add-form") is not None
+    themes = soup.select('.yourss-home-themes [data-action="set-theme"]')
+    assert [str(el["data-value"]) for el in themes] == ["neon", "dark", "light"]
+    # The demo page is a plain subscription list
+    demo = soup.find("a", id="yourss-demo")
+    assert demo is not None
+    resp = await client.get(str(demo["href"]))
+    assert resp.status_code == 200
+    soup = BeautifulSoup(resp.text, features="html.parser")
+    assert soup.body is not None and len(str(soup.body["data-page-names"]).split(",")) == 4
 
 
 async def test_page_is_editable(client: AsyncClient) -> None:

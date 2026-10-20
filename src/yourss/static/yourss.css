@@ -234,11 +234,85 @@ body.rail .yourss-caret { display: none; }
 @media (max-width: 899px) { .yourss-welcome-phone { display: inline; } }
 
 /* ---- home page: the tutorial ---- */
-.yourss-home { max-width: 44rem; margin: 0 auto; padding: 2rem 0; display: flex; flex-direction: column; gap: 1.25rem; }
-.yourss-home h1 { margin: 0; font-size: clamp(1.6rem, 5vw, 2.4rem); line-height: 1.15; letter-spacing: -.02em; }
+.yourss-home { max-width: 72rem; margin: 0 auto; padding: 2rem 0 3rem; display: flex; flex-direction: column; gap: 1.25rem; }
+.yourss-home-hero { display: flex; flex-direction: column; align-items: center; gap: .75rem; padding: 1rem 0; text-align: center; }
+.yourss-home h1 { margin: 0; font-size: clamp(1.7rem, 5vw, 2.7rem); line-height: 1.1; letter-spacing: -.02em; }
 .yourss-home h1 em { font-style: normal; color: var(--accent); }
-.yourss-home-lead { margin: 0; font-size: 1.05rem; color: var(--fg-muted); }
-.yourss-home-resume { align-self: flex-start; height: 42px; padding: 0 1.1rem; border-color: var(--accent); color: var(--fg); font-weight: 600; }
+.yourss-home-lead { margin: 0; max-width: 38rem; font-size: 1.05rem; color: var(--fg-muted); }
+/* "What is YouRSS?" is blue: pink already marks the ways to start below it */
+.yourss-home-about { --about: #3b8ef0; max-width: 40rem; text-align: center; padding: .45rem 1.1rem; border-radius: var(--radius); border: 1px solid color-mix(in srgb, var(--about) 45%, transparent); background: color-mix(in srgb, var(--about) 8%, transparent); }
+[data-theme="light"] .yourss-home-about { --about: #1f6fd1; }
+[data-theme="neon"] .yourss-home-about { --about: var(--cyan); }
+.yourss-home-about[open] { padding-bottom: 1rem; border-color: var(--about); background: color-mix(in srgb, var(--about) 6%, var(--bg-elev)); }
+.yourss-home-about summary { display: inline-flex; align-items: center; gap: .35rem; list-style: none; cursor: pointer; font-size: .9rem; font-weight: 600; color: var(--about); }
+.yourss-home-about summary::-webkit-details-marker { display: none; }
+.yourss-home-about summary:hover { color: var(--fg); }
+.yourss-home-about .yourss-home-pills li { border-color: color-mix(in srgb, var(--about) 35%, transparent); }
+.yourss-home-about .yourss-home-pills svg, .yourss-home-source svg { color: var(--about); }
+.yourss-home-about .yourss-home-lead { margin: .75rem 0; }
+.yourss-home-source { margin: .9rem 0 0; font-size: .85rem; color: var(--fg-muted); }
+.yourss-home-source a { display: inline-flex; align-items: center; gap: .25rem; color: var(--fg); font-weight: 600; text-decoration: underline; text-underline-offset: 3px; }
+.yourss-home-source svg { width: 1em; height: 1em; }
+.yourss-home-about summary svg { width: 1em; height: 1em; transform: rotate(90deg); transition: transform .15s; }
+.yourss-home-about[open] summary svg { transform: rotate(-90deg); }
+.yourss-home-pills { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; justify-content: center; gap: .4rem; }
+.yourss-home-pills li { display: inline-flex; align-items: center; gap: .35rem; padding: .25rem .7rem; border-radius: 999px; border: 1px solid var(--line); font-size: .8rem; color: var(--fg-muted); }
+.yourss-home-pills svg { width: 1em; height: 1em; }
+.yourss-home-themes { display: flex; flex-wrap: wrap; justify-content: center; gap: .75rem; margin-top: .5rem; }
+.yourss-theme-swatch { display: flex; flex-direction: column; align-items: center; gap: .4rem; padding: .4rem .4rem .5rem; border-radius: 14px; border: 1px solid var(--line); background: var(--bg-elev); color: var(--fg-muted); font-size: .85rem; font-weight: 600; transition: border-color .15s, transform .15s; }
+.yourss-theme-swatch:hover { transform: translateY(-2px); color: var(--fg); }
+.yourss-theme-swatch.active { border-color: var(--accent); color: var(--fg); box-shadow: 0 0 0 1px var(--accent); }
+.yourss-theme-name { display: inline-flex; align-items: center; gap: .35rem; }
+.yourss-theme-name svg { width: 1em; height: 1em; fill: currentColor; stroke: none; }
+/* A miniature page: a sidebar and four cards, in the colours of the theme it previews */
+.yourss-theme-preview { display: grid; grid-template-columns: repeat(2, 2.6rem); gap: .3rem; padding: .35rem .35rem .35rem 1.3rem; border-radius: 9px; border: 1px solid var(--line); background: linear-gradient(90deg, var(--bg-side) 1rem, var(--line) 1rem 1.05rem, var(--bg) 1.05rem); }
+.yourss-theme-preview i { height: 1.7rem; border-radius: 4px; border: 1px solid var(--line); background: linear-gradient(var(--bg-hover) 62%, var(--bg-elev) 62%); }
+.yourss-theme-preview i:first-child { border-color: var(--accent); }
+/* Only neon defines a glow: the other previews would inherit it from the page in neon */
+.yourss-theme-preview[data-theme="neon"] i:first-child { box-shadow: var(--accent-glow); }
+.yourss-home-label { margin: .5rem 0 0; font-size: .8rem; letter-spacing: .1em; text-transform: uppercase; text-align: center; color: var(--fg-muted); }
+
+/* The three ways to start: the page remembered by this browser, the demo, a blank page */
+/* The blank page grows faster: its examples (a playlist id, a video address) need the room */
+.yourss-starts { display: flex; flex-wrap: wrap; gap: 1rem; align-items: stretch; }
+.yourss-start { position: relative; display: flex; flex-direction: column; gap: .75rem; flex: 1 1 14rem; min-width: 0; padding: 1.25rem; border-radius: 16px; background: var(--bg-elev); border: 1px solid var(--line); transition: border-color .15s, transform .15s; }
+.yourss-start.is-blank { flex: 3 1 26rem; }
+a.yourss-start:hover { border-color: var(--accent); transform: translateY(-2px); }
+.yourss-start.is-primary { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
+.yourss-start-badge { position: absolute; top: -.6rem; right: 1rem; padding: .1rem .55rem; border-radius: 999px; background: var(--accent); color: var(--accent-fg); font-size: .7rem; font-weight: 700; }
+.yourss-start-head { display: flex; align-items: center; gap: .75rem; }
+.yourss-start-head strong { font-size: 1.1rem; }
+.yourss-start-head small { display: block; font-size: .78rem; font-weight: 500; color: var(--fg-muted); }
+.yourss-start-icon { display: grid; place-items: center; width: 2.6rem; height: 2.6rem; border-radius: 12px; flex: none; background: var(--accent-soft); color: var(--accent); }
+.yourss-start-icon svg { width: 1.3rem; height: 1.3rem; }
+.yourss-start-text { color: var(--fg-muted); font-size: .92rem; }
+.yourss-start code { padding: .05rem .35rem; border-radius: 6px; background: var(--bg); border: 1px solid var(--line); color: var(--fg); }
+.yourss-start .yourss-start-path { padding: .5rem .6rem; border-style: dashed; font-size: .75rem; color: var(--fg-muted); word-break: break-all; }
+.yourss-start-chips { display: flex; flex-wrap: wrap; gap: .35rem; }
+.yourss-start-chips > span { display: inline-flex; align-items: center; gap: .4rem; padding: .2rem .6rem .2rem .2rem; border-radius: 999px; background: var(--bg); border: 1px solid var(--line); font-size: .82rem; }
+.yourss-start-chips i { display: grid; place-items: center; width: 1.4rem; height: 1.4rem; border-radius: 50%; background: var(--bg-hover); font-style: normal; font-weight: 700; font-size: .72rem; }
+.yourss-start-go { margin-top: auto; display: inline-flex; align-items: center; gap: .4rem; font-weight: 600; color: var(--accent); }
+.yourss-start-go svg { width: 1em; height: 1em; }
+
+.yourss-home-how { list-style: none; margin: 1.5rem 0 0; padding: 1.5rem 0 0; border-top: 1px solid var(--line); display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 14rem), 1fr)); gap: 1.5rem; }
+.yourss-home-how li { display: flex; gap: .75rem; }
+.yourss-home-how li > svg { width: 1.4rem; height: 1.4rem; color: var(--accent); }
+.yourss-home-how span { font-size: .88rem; color: var(--fg-muted); }
+.yourss-home-how span svg { vertical-align: -.2em; color: var(--fg); }
+.yourss-home-how strong { display: block; margin-bottom: .2rem; color: var(--fg); font-size: .95rem; }
+/* Phones: the ways to start must show without scrolling, so the hero and the cards are trimmed */
+@media (max-width: 559px) {
+  .yourss-home { padding-top: .75rem; gap: 1rem; }
+  .yourss-home-hero { padding: 0; gap: .4rem; }
+  .yourss-home h1 { font-size: 1.5rem; }
+  .yourss-home-lead { font-size: .9rem; }
+  .yourss-start-path, a.yourss-start .yourss-start-text { display: none; }
+  .yourss-start { padding: 1rem; gap: .6rem; }
+  /* The three themes share one row, their previews shrink with it */
+  .yourss-home-themes { flex-wrap: nowrap; gap: .5rem; }
+  .yourss-theme-swatch { flex: 1 1 0; min-width: 0; }
+  .yourss-theme-preview { width: 100%; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
 .yourss-steps { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: .75rem; counter-reset: step; }
 .yourss-steps li { counter-increment: step; position: relative; display: flex; flex-direction: column; gap: .5rem; padding: 1rem 1rem 1rem 3.6rem; background: var(--bg-elev); border: 1px solid var(--line); border-radius: var(--radius); }
 .yourss-steps li::before { content: counter(step); position: absolute; left: 1rem; top: 1rem; width: 1.9rem; height: 1.9rem; border-radius: 50%; display: grid; place-items: center; font-weight: 700; background: var(--accent-soft); color: var(--accent); border: 1px solid var(--accent); }
@@ -517,7 +591,9 @@ html[data-slide]::view-transition-new(root) { animation: yourss-slide-in .2s eas
 [data-theme="neon"] .yourss-video.is-watched [data-action="toggle-watched"] { color: var(--accent-text); }
 [data-theme="neon"] .yourss-home h1 em { background: linear-gradient(90deg, var(--accent) 0%, var(--cyan) 100%); -webkit-background-clip: text; background-clip: text; color: transparent; }
 [data-theme="neon"] .yourss-steps li::before, [data-theme="neon"] .yourss-add-error, [data-theme="neon"] .yourss-add-examples button:hover { color: var(--accent-text); }
-[data-theme="neon"] .yourss-steps li { background: rgba(18, 13, 36, .82); }
+[data-theme="neon"] .yourss-steps li, [data-theme="neon"] .yourss-start { background: rgba(18, 13, 36, .82); }
+[data-theme="neon"] .yourss-start-icon, [data-theme="neon"] .yourss-start-go, [data-theme="neon"] .yourss-home-how li > svg { color: var(--accent-text); }
+[data-theme="neon"] .yourss-start.is-primary { box-shadow: 0 0 0 1px var(--accent), var(--accent-glow); }
 [data-theme="neon"] .yourss-new { background: rgba(5, 3, 15, .78); color: var(--accent-text); border: 1px solid var(--accent); box-shadow: var(--accent-glow); }
 [data-theme="neon"] .yourss-reset-btn:hover { border-color: var(--err-line); background: var(--err-bg); color: var(--fg); }
 [data-theme="neon"] .yourss-settings-box { border-color: var(--accent); box-shadow: var(--accent-glow), 0 30px 90px rgba(0, 0, 0, .75); }

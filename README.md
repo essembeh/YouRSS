@@ -34,9 +34,10 @@ No account: your subscriptions are the address of your page.
 
 | 1. Start from the home page | 2. Your page is created | 3. Add the rest, then bookmark |
 | --- | --- | --- |
-| ![The home page explains how it works](./images/yourss_home.png) | ![The page just created](./images/yourss_welcome.png) | ![Adding a channel or a playlist](./images/yourss_add.png) |
+| ![The home page offers three ways to start](./images/yourss_home.png) | ![The page just created](./images/yourss_welcome.png) | ![Adding a channel or a playlist](./images/yourss_add.png) |
 
-- the home page takes your first channel, then the **+** next to *Subscriptions* adds the others
+- the home page offers three ways to start: a demo page, ready to edit, a blank page made from your first channel, or the last page opened in this browser
+- then the **+** next to *Subscriptions* adds the others
 - a channel is added by its handle (`@name`), its *channel_id*, its address or the address of one of its videos; a playlist by its id or its address
 - a subscription is removed from the sidebar
 - each change gives a new address, made of ids only (example https://yourss.domain.tld/UCVooVnzQxPSTXTMzSi1s6uw,PLw-vK1_d04zZCal3yMX_T23h5nDJ2toTk): bookmark it, share it, open it on another device. Nothing is stored on the server
@@ -63,7 +64,7 @@ Click a channel in the sidebar to browse it without leaving your page: its recen
 
 ### 🎁 And also
 
-- three themes (neon, dark, light) and three density levels, to pick in the settings
+- three themes (neon, dark, light), to pick on the home page or in the settings, and three density levels
 - works on desktop and mobile, can be added to the home screen of a phone
 - instant search in the titles
 - keyboard shortcuts: arrows move in the grid, `Space` plays, `n`/`p` play the next/previous video, `Shift`+`↑`/`↓` change channel… press `?` for the list
@@ -204,7 +205,7 @@ The administrator of an instance can turn this off, for example to keep the inst
 
 # 📖 Usage
 
-- the home page `http://yourss.local/` explains how to build your own page and lets you add your first channel
+- the home page `http://yourss.local/` explains how to build your own page: open the demo page, or add your first channel
 - you can browse a single channel with: `http://yourss.local/UCVooVnzQxPSTXTMzSi1s6uw`
 - you can browse multiple channels and playlists in a single page, their ids separated by commas: `http://yourss.local/UCVooVnzQxPSTXTMzSi1s6uw,UCQsmxaMzYr76Yd1iqMEq8TA`
 - an address only holds ids: to add a channel by its handle (`@jonnygiger`) or its address, use the add form, which resolves it

@@ -1,24 +1,77 @@
 {% extends "pages/base.jinja-html" %}
+{% set demo = {
+  "UCBqd6fLWpemEM2o5wlNDUfw": "Ben-J",
+  "UCOaAb5oXQ9x2hSmINrffWBQ": "Farine de blé",
+  "UCVooVnzQxPSTXTMzSi1s6uw": "Jonny Giger",
+  "UCQsmxaMzYr76Yd1iqMEq8TA": "Card Magic by Jason",
+} %}
 {% block content %}
 <section class="yourss-home">
-  <h1>Your Youtube channels, <em>without an account</em></h1>
-  <p class="yourss-home-lead">YouRSS shows the latest videos of the channels you choose, on one page, from the RSS feeds Youtube publishes. No registration, no ads, no recommendations.</p>
-  <a id="yourss-my-page" class="yourss-btn yourss-home-resume" hidden><svg><use href="#i-home" /></svg><span>Open my previous page</span></a>
+  <header class="yourss-home-hero">
+    <h1>Your Youtube channels,<br /><em>without an account</em></h1>
+    <details class="yourss-home-about">
+      <summary>What is YouRSS? <svg><use href="#i-chevron" /></svg></summary>
+      <p class="yourss-home-lead">The latest videos of the channels you choose, on one page, straight from the RSS feeds Youtube publishes.</p>
+      <ul class="yourss-home-pills">
+        <li><svg><use href="#i-check" /></svg>No account</li>
+        <li><svg><use href="#i-check" /></svg>No ads</li>
+        <li><svg><use href="#i-check" /></svg>No recommendations</li>
+        <li><svg><use href="#i-check" /></svg>Nothing stored on the server</li>
+      </ul>
+      <p class="yourss-home-source">YouRSS is free software, available on <a href="https://github.com/essembeh/YouRSS" target="_blank" rel="noopener"><svg><use href="#i-github" /></svg>GitHub</a>: anyone can install their own instance.</p>
+    </details>
+  </header>
 
-  <ol class="yourss-steps">
-    <li>
-      <strong>Add a first channel</strong>
-      <span>Type its handle (<code>@name</code>) or its <code>channel_id</code>, or paste the address of the channel or of one of its videos. A playlist works too, by id or by address.</span>
+  <h2 class="yourss-home-label">Where do you start?</h2>
+  <div class="yourss-starts">
+    <a id="yourss-my-page" class="yourss-start is-primary" hidden>
+      <span class="yourss-start-badge">In this browser</span>
+      <span class="yourss-start-head">
+        <span class="yourss-start-icon"><svg><use href="#i-return" /></svg></span>
+        <strong>Continue where you left off<small id="yourss-my-page-count"></small></strong>
+      </span>
+      <span class="yourss-start-text">The last page opened in this browser. Its address is the list of its channels.</span>
+      <code id="yourss-my-page-path" class="yourss-start-path"></code>
+      <span class="yourss-start-go">Open my page <svg><use href="#i-chevron" /></svg></span>
+    </a>
+
+    <a id="yourss-demo" class="yourss-start" data-action="open-demo" href="/{{ demo.keys()|join(',') }}">
+      <span class="yourss-start-head">
+        <span class="yourss-start-icon"><svg><use href="#i-play" /></svg></span>
+        <strong>Start from a demo<small>{{ demo|length }} channels, ready to edit</small></strong>
+      </span>
+      <span class="yourss-start-chips">
+        {% for name in demo.values() %}<span><i>{{ name[0] }}</i>{{ name }}</span>{% endfor %}
+      </span>
+      <span class="yourss-start-text">See a real page right away, then add your channels and remove ours.</span>
+      <span class="yourss-start-go">Open the demo <svg><use href="#i-chevron" /></svg></span>
+    </a>
+
+    <div class="yourss-start is-blank">
+      <span class="yourss-start-head">
+        <span class="yourss-start-icon"><svg><use href="#i-plus" /></svg></span>
+        <strong>Start from a blank page<small>your first channel creates it</small></strong>
+      </span>
+      <span class="yourss-start-text">Type a handle (<code>@name</code>) or a <code>channel_id</code>, or paste the address of a channel or of one of its videos. A playlist works too.</span>
       {% include "partials/add-form.jinja-html" %}
-    </li>
-    <li>
-      <strong>Add the others</strong>
-      <span>With the <svg><use href="#i-plus" /></svg> of the sidebar, next to “Subscriptions”. Each channel or playlist goes in the address of the page, and can be removed from there.</span>
-    </li>
-    <li>
-      <strong>Bookmark your page</strong>
-      <span>Its address is your subscription list: nothing is stored on the server. Share it, or open it on another device.</span>
-    </li>
-  </ol>
+    </div>
+  </div>
+
+  <ul class="yourss-home-how">
+    <li><svg><use href="#i-plus" /></svg><span><strong>Add, remove</strong>The <svg><use href="#i-plus" /></svg> next to “Subscriptions” adds a channel or a playlist to the page you are on.</span></li>
+    <li><svg><use href="#i-bookmark" /></svg><span><strong>Bookmark</strong>Each change gives a new address: it is your subscription list. Share it, open it on another device.</span></li>
+    <li><svg><use href="#i-rss" /></svg><span><strong>Plain RSS</strong>Feeds are read from Youtube. Videos and images load from Youtube, never through this server.</span></li>
+  </ul>
+
+  <h2 class="yourss-home-label">Pick a theme</h2>
+  <div class="yourss-home-themes" role="group" aria-label="Theme">
+    {% for value, icon, label in [("neon", "i-bolt", "Neon"), ("dark", "i-moon", "Dark"), ("light", "i-sun", "Light")] %}
+    <button type="button" class="yourss-theme-swatch" data-action="set-theme" data-value="{{ value }}" title="{{ label }} theme">
+      {# The preview carries its own theme: the CSS variables of that theme apply inside it #}
+      <span class="yourss-theme-preview" data-theme="{{ value }}" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+      <span class="yourss-theme-name"><svg><use href="#{{ icon }}" /></svg>{{ label }}</span>
+    </button>
+    {% endfor %}
+  </div>
 </section>
 {% endblock %}
