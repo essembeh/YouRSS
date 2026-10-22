@@ -34,9 +34,10 @@ format:
     uv run ruff format src tests
     uv run ruff check --fix src tests
 
-# Direct dependencies behind their latest release + GitHub actions update (pinned by SHA)
-outdated:
-    uv tree --outdated --depth 1
+# Upgrade uv.lock to the latest allowed releases and the GitHub actions (pinned by SHA)
+update-dependencies:
+    uv lock --upgrade
+    uv sync
     GITHUB_TOKEN=$(gh auth token) uvx gha-update
 
 # Web application with hot reload

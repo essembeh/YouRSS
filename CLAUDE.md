@@ -62,7 +62,7 @@ The `Justfile` is the interface of the project:
   under `tests/data/youtube/` (`docs/specs/youtube-fake.md`)
 - `just test-live`: the same suite against the real Youtube; `just test-record`: refresh the recorded answers
 - `just webapp`: development server on http://localhost:8000
-- `just format`, `just audit`, `just outdated`, `just release`, `just publish`
+- `just format`, `just audit`, `just update-dependencies`, `just release`, `just publish`
 
 `just check` and `just test` must both pass before a change is considered done.
 
