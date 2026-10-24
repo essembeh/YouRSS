@@ -4,7 +4,7 @@
 
 > A minimal Youtube RSS feed viewer for your browser: the latest videos of the channels you chose, on one page. No account, no registration, no ads, no recommendations, no tracking.
 
-![YouRSS on desktop and on mobile: a page in folders, a channel opened inside its folder (neon theme)](./images/yourss_hero.png)
+![YouRSS on desktop and on mobile: the same channel, opened inside its folder (neon theme)](./images/yourss_hero.png)
 
 <details>
 <summary>More screenshots</summary>
@@ -50,13 +50,23 @@ A page shows the last 15 videos of each channel and what the feed of each playli
 
 Turn on *Show new videos* in the settings and the videos you played for a few seconds are marked as watched: on the next visit a `NEW` marker and a counter per channel show what you have not seen yet, and an *All / New* switch hides the rest. This is stored in your browser only.
 
+### 🎧 Listen to a page, in the car or while you work
+
+<p align="center">
+  <img src="./images/yourss_mobile_listen.png" alt="The listen mode on a phone: the whole screen, finger sized commands" height="420">
+  <img src="./images/yourss_listen.png" alt="The listen mode on desktop: a mini player over the page" height="420">
+</p>
+
+*Listen* plays the videos of the page one after the other, as a playlist of music.
+
+- **on a phone** it takes the whole screen, with finger sized commands for a phone on a car mount: previous, play / pause, next, −30 / +30 seconds, the channel and the title, the next one. The screen stays on while it plays (an embedded Youtube player stops when the screen locks), and a button shows the thumbnail instead of the video
+- **on desktop** it is a mini player in a corner, the page stays below: a click on a video plays it there
+- start it with the headphones button, the `l` key or 🎧 in the mini player, or add `?listen` to the address of a page: bookmark it, or add it to the home screen of your phone
+- ✕ or `Esc` stops it, as does opening another folder or channel
+
 ### ▶️ Play in the page
 
 Click a thumbnail to play: the player takes the whole row, or the whole screen on a phone. A link on each card opens the video on Youtube. The next video can be played automatically.
-
-### 🎧 Listen to a page
-
-*Listen* (the headphones button, or the `l` key) plays the videos of the page one after the other in a small player at the bottom of the screen, with large previous, play / pause and next buttons: a page of music, in the car or while you work. The grid stays below, a click on a video plays it in the small player. Add `?listen` to the address of a page to open it this way. On a phone the screen stays on while it plays: an embedded Youtube player stops when the screen locks.
 
 ### 📺 Keep watching while you browse
 
@@ -71,8 +81,8 @@ Click a channel in the sidebar to browse it without leaving your page: its recen
 - three themes (neon, dark, light), to pick on the home page or in the settings, and three density levels
 - works on desktop and mobile, can be added to the home screen of a phone
 - instant search in the titles
-- keyboard shortcuts: arrows move in the grid, `Space` plays, `n`/`p` play the next/previous video, `Shift`+`↑`/`↓` change channel… press `?` for the list
-- light: server-rendered pages, [htmx](https://htmx.org/), one CSS file and one JavaScript file, no framework
+- keyboard shortcuts: arrows move in the grid, `Space` plays, `n`/`p` play the next/previous video, `l` listens, `Shift`+`↑`/`↓` change channel… press `?` for the list
+- light: server-rendered pages, [htmx](https://htmx.org/), one CSS file and a few JavaScript modules, no framework, no build step
 
 ## 💡 Philosophy
 
