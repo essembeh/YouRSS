@@ -165,7 +165,7 @@ async def test_stray_path_is_not_a_page(client: AsyncClient, path: str) -> None:
     assert resp.status_code == 404
 
 
-FOLDERS = ["fun", "cards", "podcast"]
+FOLDERS = ["fun", "cards", "podcast", "music"]
 
 
 async def test_user_without_folder(client: AsyncClient) -> None:
@@ -178,6 +178,7 @@ async def test_user_without_folder(client: AsyncClient) -> None:
         "fun",
         "Card magic",
         "podcast",
+        "music",
     ]
     # Every folder is closed and empty, the script picks the one to open: nothing was asked to Youtube
     assert soup.select("details.yourss-folder[open]") == []

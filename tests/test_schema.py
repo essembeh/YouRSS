@@ -13,11 +13,11 @@ PAGES: list[Any] = [{"name": "skate", "channels": CHANNELS}, {"name": "magic", "
 
 def test_sample_users_file() -> None:
     config = parse_yaml_raw_as(UsersConfig, Path("samples/users.yaml").read_bytes())
-    assert [page.name for page in config.pages] == ["fun", "cards", "podcast"]
-    assert [page.visible for page in config.pages] == [True, False, True]
+    assert [page.name for page in config.pages] == ["fun", "cards", "podcast", "music"]
+    assert [page.visible for page in config.pages] == [True, False, True, True]
     alice, bob = config.users
-    assert [page.name for page in alice.pages] == ["fun", "cards", "podcast"]
-    assert [page.title for page in alice.pages] == ["fun", "Card magic", "podcast"]
+    assert [page.name for page in alice.pages] == ["fun", "cards", "podcast", "music"]
+    assert [page.title for page in alice.pages] == ["fun", "Card magic", "podcast", "music"]
     assert alice.page("cards") is not None and alice.page("unknown") is None
     assert [page.name for page in bob.pages] == ["podcast", "fun"] and bob.password is not None
 

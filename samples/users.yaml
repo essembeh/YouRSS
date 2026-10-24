@@ -25,6 +25,10 @@ pages:
       - UCSHZKyawb77ixDdsGog4iWA
       - UCYO_jab_esuFRV4b17AJtAw
 
+  - name: music
+    channels:
+      - UCuU-wlg6DNHlybI-T4c1aDg
+
 users:
   # A user aggregates pages, its folders: /u/alice/fun, /u/alice/cards, /u/alice/podcast
   - name: alice
@@ -33,6 +37,7 @@ users:
       - name: cards
         label: Card magic    # the label alice gives it, the page name by default
       - name: podcast
+      - name: music
 
   # A user behind a password (HTTP Basic), which protects every folder
   - name: bob
