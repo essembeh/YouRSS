@@ -32,7 +32,6 @@ class AppSettings(BaseSettings):
     cache_rss_fallback_ttl: timedelta = timedelta(hours=48)
     # A cached channel description younger than this is served without scraping Youtube
     cache_metadata_ttl: timedelta = timedelta(days=7)
-    # Refresh the feeds of every page in the background, this often; unset, nothing runs (docs/specs/pages-users.md §8)
     # Refresh the feeds of every page in the background, a round every cache_rss_ttl minus a minute
     warmup_enabled: bool = False
 

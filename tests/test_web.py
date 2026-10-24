@@ -486,7 +486,9 @@ async def test_avatar_redirects_to_youtube(client: AsyncClient) -> None:
     resp = await client.get(f"/avatar/{CHANNEL}")
     assert resp.status_code == 307
     assert "googleusercontent.com" in resp.headers["Location"]
-    assert resp.headers["Cache-Control"] == "public, max-age=86400"
+    # As long as the server keeps the metadata of the channel (YOURSS_CACHE_METADATA_TTL)
+    max_age = int(current_config.cache_metadata_ttl.total_seconds())
+    assert resp.headers["Cache-Control"] == f"public, max-age={max_age}"
 
 
 async def test_avatar_falls_back_on_the_initial(client: AsyncClient) -> None:

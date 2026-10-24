@@ -63,8 +63,10 @@ async def avatar(channel_id: ChannelId, n: Annotated[str, Query(max_length=1)] =
         logger.warning("Could not get the avatar of {}: {!r}", channel_id, error)
         channel = None
     if channel is not None and channel.avatar:
-        # The browser then loads the image from Youtube: nothing is relayed
-        return RedirectResponse(channel.avatar, headers={"Cache-Control": "public, max-age=86400"})
+        # The browser then loads the image from Youtube: nothing is relayed. It keeps the redirect as long as the
+        # server keeps the metadata, so it does not ask again for an avatar the server would not look up again
+        max_age = int(current_config.cache_metadata_ttl.total_seconds())
+        return RedirectResponse(channel.avatar, headers={"Cache-Control": f"public, max-age={max_age}"})
     # A failure is retried later, without hammering Youtube
     initial = n or (channel.name[:1] if channel is not None else "") or "?"
     return Response(initial_svg(initial), media_type="image/svg+xml", headers={"Cache-Control": "public, max-age=3600"})
