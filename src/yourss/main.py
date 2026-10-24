@@ -61,7 +61,7 @@ async def unknown_user(request: Request, error: UnknownUser) -> Response:
 def create_app(*, api_docs: bool) -> FastAPI:
     """The application, with or without the generated API documentation."""
     out = FastAPI(
-        name=app_name,
+        title=app_name,
         version=app_version,
         lifespan=lifespan,
         docs_url="/docs" if api_docs else None,
