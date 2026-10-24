@@ -54,6 +54,8 @@ Turn on *Show new videos* in the settings and the videos you played for a few se
 
 Click a thumbnail to play: the player takes the whole row, or the whole screen on a phone. A second action opens a fullscreen player with links to Youtube and to the RSS feed. The next video can be played automatically.
 
+With a mouse, turn on the *Improved player* in the settings: the video is no longer dimmed under the pointer, a click pauses it and a double click enters or leaves fullscreen, while the controls of Youtube stay at the bottom.
+
 ### 📺 Keep watching while you browse
 
 Turn on the *Mini player* in the settings: when you scroll away, the video keeps playing, docked in a corner of the screen, while you browse the rest of the page or open another channel. Its card shows where it comes from, a click brings you back to it, and the mini player closes by itself when the video ends. Without it, the player is closed as soon as its card leaves the screen.

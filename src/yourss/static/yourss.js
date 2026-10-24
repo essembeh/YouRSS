@@ -14,7 +14,7 @@
  *    `form.yourss-add-form` (docs/specs/custom-pages.md)
  *
  * State classes: `is-playing`, `is-docked`, `is-watched`, `is-focused`, `is-filtered`,
- * `is-portrait` on a video; `rail`, `menu-open`, `hide-watched`, `no-watched`, `watched-ready`,
+ * `is-portrait` on a video; `rail`, `menu-open`, `hide-watched`, `no-watched`, `watched-ready`, `improved-player`,
  * `density-*` on body. Elements of the watched feature carry `data-watched-feature`.
  *
  * Everything is client side: theme, density, switches and watched videos live in localStorage
@@ -26,7 +26,17 @@
  */
 import { $, $$, flag, focusVideo, focusedVideo, on, store, videoOf, visibleVideos } from "yourss/core"
 import { applyWatched, captureFeed, feedIds, setWatched } from "yourss/watched"
-import { closePlayer, destroyModalPlayer, dismissPlayer, openModal, play, playRelative, undock } from "yourss/player"
+import {
+  closePlayer,
+  destroyModalPlayer,
+  dismissPlayer,
+  openModal,
+  play,
+  playRelative,
+  toggleFullscreen,
+  togglePause,
+  undock,
+} from "yourss/player"
 
 /* ---------- settings: theme, density and on/off flags ---------- */
 const THEMES = ["neon", "dark", "light"]
@@ -45,6 +55,7 @@ function applySettings() {
   document.documentElement.dataset.theme = theme
   DENSITIES.forEach((d) => document.body.classList.toggle(`density-${d}`, d === density))
   document.body.classList.toggle("rail", flag("rail"))
+  document.body.classList.toggle("improved-player", flag("improved-player"))
   document.body.classList.toggle("no-watched", !flag("new-videos"))
   document.body.classList.toggle("hide-watched", flag("new-videos") && flag("hide-watched"))
   // Mini player turned off while in use: its card is out of the screen, so the player is closed
@@ -478,6 +489,7 @@ const actions = {
   "folder-step": (el) => stepFolder(Number(el.dataset.step)),
   modal: (el) => openModal(videoOf(el).dataset.videoId),
   "close-player": dismissPlayer,
+  "toggle-pause": togglePause,
   undock,
   "toggle-watched": (el) => {
     const video = videoOf(el)
@@ -577,6 +589,13 @@ on("click", (event) => {
   }
 })
 
+on("dblclick", (event) => {
+  const shield = event.target.closest(".yourss-player-shield")
+  if (shield) {
+    toggleFullscreen(shield)
+  }
+})
+
 on("input", (event) => {
   if (event.target.id === "yourss-search") {
     applySearch()
@@ -603,7 +622,7 @@ on("keydown", (event) => {
       event.target.value = ""
       event.target.blur()
       applySearch()
-    } else if (!$("dialog[open]")) {
+    } else if (!$("dialog[open]") && !document.fullscreenElement) {
       dismissPlayer()
     }
     return

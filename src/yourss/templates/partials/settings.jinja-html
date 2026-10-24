@@ -32,6 +32,9 @@
     <button type="button" class="yourss-toggle" data-action="toggle" data-flag="dock" aria-pressed="false">
       <svg><use href="#i-dock" /></svg><span class="yourss-toggle-text"><strong>Mini player</strong><small>Keep playing in a corner when the video leaves the screen, instead of closing the player</small></span><i class="yourss-switch"></i>
     </button>
+    <button type="button" class="yourss-toggle" data-action="toggle" data-flag="improved-player" aria-pressed="false">
+      <svg><use href="#i-pointer" /></svg><span class="yourss-toggle-text"><strong>Improved player</strong><small>With a mouse: no dimming under the pointer, a click pauses, a double click enters or leaves fullscreen</small></span><i class="yourss-switch"></i>
+    </button>
 
     <button type="button" class="yourss-btn yourss-reset-btn" data-action="reset-storage" title="Back to the default settings and forget the watched videos">
       <svg><use href="#i-reset" /></svg><span>Reset settings and watched videos</span>

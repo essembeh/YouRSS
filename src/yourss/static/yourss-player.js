@@ -53,7 +53,11 @@ const PLAYER_HOST = "https://www.youtube-nocookie.com"
 // YT.Player replaces its target node, so it is mounted on a disposable child of `host`.
 function createPlayer(YT, host, videoId, onEnded) {
   const mount = document.createElement("div")
-  host.replaceChildren(mount)
+  // The shield keeps the mouse off the video: YouTube no longer dims it on hover
+  const shield = document.createElement("div")
+  shield.className = "yourss-player-shield"
+  shield.dataset.action = "toggle-pause"
+  host.replaceChildren(mount, shield)
   return new YT.Player(mount, {
     videoId,
     host: PLAYER_HOST,
@@ -69,6 +73,30 @@ function createPlayer(YT, host, videoId, onEnded) {
       },
     },
   })
+}
+
+// Click on the shield: pause or resume the player under it; double click: fullscreen.
+export function togglePause(shield) {
+  const player = shield.closest("#yourss-modal-player") ? modal.player : embedded.player
+  const state = player?.getPlayerState?.()
+  if (state === undefined) {
+    return
+  }
+  const playing = state === window.YT.PlayerState.PLAYING || state === window.YT.PlayerState.BUFFERING
+  if (playing) {
+    player.pauseVideo()
+  } else {
+    player.playVideo()
+  }
+}
+
+// The host goes fullscreen, not the iframe: the shield stays on top and a double click comes back.
+export function toggleFullscreen(shield) {
+  if (document.fullscreenElement) {
+    document.exitFullscreen()
+  } else {
+    shield.parentElement.requestFullscreen?.()
+  }
 }
 
 /* ---------- player embedded in a card (one at a time), closed or docked when the card leaves the screen ---------- */

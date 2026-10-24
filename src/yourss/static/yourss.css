@@ -358,6 +358,10 @@ body.hide-watched.watched-ready .yourss-grid:not(:has(.yourss-video:not(.is-watc
 .yourss-player-container { position: absolute; inset: 0; display: none; }
 .yourss-player-container.is-active { display: block; }
 .yourss-player-container iframe { width: 100%; height: 100%; display: block; }
+/* Setting "Improved player", mouse only: the shield covers the video but not the YouTube control bar (about 60px) */
+.yourss-player-shield { display: none; }
+@media (hover: hover) and (pointer: fine) { body.improved-player .yourss-player-shield { display: block; position: absolute; inset: 0 0 60px 0; z-index: 1; cursor: pointer; } }
+@media not ((hover: hover) and (pointer: fine)) { [data-flag="improved-player"] { display: none; } }
 .yourss-play-badge { position: absolute; inset: 0; display: grid; place-items: center; pointer-events: none; opacity: 0; transition: opacity .15s; background: rgba(0,0,0,.25); }
 .yourss-play-badge svg { width: 56px; height: 56px; fill: #fff; stroke: none; filter: drop-shadow(0 2px 8px rgba(0,0,0,.6)); }
 .yourss-media:hover .yourss-play-badge { opacity: 1; }
@@ -472,7 +476,7 @@ button.yourss-nav-item { width: 100%; border: 0; background: transparent; text-a
 .yourss-modal-box { display: flex; flex-direction: column; width: 100%; height: 100%; background: #000; }
 .yourss-modal-head { display: flex; align-items: center; gap: .75rem; padding: .5rem .5rem .5rem 1rem; background: var(--bg-side); }
 .yourss-modal-head span { flex: 1; min-width: 0; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.yourss-modal-player { flex: 1; min-height: 0; }
+.yourss-modal-player { position: relative; flex: 1; min-height: 0; }
 .yourss-modal-player iframe { width: 100%; height: 100%; display: block; }
 .yourss-modal-foot { display: flex; align-items: center; gap: .5rem; padding: .6rem .75rem; background: var(--bg-side); }
 .yourss-modal-foot .yourss-btn span { display: none; }
