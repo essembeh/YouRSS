@@ -6,13 +6,15 @@
     </div>
     <dl class="yourss-shortcuts">
       <dt><kbd>←</kbd><kbd>↑</kbd><kbd>↓</kbd><kbd>→</kbd></dt>
-      <dd>Move the selection in the grid</dd>
+      <dd>Move the selection in the grid; while a video plays, <kbd>←</kbd><kbd>→</kbd> go back / forward 10 seconds</dd>
       <dt><kbd>Space</kbd></dt>
-      <dd>Play the selected video</dd>
+      <dd>Play the selected video, or pause / resume the one playing</dd>
       <dt><kbd>n</kbd><kbd>p</kbd></dt>
       <dd>Play the next / previous video</dd>
       <dt><kbd>o</kbd></dt>
       <dd>Open the selected video in the fullscreen player</dd>
+      <dt><kbd>m</kbd><kbd>f</kbd><kbd>c</kbd></dt>
+      <dd>While a video plays: mute, fullscreen, captions</dd>
       <dt><kbd>x</kbd></dt>
       <dd>Close the player</dd>
       <dt data-watched-feature><kbd>w</kbd></dt>

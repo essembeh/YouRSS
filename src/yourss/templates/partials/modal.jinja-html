@@ -4,7 +4,7 @@
       <span id="yourss-modal-video-title"></span>
       <button type="button" class="yourss-icon-btn" data-action="close-dialog" aria-label="Close"><svg><use href="#i-close" /></svg></button>
     </div>
-    <div id="yourss-modal-player" class="yourss-modal-player"></div>
+    <div id="yourss-modal-player" class="yourss-modal-player" tabindex="-1" autofocus></div>
     <div class="yourss-modal-foot">
       <a id="yourss-modal-link-rss" class="yourss-btn rss" target="_blank" rel="noopener" title="Channel RSS feed"><svg><use href="#i-rss" /></svg><span>RSS</span></a>
       <span class="yourss-spacer"></span>

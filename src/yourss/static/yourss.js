@@ -33,8 +33,12 @@ import {
   openModal,
   play,
   playRelative,
+  seekBy,
+  toggleCaptions,
   toggleFullscreen,
+  toggleMute,
   togglePause,
+  togglePlayback,
   undock,
 } from "yourss/player"
 
@@ -592,7 +596,7 @@ on("click", (event) => {
 on("dblclick", (event) => {
   const shield = event.target.closest(".yourss-player-shield")
   if (shield) {
-    toggleFullscreen(shield)
+    toggleFullscreen(shield.parentElement)
   }
 })
 
@@ -635,6 +639,24 @@ on("keydown", (event) => {
     $("#yourss-modal").close()
     return
   }
+  // In the fullscreen player, as YouTube does: left / right jump 10 seconds, Space pauses (not on a focused button)
+  if ($("#yourss-modal").open && (event.key === "ArrowLeft" || event.key === "ArrowRight")) {
+    seekBy(event.key === "ArrowLeft" ? -10 : 10)
+    event.preventDefault()
+    return
+  }
+  if ($("#yourss-modal").open && event.key === " " && !event.target.closest("button, a")) {
+    togglePlayback()
+    event.preventDefault()
+    return
+  }
+  // Keys of the YouTube player, for the card, the mini player and the fullscreen dialog
+  const playerKeys = { m: toggleMute, f: () => toggleFullscreen(), c: toggleCaptions }
+  const playerShown = !$("dialog[open]") || $("#yourss-modal").open
+  if (event.key in playerKeys && playerShown && playerKeys[event.key]() !== false) {
+    event.preventDefault()
+    return
+  }
   // No other page shortcut while a dialog is open.
   if ($("dialog[open]")) {
     return
@@ -643,15 +665,16 @@ on("keydown", (event) => {
   const shortcuts = {
     "/": () => $("#yourss-search")?.focus(),
     "?": () => $("#yourss-shortcuts").showModal(),
-    ArrowRight: () => moveFocus("right"),
-    ArrowLeft: () => moveFocus("left"),
+    // While a card plays, left / right jump 10 seconds instead of moving the selection
+    ArrowRight: () => seekBy(10) || moveFocus("right"),
+    ArrowLeft: () => seekBy(-10) || moveFocus("left"),
     // With Shift, up / down walk the sidebar (Home, then each channel) instead of the grid
     ArrowDown: () => (event.shiftKey ? moveChannel(1) : moveFocus("down")),
     ArrowUp: () => (event.shiftKey ? moveChannel(-1) : moveFocus("up")),
     n: () => playRelative(1),
     p: () => playRelative(-1),
-    // Without a selection, Space keeps its usual role: scrolling the page
-    " ": () => (video ? play(video.dataset.videoId) : false),
+    // Space plays the selected card, else pauses / resumes the player; with neither, it scrolls the page
+    " ": () => (video && !video.classList.contains("is-playing") ? play(video.dataset.videoId) : togglePlayback()),
     o: () => video && openModal(video.dataset.videoId),
     w: () => video && setWatched([video.dataset.videoId], !video.classList.contains("is-watched")),
     h: () => flag("new-videos") && setSetting("hide-watched", flag("hide-watched") ? "0" : "1"),
