@@ -338,9 +338,9 @@ body.density-compact .yourss-video-channel { display: none; }
   .yourss-grid { grid-template-columns: repeat(var(--yourss-cols), minmax(0, 1fr)); }
   body { --yourss-cols: 1; }
   body.density-compact { --yourss-cols: 2; }
-  body.density-large .yourss-video:not(.is-playing) { flex-direction: row; }
-  body.density-large .yourss-video:not(.is-playing) .yourss-media { flex: 0 0 42%; aspect-ratio: auto; min-height: 92px; }
-  body.density-large .yourss-video:not(.is-playing) .yourss-video-body { flex: 1; min-width: 0; padding: .5rem .7rem .3rem; }
+  body.density-large .yourss-video:not(.is-expanded) { flex-direction: row; }
+  body.density-large .yourss-video:not(.is-expanded) .yourss-media { flex: 0 0 42%; aspect-ratio: auto; min-height: 92px; }
+  body.density-large .yourss-video:not(.is-expanded) .yourss-video-body { flex: 1; min-width: 0; padding: .5rem .7rem .3rem; }
 }
 
 /* ---- card ---- */
@@ -355,9 +355,6 @@ body.hide-watched.watched-ready .yourss-grid:not(:has(.yourss-video:not(.is-watc
 .yourss-media.is-portrait { aspect-ratio: 9 / 16; }
 .yourss-thumbnail { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; transition: transform .25s ease, opacity .2s; }
 .yourss-media:hover .yourss-thumbnail { transform: scale(1.03); }
-.yourss-player-container { position: absolute; inset: 0; display: none; }
-.yourss-player-container.is-active { display: block; }
-.yourss-player-container iframe { width: 100%; height: 100%; display: block; }
 .yourss-play-badge { position: absolute; inset: 0; display: grid; place-items: center; pointer-events: none; opacity: 0; transition: opacity .15s; background: rgba(0,0,0,.25); }
 .yourss-play-badge svg { width: 56px; height: 56px; fill: #fff; stroke: none; filter: drop-shadow(0 2px 8px rgba(0,0,0,.6)); }
 .yourss-media:hover .yourss-play-badge { opacity: 1; }
@@ -381,40 +378,122 @@ body.watched-ready .yourss-video:not(.is-watched):not(.is-playing) .yourss-new {
 .yourss-video:hover .yourss-video-meta .yourss-icon-btn, .yourss-video.is-watched [data-action="toggle-watched"] { opacity: 1; }
 .yourss-video.is-watched [data-action="toggle-watched"] { color: var(--ok); }
 
-/* ---- theater: the playing card spans the row, the player is capped to the viewport ---- */
+/* ---- theater: the expanded card (the one played over, kept while its video is in the mini player) spans the row ---- */
 .yourss-playing-bar { display: none; align-items: center; gap: .75rem; padding: .35rem .5rem .35rem .85rem; font-size: .85rem; font-weight: 600; background: var(--bg-hover); border-bottom: 1px solid var(--line); }
 .yourss-video.is-playing:not(.is-docked) .yourss-playing-bar { display: flex; }
 .yourss-playing-bar span { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .yourss-playing-bar .yourss-close-player:hover { background: var(--accent); color: var(--accent-fg); }
-.yourss-video.is-playing { grid-column: 1 / -1; }
-.yourss-video.is-playing .yourss-media { width: min(100%, calc(85vh * 16 / 9)); margin: 0 auto; }
-.yourss-video.is-playing .yourss-media.is-portrait { width: min(100%, calc(85vh * 9 / 16)); }
+.yourss-video.is-expanded { grid-column: 1 / -1; }
+.yourss-video.is-expanded .yourss-media { width: min(100%, calc(85vh * 16 / 9)); margin: 0 auto; }
+.yourss-video.is-expanded .yourss-media.is-portrait { width: min(100%, calc(85vh * 9 / 16)); }
 
-/* ---- docked mini player (card scrolled out of view) ---- */
-.yourss-dock-bar, .yourss-dock-placeholder { display: none; }
-.yourss-video.is-docked .yourss-media {
-  position: fixed; right: 16px; bottom: 16px; z-index: 300; width: min(420px, calc(100vw - 32px)); margin: 0;
-  border-radius: var(--radius); box-shadow: 0 20px 60px rgba(0,0,0,.7); border: 1px solid var(--line);
-  animation: yourss-dock-in .25s ease-out;
-}
-@keyframes yourss-dock-in { from { opacity: 0; transform: translateY(24px) scale(.96); } }
-@media (prefers-reduced-motion: reduce) { .yourss-video.is-docked .yourss-media { animation: none; } }
-.yourss-video.is-docked .yourss-media.is-portrait { width: 220px; }
-.yourss-video.is-docked .yourss-dock-bar { display: flex; align-items: center; gap: .25rem; position: absolute; left: 0; right: 0; top: 0; padding: .25rem .25rem .25rem .75rem; background: linear-gradient(rgba(0,0,0,.85), transparent); opacity: 0; transition: opacity .15s; z-index: 2; }
-.yourss-video.is-docked .yourss-media:hover .yourss-dock-bar { opacity: 1; }
-.yourss-dock-title { flex: 1; font-size: .8rem; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.yourss-dock-bar .yourss-icon-btn { color: #fff; width: 40px; height: 40px; border-radius: 50%; background: rgba(0,0,0,.55); }
-.yourss-dock-bar .yourss-icon-btn svg { width: 22px; height: 22px; }
-.yourss-dock-bar .yourss-dock-close:hover { background: var(--accent); color: var(--accent-fg); }
-/* Touch screens and phones: the commands of the mini player stay visible and are finger sized */
-@media (hover: none), (max-width: 899px) {
-  .yourss-video.is-docked .yourss-dock-bar { opacity: 1; gap: .5rem; padding: .4rem .4rem .4rem .75rem; }
-  .yourss-dock-bar .yourss-icon-btn { width: 56px; height: 56px; }
-  .yourss-dock-bar .yourss-icon-btn svg { width: 28px; height: 28px; }
-}
-/* The docked card keeps its height (set by the script): the placeholder fills the room of the player */
-.yourss-video.is-docked .yourss-dock-placeholder { display: flex; flex: 1; align-items: center; justify-content: center; gap: .6rem; min-height: 120px; color: var(--fg-muted); cursor: pointer; background: repeating-linear-gradient(45deg, var(--bg-elev) 0 10px, var(--bg-hover) 10px 20px); }
+/* ---- the card whose video is in the mini player: its thumbnail stays, a placeholder over it brings the video back ---- */
+.yourss-dock-placeholder { display: none; }
+.yourss-video.is-docked .yourss-dock-placeholder { display: flex; position: absolute; inset: 0; z-index: 1; align-items: center; justify-content: center; gap: .6rem; color: #fff; font-weight: 600; cursor: pointer; background: rgba(0, 0, 0, .62); }
 .yourss-video.is-docked .yourss-dock-placeholder svg { fill: currentColor; stroke: none; }
+
+/* ---- the stage: the one player of the page (docs/specs/mini-player.md) ---- */
+/* Anchored: laid over the playing card (box set by the script), nothing but the video */
+.yourss-stage.is-anchored { position: absolute; z-index: 50; display: block; }
+.yourss-stage.is-anchored > :not(.yourss-stage-player) { display: none; }
+.yourss-stage.is-anchored .yourss-stage-player { width: 100%; height: 100%; min-height: 0; aspect-ratio: auto; }
+/* Docked: the mini player, in a corner; in listen mode it adds the title and the commands (phones: full screen) */
+.yourss-stage.is-docked {
+  position: fixed; right: 16px; bottom: 16px; z-index: 300; width: min(420px, calc(100vw - 32px));
+  display: grid; grid-template-columns: minmax(0, 1fr); grid-template-areas: "bar" "player" "head" "next" "commands"; background: var(--bg-elev); border: 1px solid var(--accent);
+  border-radius: var(--radius); box-shadow: 0 0 0 3px var(--accent-soft), 0 20px 60px rgba(0,0,0,.7); overflow: hidden;
+}
+/* The terms of the YouTube API want a visible player of 200px at least */
+.yourss-stage-player { grid-area: player; position: relative; aspect-ratio: 16 / 9; min-height: 200px; background: #000; }
+.yourss-stage-player iframe { width: 100%; height: 100%; display: block; }
+/* Plain mini player: the bar (title, listen, back, close) and the video; a short keeps its portrait frame */
+body:not(.listening) .yourss-stage.is-docked > :is(.yourss-stage-head, .yourss-stage-next, .yourss-stage-commands), body:not(.listening) .yourss-stage-label { display: none; }
+body.listening .yourss-stage-bar > :is(.yourss-stage-bar-title, .is-plain) { display: none; }
+body:not(.listening) .yourss-stage.is-docked.is-portrait { width: 220px; }
+body:not(.listening) .yourss-stage.is-docked.is-portrait .yourss-stage-player { aspect-ratio: 9 / 16; min-height: 0; }
+.yourss-stage-bar-title { flex: 1; min-width: 0; font-size: .82rem; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+@keyframes yourss-dock-in { from { opacity: 0; transform: translateY(24px) scale(.96); } }
+.yourss-stage.is-docked { animation: yourss-dock-in .25s ease-out; }
+@media (prefers-reduced-motion: reduce) { .yourss-stage.is-docked { animation: none; } }
+.yourss-stage-bar { grid-area: bar; display: flex; align-items: center; gap: .5rem; padding: .3rem .3rem .3rem .9rem; border-bottom: 1px solid var(--line); }
+.yourss-stage-label { flex: 1; display: inline-flex; align-items: center; gap: .45rem; font-size: .8rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--accent-text, var(--accent)); }
+.yourss-stage-close:hover { background: var(--accent); color: var(--accent-fg); }
+.yourss-stage-head { grid-area: head; display: flex; min-width: 0; padding: .6rem .9rem 0; }
+.yourss-stage-title { flex: 1; display: block; min-width: 0; padding: 0; border: 0; background: none; color: var(--fg); font: inherit; text-align: left; cursor: pointer; }
+/* clip, not hidden: a grid may shrink a scroll container to nothing when the screen is short */
+.yourss-stage-line, .yourss-stage-next { display: block; white-space: nowrap; overflow: clip; text-overflow: ellipsis; }
+/* "Channel · Title" on one line, as an artist and a track */
+.yourss-stage-line small { font-size: inherit; color: var(--fg-muted); }
+.yourss-stage-line small:not(:empty)::after { content: " · "; }
+.yourss-stage-next { grid-area: next; display: none; margin: 0; padding: 0 .9rem; font-size: .85rem; font-style: italic; color: var(--fg-muted); }
+.yourss-stage-commands { grid-area: commands; display: flex; align-items: center; justify-content: center; gap: .9rem; padding: .4rem .6rem .7rem; }
+.yourss-stage-commands .yourss-icon-btn { width: 52px; height: 52px; border-radius: 50%; color: var(--fg); }
+.yourss-stage-commands .yourss-icon-btn svg { width: 26px; height: 26px; }
+.yourss-stage-commands .is-main { width: 64px; height: 64px; background: var(--accent); color: var(--accent-fg); }
+/* Touch screens keep the hover state after a tap: hover effects for a mouse only */
+@media (hover: hover) { .yourss-stage-commands .is-main:hover { background: var(--accent); color: var(--accent-fg); filter: brightness(1.1); } }
+.yourss-stage-commands .is-main svg { width: 32px; height: 32px; }
+.yourss-stage-commands .is-seek { width: 44px; height: 44px; font: 700 .85rem var(--font); }
+/* Listen mode on phones, "listen-cover" setting: the thumbnail over the video, not to be distracted while driving */
+.yourss-stage-cover { grid-area: player; z-index: 2; display: none; width: 100%; height: 100%; min-width: 0; min-height: 0; contain: size; object-fit: cover; background: #000; }
+.yourss-stage-commands .is-cover { display: none; }
+.yourss-stage .when-cover, body.listen-cover .yourss-stage .when-video { display: none; }
+body.listen-cover .yourss-stage .when-cover { display: block; }
+.yourss-stage .when-playing, .yourss-stage.is-playing .when-paused { display: none; }
+.yourss-stage.is-playing .when-playing { display: block; }
+body:has(.yourss-stage.is-docked) .yourss-main { padding-bottom: calc(var(--stage-h, 360px) + 2rem); }
+body:has(.yourss-stage.is-docked) #scroll-to-top { display: none; }
+/* Listen mode: the cards keep their place, the playing one is only outlined */
+body.listening .yourss-video.is-playing { outline: 2px solid var(--accent); outline-offset: 3px; }
+body.listening .yourss-listen-btn svg { color: var(--accent); }
+/* Phones, plain: a small mini player, finger sized buttons */
+@media (max-width: 899px) {
+  body:not(.listening) .yourss-stage.is-docked { right: 10px; bottom: 10px; width: min(300px, calc(100vw - 20px)); }
+  body:not(.listening) .yourss-stage-bar .yourss-icon-btn { width: 44px; height: 44px; }
+}
+@media (max-width: 899px), (max-height: 500px) {
+  /* Listen: full screen, the video on top, then the title and finger sized commands under the thumb */
+  body.listening .yourss-stage {
+    inset: 0; width: auto; z-index: 400; grid-template-rows: auto auto auto auto 1fr; border: 0; border-radius: 0; box-shadow: none;
+    background: var(--bg); padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+  }
+  body.listening { overflow: hidden; }
+  /* 16:9 across the width (a taller frame only adds black bars), within 42% of the height */
+  body.listening .yourss-stage-player { aspect-ratio: 16 / 9; height: auto; min-height: 200px; max-height: 42dvh; }
+  body.listening .yourss-stage-bar { padding: .4rem .5rem .4rem 1.25rem; }
+  body.listening .yourss-stage-close { width: 44px; height: 44px; }
+  body.listening .yourss-stage-head { padding: 1rem 1.25rem 0; }
+  body.listening .yourss-stage-line { font-size: 1.15rem; line-height: 1.3; white-space: normal; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; }
+  body.listening .yourss-stage-next { display: block; padding: .75rem 1.25rem 0; font-size: .95rem; }
+  /* Two rows: -30 / +30 above previous, play / pause, next */
+  body.listening .yourss-stage-commands { display: grid; grid-template-columns: repeat(3, auto); align-content: center; justify-content: center; justify-items: center; gap: 1.25rem 1.75rem; padding: 1rem; }
+  body.listening .yourss-stage .is-back { grid-area: 1 / 1; }
+  body.listening .yourss-stage .is-forward { grid-area: 1 / 3; }
+  body.listening .yourss-stage .is-cover { grid-area: 1 / 2; }
+  body.listening .yourss-stage .is-prev { grid-area: 2 / 1; }
+  body.listening .yourss-stage .is-main { grid-area: 2 / 2; }
+  body.listening .yourss-stage .is-next { grid-area: 2 / 3; }
+  body.listening .yourss-stage-commands .yourss-icon-btn { width: 88px; height: 88px; background: var(--bg-elev); }
+  body.listening .yourss-stage-commands .yourss-icon-btn svg { width: 40px; height: 40px; }
+  body.listening .yourss-stage-commands .is-main { width: 112px; height: 112px; background: var(--accent); }
+  body.listening .yourss-stage-commands .is-main svg { width: 52px; height: 52px; }
+  body.listening .yourss-stage-commands .is-seek { width: 72px; height: 72px; font-size: 1.15rem; }
+  body.listening.listen-cover .yourss-stage-cover { display: block; }
+  body.listening .yourss-stage-commands .is-cover { display: inline-grid; width: 56px; height: 56px; }
+  body.listening .yourss-stage-commands .is-cover svg { width: 26px; height: 26px; }
+  body.listening .yourss-stage-cover { height: auto; aspect-ratio: 16 / 9; min-height: 200px; max-height: 42dvh; align-self: start; }
+}
+/* A phone held sideways (car mount): the video on the left, the rest on the right */
+@media (max-height: 500px) and (orientation: landscape) {
+  body.listening .yourss-stage { grid-template-columns: 1fr 1fr; grid-template-rows: auto auto auto 1fr; grid-template-areas: "bar bar" "player head" "player next" "player commands"; }
+  body.listening .yourss-stage-player { align-self: center; height: auto; aspect-ratio: 16 / 9; max-height: none; }
+  body.listening .yourss-stage-commands .yourss-icon-btn { width: 72px; height: 72px; }
+  body.listening .yourss-stage-commands .is-main { width: 96px; height: 96px; }
+  body.listening .yourss-stage-commands .is-seek { width: 60px; height: 60px; }
+  body.listening .yourss-stage-commands .is-cover { width: 48px; height: 48px; }
+  body.listening .yourss-stage-cover { align-self: center; height: auto; aspect-ratio: 16 / 9; max-height: none; }
+  body.listening .yourss-stage-commands { gap: .75rem 1.25rem; }
+}
 
 /* ---- channel hero + tabs ---- */
 .yourss-hero { display: flex; align-items: center; gap: 1.25rem; margin-bottom: 1rem; }
@@ -489,7 +568,6 @@ button.yourss-nav-item { width: 100%; border: 0; background: transparent; text-a
   body.menu-open .yourss-backdrop { opacity: 1; pointer-events: auto; }
   .yourss-rail-toggle { display: none; }
   .yourss-sidebar .yourss-filter { display: none; }
-  .yourss-video.is-docked .yourss-media { right: 10px; bottom: 10px; width: min(300px, calc(100vw - 20px)); }
   /* Folder navigation: the open folder centered between two finger sized chevrons, the brand keeps its icon only */
   .yourss-folder-nav { display: flex; flex: 1; align-items: center; min-width: 0; }
   .yourss-folder-nav .yourss-icon-btn { width: 38px; height: 38px; margin: 0 .25rem; border-radius: 50%; background: var(--bg-elev); border: 1px solid var(--line-strong); color: var(--fg); }
@@ -546,15 +624,15 @@ html[data-slide]::view-transition-new(root) { animation: yourss-slide-in .2s eas
 /* ---- scroll offset of a card brought to the top (sticky top bar on phones) ---- */
 .yourss-video { scroll-margin-top: 1rem; }
 /* A card far from the screen is neither laid out nor painted until it comes close (a playing card hosts the player) */
-.yourss-video:not(.is-playing) { content-visibility: auto; contain-intrinsic-size: auto 380px; }
+.yourss-video:not(.is-playing, .is-expanded) { content-visibility: auto; contain-intrinsic-size: auto 380px; }
 @media (max-width: 899px) { .yourss-video { scroll-margin-top: 4.25rem; } }
 
 /* ---- phones: the playing card fills the screen under the top bar ---- */
 @media (max-width: 559px) {
-  .yourss-video.is-playing { margin-inline: -.5rem; min-height: calc(100dvh - var(--topbar-h)); scroll-margin-top: var(--topbar-h); background: #000; }
+  .yourss-video.is-expanded { margin-inline: -.5rem; min-height: calc(100dvh - var(--topbar-h)); scroll-margin-top: var(--topbar-h); background: #000; }
   /* The player takes all the height left: a portrait video fills it, whatever its thumbnail said */
-  .yourss-video.is-playing:not(.is-docked) .yourss-media, .yourss-video.is-playing:not(.is-docked) .yourss-media.is-portrait { flex: 1 1 auto; width: 100%; min-height: 0; aspect-ratio: auto; }
-  .yourss-video.is-playing .yourss-video-body { flex: none; background: var(--bg-elev); }
+  .yourss-video.is-expanded .yourss-media, .yourss-video.is-expanded .yourss-media.is-portrait { flex: 1 1 auto; width: 100%; min-height: 0; aspect-ratio: auto; }
+  .yourss-video.is-expanded .yourss-video-body { flex: none; background: var(--bg-elev); }
   body:has(.yourss-video.is-playing:not(.is-docked)) #scroll-to-top { display: none; }
 }
 
@@ -586,7 +664,6 @@ html[data-slide]::view-transition-new(root) { animation: yourss-slide-in .2s eas
 [data-theme="neon"] .yourss-video-channel:hover { color: var(--cyan); }
 [data-theme="neon"] .yourss-playing-bar { background: transparent; border-bottom-color: var(--cyan); color: var(--cyan); }
 [data-theme="neon"] .yourss-playing-bar .yourss-close-player:hover { background: var(--accent-soft); color: var(--accent-text); }
-[data-theme="neon"] .yourss-video.is-docked .yourss-media { border-color: var(--cyan); box-shadow: var(--cyan-glow), 0 20px 60px rgba(0, 0, 0, .7); }
 [data-theme="neon"] .yourss-hero-avatar { box-shadow: 0 0 0 2px var(--bg), 0 0 0 3px var(--accent), var(--accent-glow); }
 [data-theme="neon"] #scroll-to-top { background: var(--bg-elev); color: var(--accent-text); border: 1px solid var(--accent); box-shadow: var(--accent-glow); }
 @media (max-width: 899px) { [data-theme="neon"] .yourss-sidebar { background: var(--bg-side); } }
@@ -599,6 +676,26 @@ html[data-slide]::view-transition-new(root) { animation: yourss-slide-in .2s eas
 [data-theme="neon"] .yourss-new { background: rgba(5, 3, 15, .78); color: var(--accent-text); border: 1px solid var(--accent); box-shadow: var(--accent-glow); }
 [data-theme="neon"] .yourss-reset-btn:hover { border-color: var(--err-line); background: var(--err-bg); color: var(--fg); }
 [data-theme="neon"] .yourss-settings-box { border-color: var(--accent); box-shadow: var(--accent-glow), 0 30px 90px rgba(0, 0, 0, .75); }
+/* The mini player: a pink glowing frame, the commands in cyan, play / pause in pink; phones in listen mode get the page background */
+[data-theme="neon"] .yourss-stage.is-docked { border-color: var(--accent); box-shadow: var(--accent-glow), 0 20px 60px rgba(0, 0, 0, .7); }
+[data-theme="neon"] .yourss-stage-label { background: linear-gradient(90deg, var(--accent) 0%, var(--cyan) 100%); -webkit-background-clip: text; background-clip: text; color: transparent; }
+[data-theme="neon"] .yourss-stage-label svg { color: var(--accent-text); }
+[data-theme="neon"] body.listening .yourss-video.is-playing { outline: none; border-color: var(--cyan); box-shadow: var(--cyan-glow); }
+[data-theme="neon"] .yourss-stage-commands .yourss-icon-btn { background: rgba(1, 189, 255, .08); color: var(--cyan); box-shadow: inset 0 0 0 1px var(--cyan), var(--cyan-glow); }
+[data-theme="neon"] .yourss-stage-commands .is-main { background: var(--accent-soft); color: var(--accent-text); box-shadow: inset 0 0 0 2px var(--accent), var(--accent-glow); }
+@media (hover: hover) {
+  [data-theme="neon"] .yourss-stage-commands .yourss-icon-btn:hover { background: rgba(1, 189, 255, .2); color: var(--fg); }
+  [data-theme="neon"] .yourss-stage-commands .is-main:hover { background: rgba(255, 0, 220, .3); color: var(--fg); filter: none; }
+}
+@media (max-width: 899px), (max-height: 500px) {
+  [data-theme="neon"] body.listening .yourss-stage { background: radial-gradient(700px 420px at 15% -10%, rgba(126, 34, 255, .28), transparent 62%), radial-gradient(600px 380px at 95% 0%, rgba(1, 110, 255, .2), transparent 60%), var(--bg); }
+  [data-theme="neon"] body.listening .yourss-stage-bar { border-bottom-color: rgba(255, 0, 220, .55); box-shadow: 0 1px 14px rgba(255, 0, 220, .25); }
+  [data-theme="neon"] body.listening .yourss-stage-player { margin: .9rem .9rem 0; border-radius: var(--radius); overflow: hidden; box-shadow: 0 0 0 1px var(--accent), var(--accent-glow); }
+  [data-theme="neon"] body.listening .yourss-stage-cover { margin: .9rem .9rem 0; width: calc(100% - 1.8rem); border-radius: var(--radius); box-shadow: 0 0 0 1px var(--accent), var(--accent-glow); }
+  /* Larger buttons, no hover: a glow scaled to their size, inside as well */
+  [data-theme="neon"] body.listening .yourss-stage-commands .yourss-icon-btn { background: rgba(1, 189, 255, .08); box-shadow: inset 0 0 0 1px var(--cyan), inset 0 0 14px rgba(1, 189, 255, .35), 0 0 10px rgba(1, 189, 255, .8), 0 0 32px rgba(1, 189, 255, .4); }
+  [data-theme="neon"] body.listening .yourss-stage-commands .is-main { background: var(--accent-soft); box-shadow: inset 0 0 0 2px var(--accent), inset 0 0 20px rgba(255, 0, 220, .4), 0 0 12px rgba(255, 0, 220, .85), 0 0 40px rgba(255, 0, 220, .45); }
+}
 /* ---- light theme: the search field and the active entries must stand out on the tinted sidebar ---- */
 [data-theme="light"] .yourss-search { background: #ffffff; box-shadow: inset 0 0 0 1px var(--line); }
 [data-theme="light"] .yourss-nav-item { font-weight: 500; }

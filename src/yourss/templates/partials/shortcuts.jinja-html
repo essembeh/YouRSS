@@ -13,6 +13,8 @@
       <dd>Play the next / previous video</dd>
       <dt><kbd>o</kbd></dt>
       <dd>Open the selected video in the fullscreen player</dd>
+      <dt><kbd>l</kbd></dt>
+      <dd>Listen: play the page as music in the mini player, or stop (then <kbd>Space</kbd> plays / pauses, <kbd>Shift</kbd><kbd>←</kbd><kbd>→</kbd> go back / forward 30 seconds)</dd>
       <dt><kbd>x</kbd></dt>
       <dd>Close the player</dd>
       <dt data-watched-feature><kbd>w</kbd></dt>

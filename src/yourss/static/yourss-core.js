@@ -35,6 +35,9 @@ export const store = {
 // On / off settings, all off until the user turns them on
 export const flag = (name) => store.get(name) === "1"
 
+// The listen mode (yourss-listen.js) is on: the player stays in its mini player, the cards are a queue
+export const listening = () => document.body.classList.contains("listening")
+
 /* ---------- videos of the page ---------- */
 export const videoOf = (el) => el.closest(".yourss-video")
 export const videoById = (id) => $(`#yourss-video-${CSS.escape(id)}`)

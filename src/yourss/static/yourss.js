@@ -14,7 +14,7 @@
  *    `form.yourss-add-form` (docs/specs/custom-pages.md)
  *
  * State classes: `is-playing`, `is-docked`, `is-watched`, `is-focused`, `is-filtered`,
- * `is-portrait` on a video; `rail`, `menu-open`, `hide-watched`, `no-watched`, `watched-ready`,
+ * `is-portrait` on a video; `listening`, `rail`, `menu-open`, `hide-watched`, `no-watched`, `watched-ready`, `listen-cover`,
  * `density-*` on body. Elements of the watched feature carry `data-watched-feature`.
  *
  * Everything is client side: theme, density, switches and watched videos live in localStorage
@@ -22,17 +22,22 @@
  *
  * ES modules without a build step, resolved by the import map of the base template:
  * `yourss/core` (helpers, storage), `yourss/watched` (watched videos, counters), `yourss/player` (YouTube
- * player), and this entry point (settings, navigation, editable pages, commands, htmx hooks).
+ * player), `yourss/listen` (listen mode), and this entry point (settings, navigation, editable pages, commands,
+ * htmx hooks).
  */
-import { $, $$, flag, focusVideo, focusedVideo, on, store, videoOf, visibleVideos } from "yourss/core"
+import { $, $$, flag, focusVideo, focusedVideo, listening, on, store, videoOf, visibleVideos } from "yourss/core"
 import { applyWatched, captureFeed, feedIds, setWatched } from "yourss/watched"
+import { enterListen, listenInUrl, listenRefresh, withListen } from "yourss/listen"
 import {
   closePlayer,
   destroyModalPlayer,
   dismissPlayer,
   openModal,
+  placeStage,
   play,
-  playRelative,
+  seekBy,
+  step,
+  togglePlayback,
   undock,
 } from "yourss/player"
 
@@ -53,6 +58,7 @@ function applySettings() {
   document.documentElement.dataset.theme = theme
   DENSITIES.forEach((d) => document.body.classList.toggle(`density-${d}`, d === density))
   document.body.classList.toggle("rail", flag("rail"))
+  document.body.classList.toggle("listen-cover", flag("listen-cover"))
   document.body.classList.toggle("no-watched", !flag("new-videos"))
   document.body.classList.toggle("hide-watched", flag("new-videos") && flag("hide-watched"))
   // Mini player turned off while in use: its card is out of the screen, so the player is closed
@@ -311,7 +317,8 @@ function syncFolderFromUrl() {
     const user = userPath()
     const remembered = store.get("user-page") || ""
     const known = remembered.startsWith(`${user}/`) && folderEl(decodeURIComponent(remembered.slice(user.length + 1)))
-    location.replace(known ? remembered : `${user}/${encodeURIComponent(folderEls()[0].dataset.folder)}`)
+    const target = known ? remembered : `${user}/${encodeURIComponent(folderEls()[0].dataset.folder)}`
+    location.replace(listenInUrl() ? withListen(target) : target)
   } else if (folderLoaded(name)) {
     unfold(folderEl(name))
     store.set("user-page", location.pathname)
@@ -487,6 +494,10 @@ const actions = {
   modal: (el) => openModal(videoOf(el).dataset.videoId),
   "close-player": dismissPlayer,
   undock,
+  listen: () => (listening() ? closePlayer() : enterListen()),
+  step: (el) => step(Number(el.dataset.step)),
+  seek: (el) => seekBy(Number(el.dataset.seconds)),
+  "toggle-playback": togglePlayback,
   "toggle-watched": (el) => {
     const video = videoOf(el)
     setWatched([video.dataset.videoId], !video.classList.contains("is-watched"))
@@ -632,16 +643,18 @@ on("keydown", (event) => {
   const shortcuts = {
     "/": () => $("#yourss-search")?.focus(),
     "?": () => $("#yourss-shortcuts").showModal(),
-    ArrowRight: () => moveFocus("right"),
-    ArrowLeft: () => moveFocus("left"),
+    // In listen mode, Shift + left / right go back / forward 30 seconds in the mini player
+    ArrowRight: () => (listening() && event.shiftKey ? seekBy(30) : moveFocus("right")),
+    ArrowLeft: () => (listening() && event.shiftKey ? seekBy(-30) : moveFocus("left")),
     // With Shift, up / down walk the sidebar (Home, then each channel) instead of the grid
     ArrowDown: () => (event.shiftKey ? moveChannel(1) : moveFocus("down")),
     ArrowUp: () => (event.shiftKey ? moveChannel(-1) : moveFocus("up")),
-    n: () => playRelative(1),
-    p: () => playRelative(-1),
-    // Without a selection, Space keeps its usual role: scrolling the page
-    " ": () => (video ? play(video.dataset.videoId) : false),
-    o: () => video && openModal(video.dataset.videoId),
+    n: () => step(1),
+    p: () => step(-1),
+    // Space plays the selected card (in listen mode: play / pause); without a selection, it scrolls the page
+    " ": () => (listening() ? togglePlayback() : video ? play(video.dataset.videoId) : false),
+    l: () => (listening() ? closePlayer() : enterListen()),
+    o:() => video && openModal(video.dataset.videoId),
     w: () => video && setWatched([video.dataset.videoId], !video.classList.contains("is-watched")),
     h: () => flag("new-videos") && setSetting("hide-watched", flag("hide-watched") ? "0" : "1"),
     a: openAddDialog,
@@ -658,6 +671,8 @@ function refresh() {
   watchThumbnails()
   applyWatched()
   applySearch()
+  listenRefresh()
+  placeStage()
 }
 
 on("htmx:afterSettle", refresh)
@@ -670,7 +685,7 @@ on("htmx:historyRestore", () => {
   refresh()
 })
 
-// Replacing content kills the player inside it; appending (infinite scroll) must not.
+// New content closes the player (and the listen mode with it); appending (infinite scroll) must not.
 on("htmx:beforeSwap", (event) => {
   const swap = event.detail.elt.getAttribute("hx-swap") || "innerHTML"
   if (!swap.startsWith("afterend") && !swap.startsWith("beforeend")) {
@@ -701,6 +716,9 @@ captureFeed()
 syncFolderFromUrl()
 syncChannelFromUrl()
 refresh()
+if (listenInUrl()) {
+  enterListen()
+}
 
 // Handy from the browser console and from tests.
-window.yourss = { play, openModal, closePlayer, setSetting, setWatched, store }
+window.yourss = { play, openModal, closePlayer, enterListen, setSetting, setWatched, store }

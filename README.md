@@ -54,9 +54,13 @@ Turn on *Show new videos* in the settings and the videos you played for a few se
 
 Click a thumbnail to play: the player takes the whole row, or the whole screen on a phone. A second action opens a fullscreen player with links to Youtube and to the RSS feed. The next video can be played automatically.
 
+### 🎧 Listen to a page
+
+*Listen* (the headphones button, or the `l` key) plays the videos of the page one after the other in a small player at the bottom of the screen, with large previous, play / pause and next buttons: a page of music, in the car or while you work. The grid stays below, a click on a video plays it in the small player. Add `?listen` to the address of a page to open it this way. On a phone the screen stays on while it plays: an embedded Youtube player stops when the screen locks.
+
 ### 📺 Keep watching while you browse
 
-Turn on the *Mini player* in the settings: when you scroll away, the video keeps playing, docked in a corner of the screen, while you browse the rest of the page or open another channel. Its card shows where it comes from, a click brings you back to it, and the mini player closes by itself when the video ends. Without it, the player is closed as soon as its card leaves the screen.
+Turn on the *Mini player* in the settings: when you scroll away, the video keeps playing in a corner of the screen, without a gap, while you browse the rest of the page. Its card shows where it comes from, a click (or ↩) brings you back to it, 🎧 turns it into the listen player, and with *Autoplay next* the next video starts in the mini player. Without it, the player is closed as soon as its card leaves the screen. Opening another folder or channel closes it.
 
 ### 📂 Channels and playlists, inside the page
 

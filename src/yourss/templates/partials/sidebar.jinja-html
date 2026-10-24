@@ -62,6 +62,11 @@
   </nav>
 
   <div class="yourss-sidebar-foot">
+    {% if videos is defined or folders is defined %}
+    <button type="button" class="yourss-nav-item yourss-listen-btn" data-action="listen" title="Play the videos of the page one after the other, as music (l)">
+      <svg><use href="#i-headphones" /></svg><span class="yourss-label">Listen</span>
+    </button>
+    {% endif %}
     <button type="button" class="yourss-nav-item yourss-settings-btn" data-action="settings" title="Settings">
       <svg><use href="#i-settings" /></svg><span class="yourss-label">Settings</span>
     </button>

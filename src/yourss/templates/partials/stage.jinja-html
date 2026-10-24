@@ -1,0 +1,26 @@
+{# The player of the page (docs/specs/mini-player.md), cloned in by yourss-player.js: over its card or in the mini player #}
+<section id="yourss-stage" class="yourss-stage" aria-label="Player">
+  <div class="yourss-stage-bar">
+    <span class="yourss-stage-label"><svg><use href="#i-headphones" /></svg>Listen</span>
+    <span class="yourss-stage-bar-title" data-stage-title></span>
+    <button type="button" class="yourss-icon-btn is-plain" data-action="listen" title="Listen: the videos of the page one after the other (l)" aria-label="Listen"><svg><use href="#i-headphones" /></svg></button>
+    <button type="button" class="yourss-icon-btn is-plain" data-action="undock" title="Back to the video in the page" aria-label="Back to the video"><svg><use href="#i-return" /></svg></button>
+    <button type="button" class="yourss-icon-btn yourss-stage-close" data-action="close-player" title="Stop (Esc)" aria-label="Stop"><svg><use href="#i-close" /></svg></button>
+  </div>
+  <div id="yourss-stage-player" class="yourss-stage-player"></div>
+  <img class="yourss-stage-cover" data-stage-cover referrerpolicy="no-referrer" alt="" />
+  <div class="yourss-stage-head">
+    <button type="button" class="yourss-stage-title" data-action="undock" title="Show this video in the page">
+      <span class="yourss-stage-line"><small data-stage-channel></small><strong data-stage-title></strong></span>
+    </button>
+  </div>
+  <p class="yourss-stage-next" data-stage-next></p>
+  <div class="yourss-stage-commands">
+    <button type="button" class="yourss-icon-btn is-prev" data-action="step" data-step="-1" title="Previous (p)" aria-label="Previous"><svg><use href="#i-prev" /></svg></button>
+    <button type="button" class="yourss-icon-btn is-seek is-back" data-action="seek" data-seconds="-30" title="Back 30 seconds (Shift+←)" aria-label="Back 30 seconds">−30</button>
+    <button type="button" class="yourss-icon-btn is-cover" data-action="toggle" data-flag="listen-cover" title="The thumbnail instead of the video, not to be distracted (the sound goes on)" aria-label="Thumbnail or video"><svg class="when-video"><use href="#i-image" /></svg><svg class="when-cover"><use href="#i-video" /></svg></button>
+    <button type="button" class="yourss-icon-btn is-main" data-action="toggle-playback" title="Play / pause (Space)" aria-label="Play / pause"><svg class="when-paused"><use href="#i-play" /></svg><svg class="when-playing"><use href="#i-pause" /></svg></button>
+    <button type="button" class="yourss-icon-btn is-seek is-forward" data-action="seek" data-seconds="30" title="Forward 30 seconds (Shift+→)" aria-label="Forward 30 seconds">+30</button>
+    <button type="button" class="yourss-icon-btn is-next" data-action="step" data-step="1" title="Next (n)" aria-label="Next"><svg><use href="#i-next" /></svg></button>
+  </div>
+</section>

@@ -48,6 +48,9 @@
         <button type="button" data-action="set-flag" data-flag="hide-watched" data-value="0" title="Show every video (h)">All</button>
         <button type="button" data-action="set-flag" data-flag="hide-watched" data-value="1" title="Only show the videos not watched yet (h)">New</button>
       </div>
+      {% if videos is defined or folders is defined %}
+      <button type="button" class="yourss-icon-btn yourss-listen-btn" data-action="listen" title="Listen: play the page as music (l)" aria-label="Listen"><svg><use href="#i-headphones" /></svg></button>
+      {% endif %}
       <button type="button" class="yourss-icon-btn yourss-settings-btn" data-action="settings" aria-label="Settings"><svg><use href="#i-settings" /></svg></button>
     </header>
 
@@ -66,11 +69,12 @@
   <template id="yourss-empty-template">{% include "partials/empty.jinja-html" %}</template>
   <template id="yourss-failed-template">{% include "partials/failed.jinja-html" %}</template>
   <template id="yourss-player-template">{% include "partials/player.jinja-html" %}</template>
+  <template id="yourss-stage-template">{% include "partials/stage.jinja-html" %}</template>
   <button id="scroll-to-top" type="button" data-action="scroll-top" title="Back to top"><svg><use href="#i-up" /></svg></button>
 
   <script src="https://unpkg.com/htmx.org@2.0.11" integrity="sha384-2OatzQy1H+Zd/IIrjr1TcuDGqLXeHhbooAyJY1KdQMKnr4LZ22k31GBLdYKHmVjg" crossorigin="anonymous"></script>
   <script type="importmap">
-    {"imports": {"yourss/core": "{{ static_url('yourss-core.js') }}", "yourss/watched": "{{ static_url('yourss-watched.js') }}", "yourss/player": "{{ static_url('yourss-player.js') }}"}}
+    {"imports": {"yourss/core": "{{ static_url('yourss-core.js') }}", "yourss/watched": "{{ static_url('yourss-watched.js') }}", "yourss/player": "{{ static_url('yourss-player.js') }}", "yourss/listen": "{{ static_url('yourss-listen.js') }}"}}
   </script>
   <script type="module" src="{{ static_url('yourss.js') }}"></script>
 </body>
