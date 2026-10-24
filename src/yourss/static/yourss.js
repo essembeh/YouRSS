@@ -8,8 +8,7 @@
  *  - a channel avatar is `img.yourss-avatar` (retried when it fails to load)
  *  - `template#yourss-empty-template` holds the empty state of a tab, `template#yourss-failed-template` the
  *    failure state shown when a channel or tab request fails
- *  - dialogs: `#yourss-modal` (player, `#yourss-modal-player`, `#yourss-modal-video-title`,
- *    `#yourss-modal-link-{rss,youtube,tab}`), `#yourss-settings`, `#yourss-shortcuts`, `#yourss-add`
+ *  - dialogs: `#yourss-settings`, `#yourss-shortcuts`, `#yourss-add`
  *  - an editable page lists its channels in `<body data-page-names>`; channels are added with a
  *    `form.yourss-add-form` (docs/specs/custom-pages.md)
  *
@@ -30,9 +29,7 @@ import { applyWatched, captureFeed, feedIds, setWatched } from "yourss/watched"
 import { enterListen, listenInUrl, listenRefresh, withListen } from "yourss/listen"
 import {
   closePlayer,
-  destroyModalPlayer,
   dismissPlayer,
-  openModal,
   placeStage,
   play,
   seekBy,
@@ -491,7 +488,6 @@ function retryAvatar(event) {
 const actions = {
   play: (el) => play(videoOf(el).dataset.videoId),
   "folder-step": (el) => stepFolder(Number(el.dataset.step)),
-  modal: (el) => openModal(videoOf(el).dataset.videoId),
   "close-player": dismissPlayer,
   undock,
   listen: () => (listening() ? closePlayer() : enterListen()),
@@ -630,11 +626,6 @@ on("keydown", (event) => {
   if (typing || event.ctrlKey || event.metaKey || event.altKey) {
     return
   }
-  // x closes the player wherever it is: fullscreen dialog, card or mini player
-  if (event.key === "x" && $("#yourss-modal").open) {
-    $("#yourss-modal").close()
-    return
-  }
   // No other page shortcut while a dialog is open.
   if ($("dialog[open]")) {
     return
@@ -654,7 +645,6 @@ on("keydown", (event) => {
     // Space plays the selected card (in listen mode: play / pause); without a selection, it scrolls the page
     " ": () => (listening() ? togglePlayback() : video ? play(video.dataset.videoId) : false),
     l: () => (listening() ? closePlayer() : enterListen()),
-    o:() => video && openModal(video.dataset.videoId),
     w: () => video && setWatched([video.dataset.videoId], !video.classList.contains("is-watched")),
     h: () => flag("new-videos") && setSetting("hide-watched", flag("hide-watched") ? "0" : "1"),
     a: openAddDialog,
@@ -709,7 +699,6 @@ document.addEventListener("error", retryAvatar, true)
 window.addEventListener("scroll", () => $("#scroll-to-top").classList.toggle("visible", window.scrollY > 300), {
   passive: true,
 })
-$("#yourss-modal").addEventListener("close", destroyModalPlayer)
 applySettings()
 initEditablePage()
 captureFeed()
@@ -721,4 +710,4 @@ if (listenInUrl()) {
 }
 
 // Handy from the browser console and from tests.
-window.yourss = { play, openModal, closePlayer, enterListen, setSetting, setWatched, store }
+window.yourss = { play, closePlayer, enterListen, setSetting, setWatched, store }

@@ -544,18 +544,6 @@ button.yourss-nav-item { width: 100%; border: 0; background: transparent; text-a
 .yourss-shortcuts kbd { min-width: 1.8em; padding: .15rem .45rem; border-radius: 6px; border: 1px solid var(--line-strong); border-bottom-width: 2px; background: var(--bg); color: var(--fg); font: 600 .8rem var(--font); text-align: center; }
 .yourss-settings-note { margin: 0; font-size: .78rem; color: var(--fg-muted); text-align: center; }
 
-/* ---- modal: fullscreen ---- */
-/* Pinned to the four edges rather than sized in viewport units: phones change the viewport height with their toolbars */
-.yourss-modal { position: fixed; inset: 0; margin: 0; border: 0; padding: 0; background: transparent; max-width: none; max-height: none; width: 100%; height: 100%; overscroll-behavior: contain; }
-.yourss-modal::backdrop { background: rgba(0,0,0,.85); }
-.yourss-modal-box { display: flex; flex-direction: column; width: 100%; height: 100%; background: #000; }
-.yourss-modal-head { display: flex; align-items: center; gap: .75rem; padding: .5rem .5rem .5rem 1rem; background: var(--bg-side); }
-.yourss-modal-head span { flex: 1; min-width: 0; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.yourss-modal-player { flex: 1; min-height: 0; }
-.yourss-modal-player iframe { width: 100%; height: 100%; display: block; }
-.yourss-modal-foot { display: flex; align-items: center; gap: .5rem; padding: .6rem .75rem; background: var(--bg-side); }
-.yourss-modal-foot .yourss-btn span { display: none; }
-@media (min-width: 560px) { .yourss-modal-foot .yourss-btn span { display: inline; } }
 
 /* ---- mobile: topbar + drawer ---- */
 @media (max-width: 899px) {

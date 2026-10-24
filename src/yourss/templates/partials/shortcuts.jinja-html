@@ -11,8 +11,6 @@
       <dd>Play the selected video</dd>
       <dt><kbd>n</kbd><kbd>p</kbd></dt>
       <dd>Play the next / previous video</dd>
-      <dt><kbd>o</kbd></dt>
-      <dd>Open the selected video in the fullscreen player</dd>
       <dt><kbd>l</kbd></dt>
       <dd>Listen: play the page as music in the mini player, or stop (then <kbd>Space</kbd> plays / pauses, <kbd>Shift</kbd><kbd>←</kbd><kbd>→</kbd> go back / forward 30 seconds)</dd>
       <dt><kbd>x</kbd></dt>

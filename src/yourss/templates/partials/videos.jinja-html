@@ -24,7 +24,7 @@
       {% endif %}
       <span class="yourss-spacer"></span>
       <button type="button" class="yourss-icon-btn is-small" data-watched-feature data-action="toggle-watched" title="Toggle watched"><svg><use href="#i-check" /></svg></button>
-      <button type="button" class="yourss-icon-btn is-small" data-action="modal" title="Open in modal"><svg><use href="#i-external" /></svg></button>
+      <a class="yourss-icon-btn is-small" href="https://www.youtube.com/watch?v={{ video.video_id }}" target="_blank" rel="noopener" title="Open on Youtube" aria-label="Open on Youtube"><svg><use href="#i-external" /></svg></a>
     </div>
   </div>
 </div>

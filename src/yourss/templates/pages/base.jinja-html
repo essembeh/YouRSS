@@ -62,7 +62,6 @@
     </main>
   </div>
 
-  {% include "partials/modal.jinja-html" %}
   {% include "partials/settings.jinja-html" %}
   {% include "partials/shortcuts.jinja-html" %}
   {% if page_names is defined %}{% include "partials/add.jinja-html" %}{% include "partials/welcome.jinja-html" %}{% endif %}

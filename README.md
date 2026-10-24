@@ -52,7 +52,7 @@ Turn on *Show new videos* in the settings and the videos you played for a few se
 
 ### ▶️ Play in the page
 
-Click a thumbnail to play: the player takes the whole row, or the whole screen on a phone. A second action opens a fullscreen player with links to Youtube and to the RSS feed. The next video can be played automatically.
+Click a thumbnail to play: the player takes the whole row, or the whole screen on a phone. A link on each card opens the video on Youtube. The next video can be played automatically.
 
 ### 🎧 Listen to a page
 

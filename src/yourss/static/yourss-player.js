@@ -1,6 +1,6 @@
 /**
  * The YouTube player (docs/specs/mini-player.md): one for the page, the stage, laid over the playing card or kept in the
- * mini player, moved by CSS only (an iframe moved in the DOM reloads); and the one of the fullscreen dialog.
+ * mini player, moved by CSS only (an iframe moved in the DOM reloads).
  */
 import { $, $$, flag, focusVideo, focusedVideo, listening, videoById, visibleVideos } from "yourss/core"
 import { setWatched } from "yourss/watched"
@@ -336,36 +336,3 @@ export function undock() {
   video.scrollIntoView({ block: listening() ? "center" : "start", behavior: "smooth" })
 }
 
-/* ---------- player in the fullscreen dialog ---------- */
-const modal = { player: null }
-
-export function destroyModalPlayer() {
-  stopPlaybackTracking()
-  modal.player?.destroy()
-  modal.player = null
-  $("#yourss-modal-player").replaceChildren()
-}
-
-export function openModal(videoId) {
-  // The listen mode keeps its queue: its player only pauses
-  if (listening()) {
-    stage.player?.pauseVideo?.()
-  } else {
-    closePlayer()
-  }
-  const video = videoById(videoId)
-  const channelId = video?.dataset.channelId
-  $("#yourss-modal-video-title").textContent = video ? $(".yourss-video-title", video).textContent.trim() : ""
-  $("#yourss-modal-link-youtube").href = `https://www.youtube.com/watch?v=${videoId}`
-  $("#yourss-modal-link-tab").href = `${PLAYER_HOST}/embed/${videoId}?autoplay=1`
-  const rssLink = $("#yourss-modal-link-rss")
-  rssLink.href = channelId ? `https://www.youtube.com/feeds/videos.xml?channel_id=${encodeURIComponent(channelId)}` : "#"
-  rssLink.hidden = !channelId
-  if (!$("#yourss-modal").open) {
-    $("#yourss-modal").showModal()
-  }
-  loadYouTubeApi().then((YT) => {
-    destroyModalPlayer()
-    modal.player = createPlayer(YT, $("#yourss-modal-player"), videoId)
-  })
-}
