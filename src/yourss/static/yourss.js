@@ -14,7 +14,7 @@
  *    `form.yourss-add-form` (docs/specs/custom-pages.md)
  *
  * State classes: `is-playing`, `is-docked`, `is-watched`, `is-focused`, `is-filtered`,
- * `is-portrait` on a video; `rail`, `menu-open`, `hide-watched`, `no-watched`, `watched-ready`, `improved-player`,
+ * `is-portrait` on a video; `rail`, `menu-open`, `hide-watched`, `no-watched`, `watched-ready`,
  * `density-*` on body. Elements of the watched feature carry `data-watched-feature`.
  *
  * Everything is client side: theme, density, switches and watched videos live in localStorage
@@ -33,12 +33,6 @@ import {
   openModal,
   play,
   playRelative,
-  seekBy,
-  toggleCaptions,
-  toggleFullscreen,
-  toggleMute,
-  togglePause,
-  togglePlayback,
   undock,
 } from "yourss/player"
 
@@ -59,7 +53,6 @@ function applySettings() {
   document.documentElement.dataset.theme = theme
   DENSITIES.forEach((d) => document.body.classList.toggle(`density-${d}`, d === density))
   document.body.classList.toggle("rail", flag("rail"))
-  document.body.classList.toggle("improved-player", flag("improved-player"))
   document.body.classList.toggle("no-watched", !flag("new-videos"))
   document.body.classList.toggle("hide-watched", flag("new-videos") && flag("hide-watched"))
   // Mini player turned off while in use: its card is out of the screen, so the player is closed
@@ -493,7 +486,6 @@ const actions = {
   "folder-step": (el) => stepFolder(Number(el.dataset.step)),
   modal: (el) => openModal(videoOf(el).dataset.videoId),
   "close-player": dismissPlayer,
-  "toggle-pause": togglePause,
   undock,
   "toggle-watched": (el) => {
     const video = videoOf(el)
@@ -593,13 +585,6 @@ on("click", (event) => {
   }
 })
 
-on("dblclick", (event) => {
-  const shield = event.target.closest(".yourss-player-shield")
-  if (shield) {
-    toggleFullscreen(shield.parentElement)
-  }
-})
-
 on("input", (event) => {
   if (event.target.id === "yourss-search") {
     applySearch()
@@ -639,24 +624,6 @@ on("keydown", (event) => {
     $("#yourss-modal").close()
     return
   }
-  // In the fullscreen player, as YouTube does: left / right jump 10 seconds, Space pauses (not on a focused button)
-  if ($("#yourss-modal").open && (event.key === "ArrowLeft" || event.key === "ArrowRight")) {
-    seekBy(event.key === "ArrowLeft" ? -10 : 10)
-    event.preventDefault()
-    return
-  }
-  if ($("#yourss-modal").open && event.key === " " && !event.target.closest("button, a")) {
-    togglePlayback()
-    event.preventDefault()
-    return
-  }
-  // Keys of the YouTube player, for the card, the mini player and the fullscreen dialog
-  const playerKeys = { m: toggleMute, f: () => toggleFullscreen(), c: toggleCaptions }
-  const playerShown = !$("dialog[open]") || $("#yourss-modal").open
-  if (event.key in playerKeys && playerShown && playerKeys[event.key]() !== false) {
-    event.preventDefault()
-    return
-  }
   // No other page shortcut while a dialog is open.
   if ($("dialog[open]")) {
     return
@@ -665,16 +632,15 @@ on("keydown", (event) => {
   const shortcuts = {
     "/": () => $("#yourss-search")?.focus(),
     "?": () => $("#yourss-shortcuts").showModal(),
-    // While a card plays, left / right jump 10 seconds instead of moving the selection
-    ArrowRight: () => seekBy(10) || moveFocus("right"),
-    ArrowLeft: () => seekBy(-10) || moveFocus("left"),
+    ArrowRight: () => moveFocus("right"),
+    ArrowLeft: () => moveFocus("left"),
     // With Shift, up / down walk the sidebar (Home, then each channel) instead of the grid
     ArrowDown: () => (event.shiftKey ? moveChannel(1) : moveFocus("down")),
     ArrowUp: () => (event.shiftKey ? moveChannel(-1) : moveFocus("up")),
     n: () => playRelative(1),
     p: () => playRelative(-1),
-    // Space plays the selected card, else pauses / resumes the player; with neither, it scrolls the page
-    " ": () => (video && !video.classList.contains("is-playing") ? play(video.dataset.videoId) : togglePlayback()),
+    // Without a selection, Space keeps its usual role: scrolling the page
+    " ": () => (video ? play(video.dataset.videoId) : false),
     o: () => video && openModal(video.dataset.videoId),
     w: () => video && setWatched([video.dataset.videoId], !video.classList.contains("is-watched")),
     h: () => flag("new-videos") && setSetting("hide-watched", flag("hide-watched") ? "0" : "1"),

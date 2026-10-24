@@ -53,11 +53,7 @@ const PLAYER_HOST = "https://www.youtube-nocookie.com"
 // YT.Player replaces its target node, so it is mounted on a disposable child of `host`.
 function createPlayer(YT, host, videoId, onEnded) {
   const mount = document.createElement("div")
-  // The shield keeps the mouse off the video: YouTube no longer dims it on hover
-  const shield = document.createElement("div")
-  shield.className = "yourss-player-shield"
-  shield.dataset.action = "toggle-pause"
-  host.replaceChildren(mount, shield)
+  host.replaceChildren(mount)
   return new YT.Player(mount, {
     videoId,
     host: PLAYER_HOST,
@@ -73,96 +69,6 @@ function createPlayer(YT, host, videoId, onEnded) {
       },
     },
   })
-}
-
-// While YouTube has the focus (a click on one of its controls), the shield steps aside: its menus and keys work.
-// A click elsewhere in the page takes the focus back, and the shield with it.
-function syncShields() {
-  for (const shield of $$(".yourss-player-shield")) {
-    shield.classList.toggle("is-off", $(":scope > iframe", shield.parentElement) === document.activeElement)
-  }
-}
-// Chromium sends a blur to the window, Firefox sends nothing: the focus is also checked a few times a second
-window.addEventListener("blur", syncShields)
-document.addEventListener("focusin", syncShields)
-setInterval(() => document.body.classList.contains("improved-player") && syncShields(), 250)
-
-// Pause or resume a player: false when there is none (or not ready yet).
-function toggle(player) {
-  const state = player?.getPlayerState?.()
-  if (state === undefined) {
-    return false
-  }
-  const playing = state === window.YT.PlayerState.PLAYING || state === window.YT.PlayerState.BUFFERING
-  if (playing) {
-    player.pauseVideo()
-  } else {
-    player.playVideo()
-  }
-  return true
-}
-
-// The player in use: the fullscreen dialog when open, else the one of a card.
-const activePlayer = () => ($("#yourss-modal").open ? modal.player : embedded.player)
-
-// Click on the shield: pause or resume the player under it; double click: fullscreen.
-export function togglePause(shield) {
-  toggle(shield.closest("#yourss-modal-player") ? modal.player : embedded.player)
-}
-
-export const togglePlayback = () => toggle(activePlayer())
-
-// Jump in the player in use: false without one, the keys keep their role.
-export function seekBy(seconds) {
-  const player = activePlayer()
-  if (!player?.getCurrentTime) {
-    return false
-  }
-  player.seekTo(Math.max(0, player.getCurrentTime() + seconds), true)
-  return true
-}
-
-// The host goes fullscreen, not the iframe: the shield stays on top and a double click comes back.
-const activeHost = () => ($("#yourss-modal").open ? $("#yourss-modal-player") : $(".yourss-player-container"))
-
-export function toggleFullscreen(host = activeHost()) {
-  if (document.fullscreenElement) {
-    document.exitFullscreen()
-  } else if (host?.requestFullscreen) {
-    host.requestFullscreen()
-  } else {
-    return false
-  }
-  return true
-}
-
-export function toggleMute() {
-  const player = activePlayer()
-  if (!player?.isMuted) {
-    return false
-  }
-  if (player.isMuted()) {
-    player.unMute()
-  } else {
-    player.mute()
-  }
-  return true
-}
-
-// Captions go through an undocumented module of the player: should YouTube drop it, the key does nothing.
-export function toggleCaptions() {
-  const player = activePlayer()
-  try {
-    const track = player.getOption("captions", "track")
-    if (track && Object.keys(track).length > 0) {
-      player.unloadModule("captions")
-    } else {
-      player.loadModule("captions")
-    }
-    return true
-  } catch {
-    return false
-  }
 }
 
 /* ---------- player embedded in a card (one at a time), closed or docked when the card leaves the screen ---------- */
