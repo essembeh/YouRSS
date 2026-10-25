@@ -59,10 +59,11 @@ Turn on *Show new videos* in the settings and the videos you played for a few se
 
 *Listen* plays the videos of the page one after the other, as a playlist of music.
 
-- **on a phone** it takes the whole screen, with finger sized commands for a phone on a car mount: previous, play / pause, next, −30 / +30 seconds, the channel and the title, the next one. The screen stays on while it plays (an embedded Youtube player stops when the screen locks), and a button shows the thumbnail instead of the video
+- **on a phone** it takes the whole screen, with finger sized commands for a phone on a car mount: previous, play / pause, next, −30 / +30 seconds (hold them to jump further, a bubble shows how far), the channel and the title, the next one. The screen stays on while it plays (an embedded Youtube player stops when the screen locks), and a button shows the thumbnail instead of the video
 - **on desktop** it is a mini player in a corner, the page stays below: a click on a video plays it there
 - start it with the headphones button, the `l` key or 🎧 in the mini player, or add `?listen` to the address of a page: bookmark it, or add it to the home screen of your phone
-- ✕ or `Esc` stops it, as does opening another folder or channel
+- *Listen* at the top of the player chooses what to listen to: the whole page, or a channel of the page and one of its tabs (Recent, Videos, Shorts, Streams). Opening another folder or channel keeps listening: its videos become the playlist
+- ✕ or `Esc` stops it
 
 ### ▶️ Play in the page
 
