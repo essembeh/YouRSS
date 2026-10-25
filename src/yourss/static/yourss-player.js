@@ -298,6 +298,20 @@ export function toListen() {
   placeStage()
 }
 
+// A card resized out of the screen must not pull the page: the first card on screen keeps its place, the
+// browser's own scroll anchoring is held off so it does not compensate twice.
+function keepScroll(change) {
+  const anchor = visibleVideos().find((el) => el.getBoundingClientRect().bottom > 0)
+  const top = anchor?.getBoundingClientRect().top
+  const root = document.documentElement
+  root.style.overflowAnchor = "none"
+  change()
+  if (anchor?.isConnected) {
+    scrollBy({ top: anchor.getBoundingClientRect().top - top, behavior: "instant" })
+  }
+  requestAnimationFrame(() => root.style.removeProperty("overflow-anchor"))
+}
+
 export function closePlayer() {
   const shown = stageEl() !== null
   stage.observer?.disconnect()
@@ -305,10 +319,12 @@ export function closePlayer() {
   stage.player?.destroy()
   Object.assign(stage, { player: null, ready: false, videoId: null, observer: null, seen: false, resize: null })
   stopPlaybackTracking()
-  releaseCard()
-  expand(null)
-  stageEl()?.remove()
-  document.body.style.removeProperty("--stage-h")
+  keepScroll(() => {
+    releaseCard()
+    expand(null)
+    stageEl()?.remove()
+    document.body.style.removeProperty("--stage-h")
+  })
   if (shown) {
     hooks.onClose?.()
   }
