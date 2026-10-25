@@ -26,10 +26,11 @@
  */
 import { $, $$, flag, focusVideo, focusedVideo, listening, on, store, videoOf, visibleVideos } from "yourss/core"
 import { applyWatched, captureFeed, feedIds, setWatched } from "yourss/watched"
-import { enterListen, listenInUrl, listenRefresh, withListen } from "yourss/listen"
+import { enterListen, listenInUrl, listenNav, listenNavGo, listenNavUnfold, listenRefresh, withListen } from "yourss/listen"
 import {
   closePlayer,
   dismissPlayer,
+  leaveCard,
   placeStage,
   play,
   seekBy,
@@ -491,6 +492,9 @@ const actions = {
   "close-player": dismissPlayer,
   undock,
   listen: () => (listening() ? closePlayer() : enterListen()),
+  "listen-nav": () => listenNav(),
+  "listen-go": listenNavGo,
+  "listen-unfold": listenNavUnfold,
   step: (el) => step(Number(el.dataset.step)),
   seek: (el) => seekBy(Number(el.dataset.seconds)),
   "toggle-playback": togglePlayback,
@@ -614,6 +618,9 @@ on("keydown", (event) => {
   const typing = event.target.matches("input, textarea, [contenteditable]")
   if (event.key === "Escape") {
     document.body.classList.remove("menu-open")
+    if (listenNav(false)) {
+      return
+    }
     if (typing) {
       event.target.value = ""
       event.target.blur()
@@ -666,7 +673,13 @@ function refresh() {
 }
 
 on("htmx:afterSettle", refresh)
-on("htmx:pushedIntoHistory", markActiveChannel)
+on("htmx:pushedIntoHistory", () => {
+  markActiveChannel()
+  // The links of the page do not carry the mode: the address keeps it while it lasts
+  if (listening()) {
+    history.replaceState(history.state, "", withListen(location.href))
+  }
+})
 on("htmx:historyRestore", () => {
   closePlayer()
   captureFeed()
@@ -675,11 +688,15 @@ on("htmx:historyRestore", () => {
   refresh()
 })
 
-// New content closes the player (and the listen mode with it); appending (infinite scroll) must not.
+// New content closes the player, appending (infinite scroll) must not; in listen mode the new cards become the queue.
 on("htmx:beforeSwap", (event) => {
   const swap = event.detail.elt.getAttribute("hx-swap") || "innerHTML"
   if (!swap.startsWith("afterend") && !swap.startsWith("beforeend")) {
-    closePlayer()
+    if (listening()) {
+      leaveCard()
+    } else {
+      closePlayer()
+    }
   }
 })
 

@@ -28,6 +28,7 @@ pages:
   - name: music
     channels:
       - UCuU-wlg6DNHlybI-T4c1aDg
+      - UCGbyt2Lm2WlWULsMuhMeZvg
 
 users:
   # A user aggregates pages, its folders: /u/alice/fun, /u/alice/cards, /u/alice/podcast

@@ -18,8 +18,8 @@ async def test_warm_round_refreshes_every_page() -> None:
     finally:
         logger.remove(handler)
     (summary,) = [line for line in lines if line.startswith("Warm-up:")]
-    # The three pages of the sample file, their channels counted once each per page
-    assert summary.startswith("Warm-up: 4 pages, 8 channels, 0 failed, ")
+    # The four pages of the sample file, their channels counted once each per page
+    assert summary.startswith("Warm-up: 4 pages, 9 channels, 0 failed, ")
 
 
 def _feed_mtimes(folder: Path) -> dict[Path, int]:

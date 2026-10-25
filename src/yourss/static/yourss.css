@@ -416,7 +416,31 @@ body:not(.listening) .yourss-stage.is-docked.is-portrait .yourss-stage-player { 
 .yourss-stage.is-docked { animation: yourss-dock-in .25s ease-out; }
 @media (prefers-reduced-motion: reduce) { .yourss-stage.is-docked { animation: none; } }
 .yourss-stage-bar { grid-area: bar; display: flex; align-items: center; gap: .5rem; padding: .3rem .3rem .3rem .9rem; border-bottom: 1px solid var(--line); }
-.yourss-stage-label { flex: 1; display: inline-flex; align-items: center; gap: .45rem; font-size: .8rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--accent-text, var(--accent)); }
+.yourss-stage-label { display: inline-flex; align-items: center; gap: .45rem; margin-right: auto; padding: .35rem .5rem; margin-left: -.5rem; border: 0; border-radius: 8px; background: none; font: 700 .8rem var(--font); letter-spacing: .08em; text-transform: uppercase; color: var(--accent-text, var(--accent)); cursor: pointer; }
+.yourss-stage-label:hover { background: var(--accent-soft); }
+.yourss-stage-label-caret { width: .9em; height: .9em; transform: rotate(90deg); }
+/* What to listen to: a sheet coming down from its button over the player, the page then its channels, a channel unfolds its tabs */
+.yourss-listen-nav { position: absolute; inset: 0; z-index: 5; display: flex; flex-direction: column; justify-content: flex-start; background: rgba(0, 0, 0, .55); }
+.yourss-listen-nav[hidden] { display: none; }
+.yourss-listen-nav-sheet { display: flex; flex-direction: column; max-height: min(78%, 34rem); background: var(--bg-dialog, var(--bg-elev)); border-bottom: 1px solid var(--line-strong); border-radius: 0 0 18px 18px; padding-top: env(safe-area-inset-top); animation: yourss-sheet-in .22s ease-out; }
+@keyframes yourss-sheet-in { from { transform: translateY(-40px); opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .yourss-listen-nav-sheet { animation: none; } }
+.yourss-listen-nav-head { display: flex; align-items: center; justify-content: space-between; padding: .5rem .5rem .4rem 1.1rem; font-size: .8rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--fg-muted); }
+.yourss-listen-nav-list { overflow-y: auto; overscroll-behavior: contain; margin: 0; padding: 0 .5rem .6rem; list-style: none; }
+.yourss-listen-nav-item { display: flex; align-items: center; gap: .8rem; width: 100%; min-height: 52px; padding: .35rem .6rem; border: 0; border-radius: 12px; background: none; color: var(--fg); font: 500 1rem var(--font); text-align: left; cursor: pointer; }
+.yourss-listen-nav-item > span { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.yourss-listen-nav-item > :is(.yourss-avatar, svg:first-child) { width: 34px; height: 34px; flex: none; border-radius: 50%; object-fit: cover; }
+.yourss-listen-nav-item > svg:first-child { padding: 7px; background: var(--bg-hover); color: var(--fg-muted); }
+.yourss-listen-nav-item > svg:last-child:not(:first-child) { width: 18px; height: 18px; color: var(--fg-muted); transition: transform .15s; }
+.yourss-listen-nav-entry.is-open .yourss-listen-nav-item > svg:last-child { transform: rotate(90deg); }
+@media (hover: hover) { .yourss-listen-nav-item:hover { background: var(--bg-hover); } }
+/* The source playing: its name in the accent colour */
+.yourss-listen-nav-item.is-current > span { color: var(--accent-text, var(--accent)); font-weight: 700; }
+.yourss-listen-nav-entry.is-open > .yourss-listen-nav-item { background: var(--bg-hover); border-radius: 12px 12px 0 0; }
+.yourss-listen-nav-tabs { display: none; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: .35rem; padding: .35rem .5rem .6rem; margin-bottom: .3rem; background: var(--bg-hover); border-radius: 0 0 12px 12px; }
+.yourss-listen-nav-entry.is-open .yourss-listen-nav-tabs { display: grid; }
+.yourss-listen-nav-tab { height: 40px; padding: 0 .3rem; border: 1px solid var(--line-strong); border-radius: 10px; background: var(--bg-dialog, var(--bg-elev)); color: var(--fg); font: 600 .85rem var(--font); cursor: pointer; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.yourss-listen-nav-tab.is-current { border-color: var(--accent); color: var(--accent-text, var(--accent)); }
 .yourss-stage-close:hover { background: var(--accent); color: var(--accent-fg); }
 .yourss-stage-head { grid-area: head; display: flex; min-width: 0; padding: .6rem .9rem 0; }
 .yourss-stage-title { flex: 1; display: block; min-width: 0; padding: 0; border: 0; background: none; color: var(--fg); font: inherit; text-align: left; cursor: pointer; }

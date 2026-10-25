@@ -13,17 +13,17 @@
 
 <div class="yourss-tabs-bar">
   <div class="yourss-tabs" role="tablist">
-    <button type="button" class="yourss-tab active" role="tab" data-action="tab" hx-get="/htmx/rss/{{ channel.channel_id }}" hx-target="#tab-content" hx-indicator="#tab-content">Recent</button>
+    <button type="button" class="yourss-tab active" role="tab" data-action="tab" hx-get="/htmx/rss/{{ channel.channel_id }}" hx-target="#tab-content" hx-indicator="#tab-content" hx-sync="#tab-content:replace">Recent</button>
     {% if tabs is not defined or "videos" in tabs %}
-    <button type="button" class="yourss-tab" role="tab" data-action="tab" hx-get="/htmx/videos/{{ channel.channel_id }}" hx-target="#tab-content" hx-indicator="#tab-content">Videos</button>
+    <button type="button" class="yourss-tab" role="tab" data-action="tab" hx-get="/htmx/videos/{{ channel.channel_id }}" hx-target="#tab-content" hx-indicator="#tab-content" hx-sync="#tab-content:replace">Videos</button>
     {% endif %}
     {% if tabs is not defined or "shorts" in tabs %}
-    <button type="button" class="yourss-tab" role="tab" data-action="tab" hx-get="/htmx/shorts/{{ channel.channel_id }}" hx-target="#tab-content" hx-indicator="#tab-content">Shorts</button>
+    <button type="button" class="yourss-tab" role="tab" data-action="tab" hx-get="/htmx/shorts/{{ channel.channel_id }}" hx-target="#tab-content" hx-indicator="#tab-content" hx-sync="#tab-content:replace">Shorts</button>
     {% endif %}
     {% if tabs is not defined or "streams" in tabs %}
-    <button type="button" class="yourss-tab" role="tab" data-action="tab" hx-get="/htmx/streams/{{ channel.channel_id }}" hx-target="#tab-content" hx-indicator="#tab-content">Streams</button>
+    <button type="button" class="yourss-tab" role="tab" data-action="tab" hx-get="/htmx/streams/{{ channel.channel_id }}" hx-target="#tab-content" hx-indicator="#tab-content" hx-sync="#tab-content:replace">Streams</button>
     {% endif %}
   </div>
 </div>
 
-<div id="tab-content" class="yourss-tab-content" hx-get="/htmx/rss/{{ channel.channel_id }}" hx-trigger="load" hx-indicator="#tab-content"></div>
+<div id="tab-content" class="yourss-tab-content" hx-get="/htmx/rss/{{ channel.channel_id }}" hx-trigger="load" hx-indicator="#tab-content" hx-sync="#tab-content:replace"></div>

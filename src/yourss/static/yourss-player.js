@@ -298,6 +298,14 @@ export function toListen() {
   placeStage()
 }
 
+// New content in listen mode: the player stays (its iframe keeps the right to play on iOS), the new cards are the
+// queue and the first one starts once they arrive (listenRefresh).
+export function leaveCard() {
+  stage.observer?.disconnect()
+  stage.videoId = null
+  releaseCard()
+}
+
 // A card resized out of the screen must not pull the page: the first card on screen keeps its place, the
 // browser's own scroll anchoring is held off so it does not compensate twice.
 function keepScroll(change) {
