@@ -34,6 +34,8 @@ class AppSettings(BaseSettings):
     cache_metadata_ttl: timedelta = timedelta(days=7)
     # Refresh the feeds of every page in the background, a round every cache_rss_ttl minus a minute
     warmup_enabled: bool = False
+    # How long the login of a user behind a password lasts in a browser (docs/specs/login.md §8)
+    login_ttl: timedelta = timedelta(days=90)
 
     @model_validator(mode="after")
     def _check_cache_ttls(self) -> Self:

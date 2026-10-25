@@ -39,7 +39,7 @@ users:
       - name: podcast
       - name: music
 
-  # A user behind a password (HTTP Basic), which protects every folder
+  # A user behind a password (a login form, or HTTP Basic), which protects every folder
   - name: bob
     # The method is argon2 (the hash of the password, this one is the hash of "foo", for example with
     # https://gchq.github.io/CyberChef/#recipe=Argon2(%7B'option':'UTF8','string':'yourss%20secret%20salt'%7D,3,4096,1,32,'Argon2i','Encoded%20hash')&input=TXkgc2VjdXJlIHBhc3N3b3Jk)

@@ -1,16 +1,31 @@
 from html import escape
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, Header, HTTPException, Path, Query, Request
+from fastapi import APIRouter, Depends, Form, Header, HTTPException, Path, Query, Request
 from fastapi.responses import FileResponse, RedirectResponse
 from loguru import logger
 from pydantic import ValidationError
 from starlette.responses import HTMLResponse, Response
-from starlette.status import HTTP_403_FORBIDDEN, HTTP_404_NOT_FOUND, HTTP_422_UNPROCESSABLE_CONTENT
+from starlette.status import (
+    HTTP_303_SEE_OTHER,
+    HTTP_401_UNAUTHORIZED,
+    HTTP_403_FORBIDDEN,
+    HTTP_404_NOT_FOUND,
+    HTTP_422_UNPROCESSABLE_CONTENT,
+)
 
 from ..async_utils import async_fetch
 from ..schema import Page, User, UsersConfig
-from ..security import find_page, get_auth_user, read_config
+from ..security import (
+    LOGIN_COOKIE,
+    UnknownUser,
+    find_page,
+    find_user,
+    get_auth_user,
+    login_token,
+    read_config,
+    verify_password,
+)
 from ..settings import current_config, static_folder
 from ..youtube import YoutubeApi
 from .jinja import template_page
@@ -98,18 +113,70 @@ async def page_of_the_file(request: Request, found: Page | None = Depends(find_p
     return template_page(
         request,
         "pages/view.jinja-html",
-        title=f"p/{found.name}",
+        title=f"/p/{found.name}",
         **page_context(statuses),
         # A page is read-only: it only offers its multi channel copy
         copy_url="/" + ",".join(names) if current_config.custom_pages_enabled else None,
     )
 
 
+def login_page(request: Request, user: User, *, error: bool = False) -> HTMLResponse:
+    """The login form of a protected user, with a 401 and no Basic challenge (docs/specs/login.md §1)."""
+    return template_page(
+        request,
+        "pages/login.jinja-html",
+        status_code=HTTP_401_UNAUTHORIZED,
+        title=f"/u/{user.name}",
+        home_path="/",
+        user_name=user.name,
+        error=error,
+    )
+
+
+@router.post("/u/{username}", response_model=None)
+@router.post("/u/{username}/{page}", response_model=None)
+async def user_login(
+    request: Request,
+    user: User | None = Depends(find_user),
+    password: Annotated[str, Form()] = "",
+    logout: Annotated[str, Form()] = "",
+) -> Response:
+    """The login form posts to the page it protects, the answer goes back to it (docs/specs/login.md §2, §7)."""
+    if user is None:
+        raise UnknownUser()
+    if logout:
+        out = RedirectResponse(f"/u/{user.name}", status_code=HTTP_303_SEE_OTHER)
+        out.delete_cookie(LOGIN_COOKIE, path=f"/u/{user.name}", httponly=True, samesite="lax")
+        return out
+    back = request.url.path + (f"?{request.url.query}" if request.url.query else "")
+    if user.password is None:
+        return RedirectResponse(back, status_code=HTTP_303_SEE_OTHER)
+    if not verify_password(user, password):
+        logger.warning("Wrong login password for {} from {}", user.name, request.client and request.client.host)
+        return login_page(request, user, error=True)
+    out = RedirectResponse(back, status_code=HTTP_303_SEE_OTHER)
+    out.set_cookie(
+        LOGIN_COOKIE,
+        login_token(user),
+        max_age=int(current_config.login_ttl.total_seconds()),
+        path=f"/u/{user.name}",
+        secure=request.url.scheme == "https",
+        httponly=True,
+        samesite="lax",
+    )
+    return out
+
+
 @router.get("/u/{username}", response_class=HTMLResponse)
 async def user_tree(request: Request, user: User = Depends(get_auth_user)) -> HTMLResponse:
     """The folders of a user, none open: the script opens the last one shown, else the first (§6)."""
     return template_page(
-        request, "pages/view.jinja-html", title=f"u/{user.name}", user_name=user.name, folders=user.pages
+        request,
+        "pages/view.jinja-html",
+        title=f"/u/{user.name}",
+        user_name=user.name,
+        folders=user.pages,
+        protected=user.password is not None,
     )
 
 
@@ -139,10 +206,11 @@ async def user_folder(
     return template_page(
         request,
         "partials/folder.jinja-html" if hx_request == "true" else "pages/view.jinja-html",
-        title=f"u/{user.name}/{folder.name}",
+        title=f"/u/{user.name}",
         link_prefix=folder_link_prefix(user.name, folder.name),
         user_name=user.name,
         folders=user.pages,
+        protected=user.password is not None,
         folder=folder,
         **page_context(statuses),
     )

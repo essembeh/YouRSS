@@ -13,7 +13,7 @@ from . import __name__ as app_name
 from . import __version__ as app_version
 from .routers import api, htmx, web
 from .routers.jinja import template_page
-from .security import UnknownUser
+from .security import LoginRequired, UnknownUser
 from .settings import current_config, iso_duration, static_folder
 from .warmup import warm_forever, warm_interval
 
@@ -58,6 +58,13 @@ async def unknown_user(request: Request, error: UnknownUser) -> Response:
     )
 
 
+async def login_required(request: Request, error: LoginRequired) -> Response:
+    """The login form; htmx reloads the page to show it (docs/specs/login.md §6)."""
+    if request.headers.get("hx-request") == "true":
+        return Response(status_code=401, headers={"HX-Refresh": "true"})
+    return web.login_page(request, error.user)
+
+
 def create_app(*, api_docs: bool) -> FastAPI:
     """The application, with or without the generated API documentation."""
     out = FastAPI(
@@ -69,6 +76,7 @@ def create_app(*, api_docs: bool) -> FastAPI:
         openapi_url="/openapi.json" if api_docs else None,
     )
     out.add_exception_handler(UnknownUser, unknown_user)  # type: ignore[arg-type]
+    out.add_exception_handler(LoginRequired, login_required)  # type: ignore[arg-type]
     # A folder of videos is a few hundred kB of HTML, twenty times less once compressed
     out.add_middleware(GZipMiddleware, minimum_size=1000)
     out.include_router(web.router)

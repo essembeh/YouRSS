@@ -195,7 +195,7 @@ async def test_user_folder(client: AsyncClient) -> None:
     assert resp.status_code == 200
     soup = BeautifulSoup(resp.text, "html.parser")
     (title,) = soup.select("title")
-    assert title.get_text() == "YouRSS - u/alice/fun"
+    assert title.get_text() == "YouRSS - /u/alice"
     # The folder of the address is open with its entries, its Home is the content
     assert [str(folder["data-folder"]) for folder in soup.select("details.yourss-folder[open]")] == ["fun"]
     links = [str(a["hx-push-url"]) for a in soup.select("ul[data-folder-list=fun] a")]
@@ -207,10 +207,10 @@ async def test_user_folder(client: AsyncClient) -> None:
     cards = {str(a["hx-push-url"]) for a in soup.select(".yourss-video a.yourss-video-channel")}
     assert cards and all(link.startswith("/u/alice/fun?c=UC") for link in cards)
 
-    # A hidden page, under the label of the user
+    # A hidden page is served inside the user, the title names the user only
     resp = await client.get("/u/alice/cards")
     (title,) = BeautifulSoup(resp.text, "html.parser").select("title")
-    assert title.get_text() == "YouRSS - u/alice/cards"
+    assert title.get_text() == "YouRSS - /u/alice"
 
     for unknown in ("unknown", "a" * 33, "podcast/more"):
         resp = await client.get(f"/u/alice/{unknown}")
@@ -228,7 +228,7 @@ async def test_user_folder_fragment(client: AsyncClient) -> None:
     soup = BeautifulSoup(resp.text, "html.parser")
     assert soup.select("html") == []
     (title,) = soup.select("title")
-    assert title.get_text() == "YouRSS - u/alice/fun"
+    assert title.get_text() == "YouRSS - /u/alice"
     assert soup.select("[data-folder-page=fun] div.yourss-video")
     cards = {str(a["hx-push-url"]) for a in soup.select(".yourss-video a.yourss-video-channel")}
     assert cards and all(link.startswith("/u/alice/fun?c=UC") for link in cards)

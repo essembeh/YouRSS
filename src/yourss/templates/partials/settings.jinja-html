@@ -36,6 +36,14 @@
     <button type="button" class="yourss-btn yourss-reset-btn" data-action="reset-storage" title="Back to the default settings and forget the watched videos">
       <svg><use href="#i-reset" /></svg><span>Reset settings and watched videos</span>
     </button>
+    {% if protected %}
+    <form class="yourss-logout" method="post" action="/u/{{ user_name }}">
+      <input type="hidden" name="logout" value="1" />
+      <button type="submit" class="yourss-btn yourss-reset-btn" title="Forget the login of /u/{{ user_name }} in this browser">
+        <svg><use href="#i-close" /></svg><span>Log out of /u/{{ user_name }}</span>
+      </button>
+    </form>
+    {% endif %}
     <p class="yourss-settings-note">Settings are stored in this browser only.</p>
   </div>
 </dialog>

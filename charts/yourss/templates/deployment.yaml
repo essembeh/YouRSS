@@ -66,6 +66,8 @@ spec:
               value: {{ .Values.yourss.cacheRssFallbackTtl | quote }}
             - name: YOURSS_CACHE_METADATA_TTL
               value: {{ .Values.yourss.cacheMetadataTtl | quote }}
+            - name: YOURSS_LOGIN_TTL
+              value: {{ .Values.yourss.loginTtl | quote }}
             {{- if .Values.yourss.pages }}
             - name: YOURSS_USERS_FILE
               value: /yourss/users.yaml

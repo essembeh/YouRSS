@@ -1,0 +1,18 @@
+{# The form a protected user answers instead of a Basic challenge (docs/specs/login.md §1): it posts to the same address #}
+{% extends "pages/base.jinja-html" %}
+{% block content %}
+{# Empty cards for the blur to show, nothing of the user is read before the login #}
+<div class="yourss-grid yourss-login-ghost" aria-hidden="true">
+  {% for _ in range(12) %}<div class="yourss-ghost-card"><i></i><b></b><b></b></div>{% endfor %}
+</div>
+<div class="yourss-login-overlay">
+  <form class="yourss-login" method="post" action="{{ request.url.path }}{% if request.url.query %}?{{ request.url.query }}{% endif %}">
+    <svg class="yourss-login-lock" aria-hidden="true"><use href="#i-lock" /></svg>
+    <p>The user <strong>/u/{{ user_name }}</strong> is protected by a password.</p>
+    <input type="hidden" name="username" value="{{ user_name }}" autocomplete="username" />
+    <input type="password" name="password" placeholder="Password" aria-label="Password" autocomplete="current-password" required autofocus />
+    {% if error %}<span class="yourss-login-error" role="alert">Wrong password</span>{% endif %}
+    <button type="submit" class="yourss-btn"><span>Log in</span></button>
+  </form>
+</div>
+{% endblock %}

@@ -41,6 +41,9 @@ yourss:
   # YOURSS_WARMUP_ENABLED: refresh the feeds of every page in the background, a round every
   # cacheRssTtl minus a minute, so that a visitor always finds them on disk
   warmupEnabled: false
+  # YOURSS_LOGIN_TTL: how long a browser stays logged in to a user behind a password (ISO-8601
+  # duration or seconds)
+  loginTtl: P90D
   # YOURSS_USERS_FILE: the pages and users, stored in a Secret since users may hold passwords
   pages:
     []

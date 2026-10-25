@@ -59,4 +59,5 @@ FROM production AS webapp
 
 EXPOSE 8000
 # No `uv run` here: PATH points to the venv, uv run would sync again at startup.
-CMD ["python", "-m", "uvicorn", "--host", "0.0.0.0", "--port", "8000", "yourss.main:app"]
+# The scheme the proxy saw (X-Forwarded-Proto) makes the login cookie Secure: only the proxy reaches the pod
+CMD ["python", "-m", "uvicorn", "--host", "0.0.0.0", "--port", "8000", "--forwarded-allow-ips", "*", "yourss.main:app"]

@@ -163,6 +163,7 @@ Then visit [http://localhost:8000/](http://localhost:8000/)
 | YOURSS_CACHE_RSS_TTL | `PT30M` | `yourss.cacheRssTtl` | How long a cached feed is served without asking Youtube (ISO-8601 duration, e.g. `PT30M`, or a number of seconds) |
 | YOURSS_CACHE_RSS_FALLBACK_TTL | `PT48H` | `yourss.cacheRssFallbackTtl` | How long a cached feed may replace a failed fetch, at least `YOURSS_CACHE_RSS_TTL`. An older feed is deleted and the error is propagated |
 | YOURSS_CACHE_METADATA_TTL | `P7D` | `yourss.cacheMetadataTtl` | How long the name and avatar of a channel are served without scraping its page on Youtube (ISO-8601 duration or seconds). When the scrape fails, the cached ones are served whatever their age. Browsers keep the redirect to an avatar as long |
+| YOURSS_LOGIN_TTL | `P90D` | `yourss.loginTtl` | How long a browser stays logged in to a user behind a password once its form is filled (ISO-8601 duration or seconds). Behind a TLS proxy, the cookie is `Secure` only when the proxy sends `X-Forwarded-Proto` |
 | YOURSS_WARMUP_ENABLED | `False` | `yourss.warmupEnabled` | With the cache on, refresh the feeds of every configured page in the background: a first round at startup, then one every `YOURSS_CACHE_RSS_TTL` minus a minute, so that a visitor always finds fresh feeds, Youtube's bad hours included (the fallback cache). It asks Youtube whether anyone visits or not. Each process refreshes its own cache: run one worker per cache |
 
 > Note: in the pages and users file, a channel is a *channel_id* (24 characters, like `UCa_Dlwrwv3ktrhCy91HpVRw`) or a handle (like `@JonnyGiger`), and a playlist is its id (`PL…`). The address of a page only holds ids.
@@ -177,7 +178,9 @@ A *page* is a named list of channels and playlists, easier to type and to rememb
 A *user* aggregates pages, which become its folders: `http://my-yourss-instance/u/alice/fun`. The sidebar lists the
 folders, one open at a time, each with its own Home; `http://my-yourss-instance/u/alice` opens the last folder visited
 in this browser. A user can give a page the label it likes, and can be protected by a *password* (plain text or
-argon2 hash). A page can be hidden (`visible: false`): it has no address of its own and is only read through the users
+argon2 hash): its pages answer a login form, which keeps the browser logged in for `YOURSS_LOGIN_TTL` with a signed
+cookie (it works in a web app added to the iOS home screen, where HTTP Basic does not), and HTTP Basic credentials
+(`curl -u`) are still accepted. Changing the password logs out every browser. A page can be hidden (`visible: false`): it has no address of its own and is only read through the users
 holding it.
 
 To configure them:

@@ -608,6 +608,22 @@ html[data-slide]::view-transition-new(root) { animation: yourss-slide-in .2s eas
 .yourss-empty { display: flex; flex-direction: column; align-items: center; gap: .35rem; padding: 4rem 1rem; text-align: center; color: var(--fg-muted); border: 1px dashed var(--line); border-radius: var(--radius); }
 .yourss-empty strong { color: var(--fg); font-size: 1.1rem; }
 .yourss-empty-action { margin-top: .75rem; }
+/* The login of a user behind a password (docs/specs/login.md §1): a dialog over empty cards, blurred */
+.yourss-ghost-card { display: flex; flex-direction: column; gap: .5rem; padding-bottom: .9rem; background: var(--bg-elev); border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; }
+.yourss-ghost-card i { aspect-ratio: 16 / 9; background: linear-gradient(135deg, var(--accent-soft), var(--bg-hover)); }
+.yourss-ghost-card b { height: .7rem; margin: 0 .8rem; border-radius: 4px; background: var(--line); }
+.yourss-ghost-card b:last-child { width: 45%; }
+.yourss-login-overlay { position: fixed; inset: 0; z-index: 400; display: grid; place-items: center; padding: 1rem; background: rgba(0, 0, 0, .45); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+.yourss-login { display: flex; flex-direction: column; align-items: stretch; gap: .8rem; width: min(100%, 22rem); padding: 1.5rem 1.4rem 1.4rem; text-align: center; color: var(--fg-muted); background: var(--bg-dialog, var(--bg-elev)); border: 1px solid var(--line-strong); border-radius: 16px; box-shadow: 0 30px 90px rgba(0, 0, 0, .6); }
+.yourss-login-lock { align-self: center; width: 32px; height: 32px; color: var(--fg-muted); }
+.yourss-login p { margin: 0 0 .2rem; line-height: 1.45; }
+.yourss-login strong { color: var(--fg); }
+.yourss-login input { height: 44px; padding: 0 .8rem; border: 1px solid var(--line-strong); border-radius: 10px; background: var(--bg); color: var(--fg); font: inherit; font-size: 16px; }
+.yourss-login input:focus { outline: none; border-color: var(--fg-muted); }
+.yourss-login button { justify-content: center; height: 44px; border-radius: 10px; border-color: var(--accent); background: transparent; color: var(--accent-text, var(--accent)); font-weight: 600; }
+.yourss-login button:hover { background: var(--accent-soft); }
+.yourss-login-error { font-size: .85rem; color: var(--accent); }
+.yourss-logout { display: contents; }
 
 /* ---- scroll offset of a card brought to the top (sticky top bar on phones) ---- */
 .yourss-video { scroll-margin-top: 1rem; }
@@ -639,6 +655,7 @@ html[data-slide]::view-transition-new(root) { animation: yourss-slide-in .2s eas
 [data-theme="neon"] .yourss-badge { background: var(--accent-soft); color: var(--accent-text); border: 1px solid var(--accent); box-shadow: var(--accent-glow); }
 [data-theme="neon"] .yourss-nav-item:hover, [data-theme="neon"] .yourss-nav-item.active { background: var(--bg-hover); box-shadow: inset 2px 0 0 var(--accent); }
 [data-theme="neon"] .yourss-search:focus-within { outline: 1px solid var(--accent); box-shadow: var(--accent-glow); }
+[data-theme="neon"] .yourss-login { border-color: var(--cyan); box-shadow: 0 0 24px rgba(1, 189, 255, .18), 0 30px 90px rgba(0, 0, 0, .6); }
 [data-theme="neon"] .yourss-btn:hover { border-color: var(--accent); color: var(--accent-text); background: var(--accent-soft); }
 [data-theme="neon"] .yourss-icon-btn:hover { color: var(--accent-text); }
 [data-theme="neon"] .yourss-toggle[aria-pressed="true"] .yourss-switch { background: var(--accent-soft); box-shadow: inset 0 0 0 1px var(--accent), var(--accent-glow); }

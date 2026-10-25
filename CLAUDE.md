@@ -17,8 +17,9 @@ Principles, in order of importance when they conflict:
 2. **Pass through, never proxy.** The browser loads thumbnails, avatars and the player straight
    from YouTube, and every link (RSS feed, channel page) points to YouTube. The server never
    relays media.
-3. **Stateless server.** No database, no session, no cookie. What belongs to a visitor (theme,
-   density, watched videos) lives in the browser, in `localStorage`.
+3. **Stateless server.** No database, no session. One cookie only: the signed login of a user
+   behind a password, checked without any server state (`docs/specs/login.md`). What belongs to a
+   visitor (theme, density, watched videos) lives in the browser, in `localStorage`.
 4. **Cache as little as possible.** No cache by default. One server cache, on disk, can be turned
    on: the feeds for a few minutes (and up to two days when YouTube fails) and the channel names
    and avatars for a week. Nothing else, and never media.
