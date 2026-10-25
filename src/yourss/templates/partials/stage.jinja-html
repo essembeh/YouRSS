@@ -17,10 +17,10 @@
   <p class="yourss-stage-next" data-stage-next></p>
   <div class="yourss-stage-commands">
     <button type="button" class="yourss-icon-btn is-prev" data-action="step" data-step="-1" title="Previous (p)" aria-label="Previous"><svg><use href="#i-prev" /></svg></button>
-    <button type="button" class="yourss-icon-btn is-seek is-back" data-action="seek" data-seconds="-30" title="Back 30 seconds (Shift+←)" aria-label="Back 30 seconds">−30</button>
+    <button type="button" class="yourss-icon-btn is-seek is-back" data-action="seek" data-seconds="-30" title="Back 30 seconds, hold to go further back (Shift+←)" aria-label="Back 30 seconds">−30</button>
     <button type="button" class="yourss-icon-btn is-cover" data-action="toggle" data-flag="listen-cover" title="The thumbnail instead of the video, not to be distracted (the sound goes on)" aria-label="Thumbnail or video"><svg class="when-video"><use href="#i-image" /></svg><svg class="when-cover"><use href="#i-video" /></svg></button>
     <button type="button" class="yourss-icon-btn is-main" data-action="toggle-playback" title="Play / pause (Space)" aria-label="Play / pause"><svg class="when-paused"><use href="#i-play" /></svg><svg class="when-playing"><use href="#i-pause" /></svg></button>
-    <button type="button" class="yourss-icon-btn is-seek is-forward" data-action="seek" data-seconds="30" title="Forward 30 seconds (Shift+→)" aria-label="Forward 30 seconds">+30</button>
+    <button type="button" class="yourss-icon-btn is-seek is-forward" data-action="seek" data-seconds="30" title="Forward 30 seconds, hold to go further (Shift+→)" aria-label="Forward 30 seconds">+30</button>
     <button type="button" class="yourss-icon-btn is-next" data-action="step" data-step="1" title="Next (n)" aria-label="Next"><svg><use href="#i-next" /></svg></button>
   </div>
 </section>

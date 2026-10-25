@@ -433,7 +433,17 @@ body:not(.listening) .yourss-stage.is-docked.is-portrait .yourss-stage-player { 
 /* Touch screens keep the hover state after a tap: hover effects for a mouse only */
 @media (hover: hover) { .yourss-stage-commands .is-main:hover { background: var(--accent); color: var(--accent-fg); filter: brightness(1.1); } }
 .yourss-stage-commands .is-main svg { width: 32px; height: 32px; }
-.yourss-stage-commands .is-seek { width: 44px; height: 44px; font: 700 .85rem var(--font); }
+.yourss-stage-commands .is-seek { width: 44px; height: 44px; font: 700 .85rem var(--font); font-variant-numeric: tabular-nums; -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; touch-action: manipulation; }
+/* Held: the button shows the jump it will make on release */
+.yourss-stage-commands .is-seek.is-holding { color: var(--accent-text, var(--accent)); border-color: var(--accent); background: var(--accent-soft); }
+.yourss-stage-commands .is-seek { position: relative; overflow: visible; }
+.yourss-stage-commands .is-seek.is-holding::after {
+  content: attr(data-jump) "\A" attr(data-target); white-space: pre; position: absolute; bottom: calc(100% + 14px); left: 0; z-index: 1;
+  padding: .45rem .8rem; border-radius: 12px; border: 1px solid var(--accent); background: var(--bg-dialog, var(--bg-elev)); color: var(--fg);
+  font: 700 1.3rem/1.3 var(--font); font-variant-numeric: tabular-nums; text-align: center; box-shadow: 0 10px 30px rgba(0, 0, 0, .5); pointer-events: none;
+}
+/* Aligned on the outer side of its button, so that it never leaves the screen */
+.yourss-stage-commands .is-forward.is-holding::after { left: auto; right: 0; }
 /* Listen mode on phones, "listen-cover" setting: the thumbnail over the video, not to be distracted while driving */
 .yourss-stage-cover { grid-area: player; z-index: 2; display: none; width: 100%; height: 100%; min-width: 0; min-height: 0; contain: size; object-fit: cover; background: #000; }
 .yourss-stage-commands .is-cover { display: none; }
