@@ -60,7 +60,8 @@ export function createPlayer(YT, host, videoId, { onReady, onEnded, onState, onE
     host: PLAYER_HOST,
     width: "100%",
     height: "100%",
-    playerVars: { autoplay: 1 },
+    // Inline on iPhones: without it the video asks for the native full screen, which only a tap in the iframe allows
+    playerVars: { autoplay: 1, playsinline: 1 },
     events: {
       onReady: (event) => onReady?.(event.target),
       // The id is read from the player: `loadVideoById` changes it under the same player
@@ -210,7 +211,8 @@ function watchCard(video) {
 // Another video asked while the player was starting (next tapped at once): it plays as soon as the player is ready.
 function onReady(player) {
   stage.ready = true
-  if (player.getVideoData?.().video_id !== stage.videoId) {
+  // No video while new content loads in listen mode (leaveCard): its first card will load one
+  if (stage.videoId && player.getVideoData?.().video_id !== stage.videoId) {
     player.loadVideoById(stage.videoId)
   }
 }
@@ -306,18 +308,29 @@ export function leaveCard() {
   releaseCard()
 }
 
-// A card resized out of the screen must not pull the page: the first card on screen keeps its place, the
-// browser's own scroll anchoring is held off so it does not compensate twice.
+const HOLD_FRAMES = 8
+// A card resized out of the screen must not pull the page: the first card starting on screen keeps its place, the
+// browser's own scroll anchoring is held off so it does not compensate twice (mini-player.md).
 function keepScroll(change) {
-  const anchor = visibleVideos().find((el) => el.getBoundingClientRect().bottom > 0)
+  const videos = visibleVideos()
+  const anchor = videos.find((el) => el.getBoundingClientRect().top >= 0) ?? videos.find((el) => el.getBoundingClientRect().bottom > 0)
   const top = anchor?.getBoundingClientRect().top
+  const hold = () => anchor?.isConnected && scrollBy({ top: anchor.getBoundingClientRect().top - top, behavior: "instant" })
   const root = document.documentElement
   root.style.overflowAnchor = "none"
   change()
-  if (anchor?.isConnected) {
-    scrollBy({ top: anchor.getBoundingClientRect().top - top, behavior: "instant" })
+  hold()
+  // WebKit sizes the grid rows off screen a frame or two later (content-visibility): held a few frames more
+  let frames = 0
+  const settle = () => {
+    hold()
+    if (++frames < HOLD_FRAMES) {
+      requestAnimationFrame(settle)
+    } else {
+      root.style.removeProperty("overflow-anchor")
+    }
   }
-  requestAnimationFrame(() => root.style.removeProperty("overflow-anchor"))
+  requestAnimationFrame(settle)
 }
 
 export function closePlayer() {

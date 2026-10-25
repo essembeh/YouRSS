@@ -540,6 +540,8 @@ body.listening .yourss-listen-btn svg { color: var(--accent); }
 .yourss-tabs { display: inline-flex; gap: .25rem; background: var(--bg-elev); border-radius: 999px; padding: 4px; }
 .yourss-tab { border: 0; background: transparent; color: var(--fg-muted); padding: .45rem 1.1rem; border-radius: 999px; font-weight: 600; white-space: nowrap; }
 .yourss-tab.active { background: var(--fg); color: var(--bg); }
+/* Phones: the four tabs on the width of the screen, none hidden past its edge */
+@media (max-width: 559px) { .yourss-tab { padding: .45rem .75rem; } }
 .yourss-tab-content { min-height: 40vh; transition: opacity .2s; }
 .yourss-tab-content.htmx-request { opacity: .35; }
 
