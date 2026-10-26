@@ -2477,7 +2477,7 @@ wheels = [
 
 [[package]]
 name = "yourss"
-version = "0.83.0"
+version = "0.83.1"
 source = { editable = "." }
 dependencies = [
     { name = "argon2-cffi" },
