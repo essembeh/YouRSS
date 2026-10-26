@@ -68,7 +68,7 @@ spec:
               value: {{ .Values.yourss.cacheMetadataTtl | quote }}
             - name: YOURSS_LOGIN_TTL
               value: {{ .Values.yourss.loginTtl | quote }}
-            {{- if .Values.yourss.pages }}
+            {{- if .Values.yourss.users }}
             - name: YOURSS_USERS_FILE
               value: /yourss/users.yaml
             {{- end }}
@@ -92,7 +92,7 @@ spec:
           volumeMounts:
             - name: tmp
               mountPath: /tmp
-            {{- if .Values.yourss.pages }}
+            {{- if .Values.yourss.users }}
             - name: users
               mountPath: /yourss
               readOnly: true
@@ -103,7 +103,7 @@ spec:
       volumes:
         - name: tmp
           emptyDir: {}
-        {{- if .Values.yourss.pages }}
+        {{- if .Values.yourss.users }}
         - name: users
           secret:
             secretName: {{ include "yourss.fullname" . }}-users

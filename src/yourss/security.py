@@ -34,7 +34,7 @@ def verify_password(user: User, value: str) -> bool:
 
 
 def read_config() -> UsersConfig | None:
-    """The pages and users file; none without a file or when it cannot be read."""
+    """The users file; none without a file or when it cannot be read."""
     from .settings import current_config
 
     if current_config.users_file is None or not current_config.users_file.exists():
@@ -92,9 +92,8 @@ def find_user(username: str, config: UsersConfig | None = Depends(read_config)) 
 
 
 def find_page(page: str, config: UsersConfig | None = Depends(read_config)) -> Page | None:
-    """A visible page; a hidden one is only served inside a user."""
-    found = config.page(page) if config else None
-    return found if found is not None and found.visible else None
+    """A page published under this name; the others are only served inside their user."""
+    return config.public_page(page) if config else None
 
 
 async def get_auth_user(request: Request, user: User | None = Depends(find_user)) -> User:

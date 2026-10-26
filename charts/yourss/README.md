@@ -2,7 +2,7 @@
 
 Deploys [YouRSS](https://github.com/essembeh/YouRSS), an alternative front-end to Youtube built
 on its RSS feeds: a single stateless `Deployment` with a `Service`, an optional `Ingress`, an
-optional `HorizontalPodAutoscaler` and a `Secret` holding the pages and users when some are declared.
+optional `HorizontalPodAutoscaler` and a `Secret` holding the users and their pages when some are declared.
 
 ```sh
 helm repo add yourss https://essembeh.github.io/YouRSS/
@@ -36,7 +36,6 @@ the application. The meaning of each setting is documented in the
 | `yourss.cacheRssFallbackTtl` | `PT48H` | `YOURSS_CACHE_RSS_FALLBACK_TTL` |
 | `yourss.cacheMetadataTtl` | `P7D` | `YOURSS_CACHE_METADATA_TTL` |
 | `yourss.warmupEnabled` | `false` | `YOURSS_WARMUP_ENABLED`, see below |
-| `yourss.pages` | `[]` | `YOURSS_USERS_FILE`, see below |
 | `yourss.users` | `[]` | `YOURSS_USERS_FILE`, see below |
 | `yourss.extraEnv` | `[]` | any other variable, as a list of `name` / `value` |
 
@@ -72,22 +71,13 @@ logs.
 
 ### Pages and users
 
-`yourss.pages` declares the pages served at `/p/<name>`, and `yourss.users` the users which
-aggregate them into folders (`/u/<user>/<page>`). Both are rendered to a `Secret`, since a user
-may hold a password, and mounted read-only on `/yourss/users.yaml`; the application reads the
+`yourss.users` declares the users and their pages, the folders of the user (`/u/<user>/<page>`);
+a page with `publish: <name>` is also served at `/p/<name>`, without the password of its user.
+They are rendered to a `Secret`, since a user may hold a password, and mounted read-only on `/yourss/users.yaml`; the application reads the
 file on every request, an update needs no restart.
 
 ```yaml
 yourss:
-  pages:
-    - name: fun
-      channels:
-        - "@jonnygiger"
-        - UCVooVnzQxPSTXTMzSi1s6uw
-    - name: cards
-      visible: false # only through the users holding it
-      channels:
-        - UCQsmxaMzYr76Yd1iqMEq8TA
   users:
     - name: alice
       password:
@@ -95,8 +85,13 @@ yourss:
         value: "$argon2i$v=19$m=4096,t=3,p=1$..."
       pages:
         - name: fun
+          publish: fun # also at /p/fun
+          channels:
+            - "@jonnygiger"
+            - UCVooVnzQxPSTXTMzSi1s6uw
         - name: cards
-          label: Card magic
+          channels:
+            - UCQsmxaMzYr76Yd1iqMEq8TA
 ```
 
 A channel is a channel id (`UC…`) or a handle (`@…`), a playlist is its id (`PL…`).

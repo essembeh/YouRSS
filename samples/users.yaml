@@ -1,51 +1,49 @@
-# The pages and users of an instance (docs: README, "Configure pages and users")
+# The users of an instance and their pages (docs: README, "Configure users and pages")
 #
 # A channel is a channel_id (UC…, like UCVooVnzQxPSTXTMzSi1s6uw) or a handle (@jonnygiger),
 # a playlist is its id (PL…).
-pages:
-  # A page has its own address, /p/fun
-  - name: fun
-    channels:
-      # Add handles
-      - "@ben-j"
-      - "@JonnyGiger"
-      # or add channel ids
-      - UCOaAb5oXQ9x2hSmINrffWBQ
-      # or add playlist ids
-      - PLw-vK1_d04zZCal3yMX_T23h5nDJ2toTk
-
-  # A hidden page has no address of its own: it is only read through the users holding it
-  - name: cards
-    visible: false
-    channels:
-      - UCQsmxaMzYr76Yd1iqMEq8TA
-
-  - name: podcast
-    channels:
-      - UCSHZKyawb77ixDdsGog4iWA
-      - UCYO_jab_esuFRV4b17AJtAw
-
-  - name: music
-    channels:
-      - UCuU-wlg6DNHlybI-T4c1aDg
-      - UCGbyt2Lm2WlWULsMuhMeZvg
-
 users:
-  # A user aggregates pages, its folders: /u/alice/fun, /u/alice/cards, /u/alice/podcast
+  # A user holds pages, its folders: /u/alice/Homepage, /u/alice/Cards, /u/alice/Podcast, /u/alice/Music
   - name: alice
     pages:
-      - name: fun
-      - name: cards
-        label: Card magic    # the label alice gives it, the page name by default
-      - name: podcast
-      - name: music
+      - name: Homepage
+        # Also published under this name, whatever the name of the page: /p/fun
+        publish: fun
+        channels:
+          # Add handles
+          - "@ben-j"
+          - "@JonnyGiger"
+          # or add channel ids
+          - UCOaAb5oXQ9x2hSmINrffWBQ
+          # or add playlist ids
+          - PLw-vK1_d04zZCal3yMX_T23h5nDJ2toTk
 
-  # A user behind a password (a login form, or HTTP Basic), which protects every folder
+      # A page not published is only read through its user
+      - name: Cards
+        channels:
+          - UCQsmxaMzYr76Yd1iqMEq8TA
+
+      - name: Podcast
+        channels:
+          - UCSHZKyawb77ixDdsGog4iWA
+          - UCYO_jab_esuFRV4b17AJtAw
+
+      - name: Music
+        publish: music
+        channels:
+          - UCuU-wlg6DNHlybI-T4c1aDg
+          - UCGbyt2Lm2WlWULsMuhMeZvg
+
+  # A user behind a password (a login form, or HTTP Basic), which protects every folder but not the public pages
   - name: bob
     # The method is argon2 (the hash of the password, this one is the hash of "foo", for example with
     # https://gchq.github.io/CyberChef/#recipe=Argon2(%7B'option':'UTF8','string':'yourss%20secret%20salt'%7D,3,4096,1,32,'Argon2i','Encoded%20hash')&input=TXkgc2VjdXJlIHBhc3N3b3Jk)
     # or clear (the password itself, in plain text)
     password: { method: argon2, value: "$argon2i$v=19$m=4096,t=3,p=1$c29tZXNhbHQ$y+awVl4ev1h6eG8IbOrPAAjANRIbraM51FL50Pcf/B8" }
     pages:
-      - name: podcast
-      - name: fun
+      # Its public page is readable by anyone, without the password; the published names are unique across the users
+      - name: Homepage
+        publish: skate
+        channels:
+          - "@JonnyGiger"
+          - PLw-vK1_d04zZCal3yMX_T23h5nDJ2toTk

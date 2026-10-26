@@ -81,7 +81,7 @@ async def test_watch(client: AsyncClient) -> None:
 
 async def test_user(client: AsyncClient) -> None:
     # Bob's password is foo, it protects the user and its folders
-    for path in ("/u/bob", "/u/bob/podcast"):
+    for path in ("/u/bob", "/u/bob/Homepage"):
         resp = await client.get(path)
         assert resp.status_code == 401
         resp = await client.get(path, auth=BasicAuth("bob", "password"))
@@ -107,11 +107,17 @@ async def test_user(client: AsyncClient) -> None:
         assert resp.status_code == 404 and resp.headers["content-type"].startswith("text/html")
         assert "This user does not exist" in resp.text
 
-    # A hidden page has no address of its own, it is read inside a user
+    # A page not published has no address of its own, it is read inside its user
     resp = await client.get("/p/cards")
     assert resp.status_code == 404
-    resp = await client.get("/u/alice/cards")
+    resp = await client.get("/u/alice/Cards")
     assert resp.status_code == 200
+    # A public page is served under its published name, without the password of its user
+    resp = await client.get("/p/skate")
+    assert resp.status_code == 200
+    assert "<title>YouRSS - /p/skate</title>" in resp.text
+    resp = await client.get("/p/podcast")
+    assert resp.status_code == 404
 
 
 async def test_page_content(client: AsyncClient) -> None:
@@ -165,7 +171,7 @@ async def test_stray_path_is_not_a_page(client: AsyncClient, path: str) -> None:
     assert resp.status_code == 404
 
 
-FOLDERS = ["fun", "cards", "podcast", "music"]
+FOLDERS = ["Homepage", "Cards", "Podcast", "Music"]
 
 
 async def test_user_without_folder(client: AsyncClient) -> None:
@@ -173,42 +179,37 @@ async def test_user_without_folder(client: AsyncClient) -> None:
     assert resp.status_code == 200
     soup = BeautifulSoup(resp.text, "html.parser")
     assert [str(folder["data-folder"]) for folder in soup.select("details.yourss-folder")] == FOLDERS
-    # The row shows the label of the user, its address is the page
-    assert [row.get_text(strip=True) for row in soup.select("details.yourss-folder > summary .yourss-label")] == [
-        "fun",
-        "Card magic",
-        "podcast",
-        "music",
-    ]
+    # The row shows the name of the page, its address too
+    assert [row.get_text(strip=True) for row in soup.select("details.yourss-folder > summary .yourss-label")] == FOLDERS
     # Every folder is closed and empty, the script picks the one to open: nothing was asked to Youtube
     assert soup.select("details.yourss-folder[open]") == []
     assert soup.select("details.yourss-folder li") == []
     assert soup.select("#yourss-content .yourss-video") == []
-    (row,) = soup.select("details[data-folder=cards] > summary")
-    assert row["hx-get"] == "/u/alice/cards" and row["hx-push-url"] == "/u/alice/cards"
+    (row,) = soup.select("details[data-folder=Cards] > summary")
+    assert row["hx-get"] == "/u/alice/Cards" and row["hx-push-url"] == "/u/alice/Cards"
     # A user offers no flat copy
     assert soup.select("a.yourss-copy-page") == []
 
 
 async def test_user_folder(client: AsyncClient) -> None:
-    resp = await client.get("/u/alice/fun")
+    resp = await client.get("/u/alice/Homepage")
     assert resp.status_code == 200
     soup = BeautifulSoup(resp.text, "html.parser")
     (title,) = soup.select("title")
     assert title.get_text() == "YouRSS - /u/alice"
     # The folder of the address is open with its entries, its Home is the content
-    assert [str(folder["data-folder"]) for folder in soup.select("details.yourss-folder[open]")] == ["fun"]
-    links = [str(a["hx-push-url"]) for a in soup.select("ul[data-folder-list=fun] a")]
+    assert [str(folder["data-folder"]) for folder in soup.select("details.yourss-folder[open]")] == ["Homepage"]
+    links = [str(a["hx-push-url"]) for a in soup.select("ul[data-folder-list=Homepage] a")]
     assert len(links) == 4
-    assert all(link.startswith("/u/alice/fun?c=UC") or link.startswith("/u/alice/fun?p=PL") for link in links)
-    assert soup.select("ul[data-folder-list=cards] li") == []
-    assert soup.select("#yourss-content [data-folder-page=fun] .yourss-video")
+    assert all(link.startswith("/u/alice/Homepage?c=UC") or link.startswith("/u/alice/Homepage?p=PL") for link in links)
+    assert soup.select("ul[data-folder-list=Cards] li") == []
+    assert soup.select("#yourss-content [data-folder-page=Homepage] .yourss-video")
     # The channel link of a card keeps the folder
     cards = {str(a["hx-push-url"]) for a in soup.select(".yourss-video a.yourss-video-channel")}
-    assert cards and all(link.startswith("/u/alice/fun?c=UC") for link in cards)
+    assert cards and all(link.startswith("/u/alice/Homepage?c=UC") for link in cards)
 
     # A hidden page is served inside the user, the title names the user only
-    resp = await client.get("/u/alice/cards")
+    resp = await client.get("/u/alice/Cards")
     (title,) = BeautifulSoup(resp.text, "html.parser").select("title")
     assert title.get_text() == "YouRSS - /u/alice"
 
@@ -223,20 +224,20 @@ async def test_user_folder(client: AsyncClient) -> None:
 
 async def test_user_folder_fragment(client: AsyncClient) -> None:
     # Same address, the header of htmx: the fragment. Its links name its folder, not the page the visitor comes from
-    resp = await client.get("/u/alice/fun", headers=HTMX | {"HX-Current-URL": "http://test/u/alice/podcast"})
+    resp = await client.get("/u/alice/Homepage", headers=HTMX | {"HX-Current-URL": "http://test/u/alice/Podcast"})
     assert resp.status_code == 200
     soup = BeautifulSoup(resp.text, "html.parser")
     assert soup.select("html") == []
     (title,) = soup.select("title")
     assert title.get_text() == "YouRSS - /u/alice"
-    assert soup.select("[data-folder-page=fun] div.yourss-video")
+    assert soup.select("[data-folder-page=Homepage] div.yourss-video")
     cards = {str(a["hx-push-url"]) for a in soup.select(".yourss-video a.yourss-video-channel")}
-    assert cards and all(link.startswith("/u/alice/fun?c=UC") for link in cards)
-    (entries,) = soup.select("ul#yourss-folder-list-fun")
+    assert cards and all(link.startswith("/u/alice/Homepage?c=UC") for link in cards)
+    (entries,) = soup.select("ul#yourss-folder-list-Homepage")
     assert entries["hx-swap-oob"] == "true"
     links = [str(a["hx-push-url"]) for a in entries.select("a")]
     assert len(links) == 4
-    assert all(link.startswith("/u/alice/fun?c=UC") or link.startswith("/u/alice/fun?p=PL") for link in links)
+    assert all(link.startswith("/u/alice/Homepage?c=UC") or link.startswith("/u/alice/Homepage?p=PL") for link in links)
     (status,) = soup.select("div#yourss-fetch-status")
     assert status["hx-swap-oob"] == "true"
 
@@ -247,7 +248,7 @@ async def test_user_folder_fragment(client: AsyncClient) -> None:
         ("/u/alice/unknown", 404),
         ("/u/bob/cards", 401),  # bob is protected: the password first
         ("/u/unknown/fun", 404),
-        ("/u/bob/podcast", 401),  # the password of the user protects its fragments, before any 404
+        ("/u/bob/Homepage", 401),  # the password of the user protects its fragments, before any 404
     ],
 )
 async def test_user_folder_fragment_refused(client: AsyncClient, path: str, http_status: int) -> None:
@@ -505,8 +506,8 @@ async def test_avatar_falls_back_on_the_initial(client: AsyncClient) -> None:
 
 
 async def test_pages_are_compressed_on_request(client: AsyncClient) -> None:
-    resp = await client.get("/u/alice/fun", headers={"Accept-Encoding": "gzip", "HX-Request": "true"})
+    resp = await client.get("/u/alice/Homepage", headers={"Accept-Encoding": "gzip", "HX-Request": "true"})
     assert resp.status_code == 200 and resp.headers["content-encoding"] == "gzip"
     assert int(resp.headers["content-length"]) < len(resp.content) / 5  # the body is decompressed by the client
-    plain = await client.get("/u/alice/fun", headers={"Accept-Encoding": "identity"})
+    plain = await client.get("/u/alice/Homepage", headers={"Accept-Encoding": "identity"})
     assert plain.status_code == 200 and "content-encoding" not in plain.headers

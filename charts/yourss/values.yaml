@@ -44,22 +44,7 @@ yourss:
   # YOURSS_LOGIN_TTL: how long a browser stays logged in to a user behind a password (ISO-8601
   # duration or seconds)
   loginTtl: P90D
-  # YOURSS_USERS_FILE: the pages and users, stored in a Secret since users may hold passwords
-  pages:
-    []
-    # - name: fun
-    #   channels:
-    #     # channels can be
-    #     #  a channel_id (starting with UC) like UCVooVnzQxPSTXTMzSi1s6uw
-    #     #  a user (starting with @) like @jonnygiger
-    #     #  a playlist id (starting with PL)
-    #     - "@jonnygiger"
-    #     - "@berrics"
-    # # A hidden page is only read through the users holding it
-    # - name: cards
-    #   visible: false
-    #   channels:
-    #     - UCQsmxaMzYr76Yd1iqMEq8TA
+  # YOURSS_USERS_FILE: the users and their pages, stored in a Secret since users may hold passwords
   users:
     []
     # - name: alice
@@ -73,8 +58,18 @@ yourss:
     #   # the pages of the user, its folders: /u/alice/fun, /u/alice/cards
     #   pages:
     #     - name: fun
+    #       # optional, also published at /p/fun, without the password
+    #       publish: fun
+    #       channels:
+    #         # channels can be
+    #         #  a channel_id (starting with UC) like UCVooVnzQxPSTXTMzSi1s6uw
+    #         #  a user (starting with @) like @jonnygiger
+    #         #  a playlist id (starting with PL)
+    #         - "@jonnygiger"
+    #         - "@berrics"
     #     - name: cards
-    #       label: Card magic # optional, shown instead of the name
+    #       channels:
+    #         - UCQsmxaMzYr76Yd1iqMEq8TA
 
   # Additional environment variables for the container
   extraEnv: []

@@ -3,7 +3,7 @@ from enum import Enum
 from pathlib import Path
 from typing import Annotated, Self
 
-from pydantic import BaseModel, ConfigDict, Field, SecretStr, StringConstraints, model_validator
+from pydantic import BaseModel, ConfigDict, Field, SecretStr, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -61,68 +61,56 @@ Name = Annotated[str, Field(pattern=r"^[A-Za-z0-9][A-Za-z0-9_-]{0,31}$")]
 
 
 class Page(BaseModel):
-    """A named list of channels, `/p/<name>`; hidden, it is only reached through the users holding it."""
+    """A page of a user, its folder `/u/<user>/<name>`; with `publish`, it is also served at `/p/<publish>`."""
 
-    # Unknown keys are refused: a typo on `visible` must not make a page public
+    # Unknown keys are refused: a typo on `publish` must not leave a page unpublished, or the reverse
     model_config = ConfigDict(extra="forbid")
 
     name: Name
-    visible: bool = True
+    # The name of the page at `/p/<publish>`, unique across the users
+    publish: Name | None = None
     channels: Channels
 
 
-class UserPage(BaseModel):
-    """A page of a user, with the label the user gives it (docs/specs/pages-users.md §5)."""
-
-    model_config = ConfigDict(extra="forbid")
-
-    name: Name
-    label: Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=64)] | None = None
-
-    @property
-    def title(self) -> str:
-        return self.label or self.name
-
-
 class User(BaseModel):
-    """A user aggregates pages, its folders (`/u/<name>/<page>`); its password protects them all."""
+    """A user holds pages, its folders (`/u/<name>/<page>`); its password protects them all, not their public copy."""
 
     model_config = ConfigDict(extra="forbid")
 
     name: Name
     password: Password | None = None
-    pages: Annotated[list[UserPage], Field(min_length=1)]
+    pages: Annotated[list[Page], Field(min_length=1)]
 
     @model_validator(mode="after")
     def _check_pages(self) -> Self:
         names = [page.name for page in self.pages]
         if len(set(names)) != len(names):
-            raise ValueError("a user lists a page once")
+            raise ValueError("the pages of a user have distinct names")
         return self
 
-    def page(self, name: str) -> UserPage | None:
+    def page(self, name: str) -> Page | None:
         return next((page for page in self.pages if page.name == name), None)
 
 
 class UsersConfig(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
-    pages: list[Page] = Field(min_length=1)
-    users: list[User] = Field(default_factory=list)
+    users: list[User] = Field(min_length=1)
 
     @model_validator(mode="after")
     def _check_names(self) -> Self:
-        pages = [page.name for page in self.pages]
-        if len(set(pages)) != len(pages):
-            raise ValueError("the pages have distinct names")
         users = [user.name for user in self.users]
         if len(set(users)) != len(users):
             raise ValueError("the users have distinct names")
-        for user in self.users:
-            for page in user.pages:
-                if page.name not in pages:
-                    raise ValueError(f"the user {user.name} lists an unknown page: {page.name}")
+        published = [page.publish for page in self.pages if page.publish is not None]
+        if len(set(published)) != len(published):
+            raise ValueError("the published pages have distinct names")
         return self
 
-    def page(self, name: str) -> Page | None:
-        return next((page for page in self.pages if page.name == name), None)
+    @property
+    def pages(self) -> list[Page]:
+        """Every page, user after user."""
+        return [page for user in self.users for page in user.pages]
+
+    def public_page(self, name: str) -> Page | None:
+        return next((page for page in self.pages if page.publish == name), None)

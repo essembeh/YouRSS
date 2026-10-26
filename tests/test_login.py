@@ -19,7 +19,7 @@ def bob() -> User:
     return out
 
 
-@mark.parametrize("path", ["/u/bob", "/u/bob/podcast"])
+@mark.parametrize("path", ["/u/bob", "/u/bob/Homepage"])
 async def test_form_instead_of_a_challenge(client: AsyncClient, path: str) -> None:
     resp = await client.get(path + "?c=UCxxx")
     assert resp.status_code == 401
@@ -31,9 +31,9 @@ async def test_form_instead_of_a_challenge(client: AsyncClient, path: str) -> No
 
 
 async def test_login(client: AsyncClient) -> None:
-    resp = await client.post("/u/bob/podcast?c=UCxxx", data={"password": "foo"})
+    resp = await client.post("/u/bob/Homepage?c=UCxxx", data={"password": "foo"})
     assert resp.status_code == 303
-    assert resp.headers["Location"] == "/u/bob/podcast?c=UCxxx"
+    assert resp.headers["Location"] == "/u/bob/Homepage?c=UCxxx"
     cookie = resp.headers["set-cookie"]
     assert cookie.startswith(f"{LOGIN_COOKIE}=")
     assert "Path=/u/bob" in cookie
@@ -44,10 +44,10 @@ async def test_login(client: AsyncClient) -> None:
     assert "Secure" not in cookie
 
     # The cookie opens the user, its folders and their htmx fragments
-    for path in ("/u/bob", "/u/bob/podcast"):
+    for path in ("/u/bob", "/u/bob/Homepage"):
         resp = await client.get(path)
         assert resp.status_code == 200
-    resp = await client.get("/u/bob/fun", headers=HTMX)
+    resp = await client.get("/u/bob/Homepage", headers=HTMX)
     assert resp.status_code == 200
 
 
@@ -67,12 +67,12 @@ async def test_wrong_password(client: AsyncClient) -> None:
 
 async def test_logout(client: AsyncClient) -> None:
     await client.post("/u/bob", data={"password": "foo"})
-    resp = await client.get("/u/bob/podcast")
+    resp = await client.get("/u/bob/Homepage")
     assert resp.status_code == 200
     # The settings offer to log out of a protected user
     assert BeautifulSoup(resp.text, "html.parser").select("form.yourss-logout[action='/u/bob']")
 
-    resp = await client.post("/u/bob/podcast", data={"logout": "1"})
+    resp = await client.post("/u/bob/Homepage", data={"logout": "1"})
     assert resp.status_code == 303
     assert resp.headers["Location"] == "/u/bob"
     assert 'yourss-login=""' in resp.headers["set-cookie"]
@@ -90,7 +90,7 @@ async def test_basic_still_accepted(client: AsyncClient) -> None:
 
 
 async def test_htmx_without_login_reloads(client: AsyncClient) -> None:
-    resp = await client.get("/u/bob/podcast", headers=HTMX)
+    resp = await client.get("/u/bob/Homepage", headers=HTMX)
     assert resp.status_code == 401
     assert resp.headers["HX-Refresh"] == "true"
 
@@ -130,7 +130,7 @@ async def test_user_without_password(client: AsyncClient) -> None:
     resp = await client.get("/u/alice")
     assert resp.status_code == 200
     assert not BeautifulSoup(resp.text, "html.parser").select("form.yourss-logout")
-    resp = await client.post("/u/alice/fun", data={"password": "whatever"})
+    resp = await client.post("/u/alice/Homepage", data={"password": "whatever"})
     assert resp.status_code == 303
     assert "set-cookie" not in resp.headers
 

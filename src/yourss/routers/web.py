@@ -15,7 +15,7 @@ from starlette.status import (
 )
 
 from ..async_utils import async_fetch
-from ..schema import Page, User, UsersConfig
+from ..schema import Page, User
 from ..security import (
     LOGIN_COOKIE,
     UnknownUser,
@@ -23,7 +23,6 @@ from ..security import (
     find_user,
     get_auth_user,
     login_token,
-    read_config,
     verify_password,
 )
 from ..settings import current_config, static_folder
@@ -98,7 +97,7 @@ async def apple_touch_icon() -> FileResponse:
 
 @router.get("/p/{page}", response_class=HTMLResponse)
 async def page_of_the_file(request: Request, found: Page | None = Depends(find_page)) -> HTMLResponse:
-    """A page of the users file, flat (docs/specs/pages-users.md §7); hidden or unknown, it does not exist."""
+    """A page of the users file, flat (docs/specs/pages-users.md §7); unpublished or unknown, it does not exist."""
     if found is None:
         return template_page(
             request,
@@ -113,7 +112,7 @@ async def page_of_the_file(request: Request, found: Page | None = Depends(find_p
     return template_page(
         request,
         "pages/view.jinja-html",
-        title=f"/p/{found.name}",
+        title=f"/p/{found.publish}",
         **page_context(statuses),
         # A page is read-only: it only offers its multi channel copy
         copy_url="/" + ",".join(names) if current_config.custom_pages_enabled else None,
@@ -185,13 +184,11 @@ async def user_folder(
     request: Request,
     page: str,
     user: User = Depends(get_auth_user),
-    config: UsersConfig | None = Depends(read_config),
     hx_request: Annotated[str | None, Header()] = None,
 ) -> HTMLResponse:
-    """A folder of a user: the page, or with the header htmx sends its fragment (§3), hidden pages included."""
+    """A folder of a user: the page, or with the header htmx sends its fragment (§3), public or not."""
     folder = user.page(page)
-    found = config.page(page) if folder is not None and config is not None else None
-    if folder is None or found is None:
+    if folder is None:
         if hx_request == "true":
             raise HTTPException(HTTP_404_NOT_FOUND)
         return template_page(
@@ -202,7 +199,7 @@ async def user_folder(
             message=f"The user /u/{user.name} has no such folder.",
             home_link=True,
         )
-    statuses = await async_fetch(found.channels, api=YoutubeApi())
+    statuses = await async_fetch(folder.channels, api=YoutubeApi())
     return template_page(
         request,
         "partials/folder.jinja-html" if hx_request == "true" else "pages/view.jinja-html",

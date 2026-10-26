@@ -24,10 +24,10 @@
     {% set address = user_path ~ "/" ~ (item.name|urlencode) %}
     {% set current = folder is defined and folder.name == item.name %}
     <details class="yourss-folder" name="yourss-folder" data-folder="{{ item.name }}"{% if current %} open{% endif %}>
-      <summary class="yourss-nav-item" title="The latest videos of {{ item.title }}" hx-get="{{ address }}" hx-target="#yourss-content" hx-swap="innerHTML show:window:top" hx-sync="#yourss-content:replace"
+      <summary class="yourss-nav-item" title="The latest videos of {{ item.name }}" hx-get="{{ address }}" hx-target="#yourss-content" hx-swap="innerHTML show:window:top" hx-sync="#yourss-content:replace"
         hx-push-url="{{ address }}" hx-trigger="click[!event.target.closest('.yourss-caret, [data-action]')]">
         <button type="button" class="yourss-caret" title="Fold / unfold" aria-label="Fold / unfold"><svg><use href="#i-chevron" /></svg></button>
-        <span class="yourss-label">{{ item.title }}</span>
+        <span class="yourss-label">{{ item.name }}</span>
         <span class="yourss-badge yourss-count" data-watched-feature data-folder-count="{{ item.name }}" hidden></span>
         <button type="button" class="yourss-icon-btn is-small yourss-row-btn" data-watched-feature data-action="mark-feed-watched" title="Mark every video of this folder as watched"><svg><use href="#i-check-all" /></svg></button>
       </summary>

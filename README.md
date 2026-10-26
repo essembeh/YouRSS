@@ -42,7 +42,7 @@ No account: your subscriptions are the address of your page.
 - a subscription is removed from the sidebar
 - each change gives a new address, made of ids only (example https://yourss.domain.tld/UCVooVnzQxPSTXTMzSi1s6uw,PLw-vK1_d04zZCal3yMX_T23h5nDJ2toTk): bookmark it, share it, open it on another device. Nothing is stored on the server
 
-The administrator of an instance can also declare *pages*, short names for a list of channels and playlists (`/p/<name>`), and *users*, who aggregate pages into folders (`/u/<user>/<page>`), and can turn custom pages off.
+The administrator of an instance can also declare *users*, who hold *pages*, named lists of channels and playlists shown as folders (`/u/<user>/<page>`) and optionally published under a short name (`/p/<name>`), and can turn custom pages off.
 
 ### 📰 One page for all your subscriptions
 
@@ -157,7 +157,7 @@ Then visit [http://localhost:8000/](http://localhost:8000/)
 | YOURSS_CUSTOM_PAGES_ENABLED | `True` | `yourss.customPagesEnabled` | Let visitors build their own page by putting channels in its URL. If set to `false`, the home page and the multi channel pages show an error (`403`), and only the *user* pages remain |
 | YOURSS_MAX_PAGE_ITEMS | `12` | `yourss.maxPageItems` | How many channels and playlists the address of a custom page may hold. A longer address is refused (`422`) before anything is asked to Youtube. Configured pages are not limited |
 | YOURSS_API_DOCS_ENABLED | `False` | `yourss.apiDocsEnabled` | If set to `true`, the generated API documentation is served at `/docs`, `/redoc` and `/openapi.json`. Meant for development: it is off in the docker image and in the Helm chart |
-| YOURSS_USERS_FILE |  | `yourss.pages`, `yourss.users` | The pages and users of the instance, in a YAML file (the Helm chart builds it from the values and stores it in a *Secret*) |
+| YOURSS_USERS_FILE |  | `yourss.users` | The users of the instance and their pages, in a YAML file (the Helm chart builds it from the values and stores it in a *Secret*) |
 | YOURSS_CLEAN_TITLES | `False` | `yourss.cleanTitles` | If set to `true`, videos titles are cleaned to prevent UPPERCASE TITLES |
 | YOURSS_CACHE_ENABLED | `False` | `yourss.cacheEnabled` | Keep the RSS feeds and the channel metadata (name, avatar) on disk. A feed younger than `YOURSS_CACHE_RSS_TTL` is served without asking Youtube, and when the fetch fails (Youtube's daily transient `404` windows, errors, timeouts) a feed younger than `YOURSS_CACHE_RSS_FALLBACK_TTL` is served instead of the error. Off by default: nothing is cached, every page load fetches its feeds and scrapes a page per channel |
 | YOURSS_CACHE_FOLDER |  | `yourss.cacheFolder` | Where the cache lives (created at startup, the application refuses to start if it cannot write there). If unset, a temporary folder `yourss-*` is created at startup |
@@ -167,48 +167,45 @@ Then visit [http://localhost:8000/](http://localhost:8000/)
 | YOURSS_LOGIN_TTL | `P90D` | `yourss.loginTtl` | How long a browser stays logged in to a user behind a password once its form is filled (ISO-8601 duration or seconds). Behind a TLS proxy, the cookie is `Secure` only when the proxy sends `X-Forwarded-Proto` |
 | YOURSS_WARMUP_ENABLED | `False` | `yourss.warmupEnabled` | With the cache on, refresh the feeds of every configured page in the background: a first round at startup, then one every `YOURSS_CACHE_RSS_TTL` minus a minute, so that a visitor always finds fresh feeds, Youtube's bad hours included (the fallback cache). It asks Youtube whether anyone visits or not. Each process refreshes its own cache: run one worker per cache |
 
-> Note: in the pages and users file, a channel is a *channel_id* (24 characters, like `UCa_Dlwrwv3ktrhCy91HpVRw`) or a handle (like `@JonnyGiger`), and a playlist is its id (`PL…`). The address of a page only holds ids.
+> Note: in the users file, a channel is a *channel_id* (24 characters, like `UCa_Dlwrwv3ktrhCy91HpVRw`) or a handle (like `@JonnyGiger`), and a playlist is its id (`PL…`). The address of a page only holds ids.
 
 See [`.env`](./.env) for example.
 
-## 👤 Configure pages and users
+## 👤 Configure users and pages
 
-A *page* is a named list of channels and playlists, easier to type and to remember than an address full of ids:
-`http://my-yourss-instance/p/fun` instead of `http://my-yourss-instance/UCVooVnzQxPSTXTMzSi1s6uw,UCQsmxaMzYr76Yd1iqMEq8TA`.
+A *user* holds *pages*, named lists of channels and playlists, which become its folders:
+`http://my-yourss-instance/u/alice/fun`. The sidebar lists the folders, one open at a time, each with its own Home;
+`http://my-yourss-instance/u/alice` opens the last folder visited in this browser. A user can be protected by a *password* (plain text or argon2 hash): its pages answer a login
+form, which keeps the browser logged in for `YOURSS_LOGIN_TTL` with a signed cookie (it works in a web app added to the
+iOS home screen, where HTTP Basic does not), and HTTP Basic credentials (`curl -u`) are still accepted. Changing the
+password logs out every browser.
 
-A *user* aggregates pages, which become its folders: `http://my-yourss-instance/u/alice/fun`. The sidebar lists the
-folders, one open at a time, each with its own Home; `http://my-yourss-instance/u/alice` opens the last folder visited
-in this browser. A user can give a page the label it likes, and can be protected by a *password* (plain text or
-argon2 hash): its pages answer a login form, which keeps the browser logged in for `YOURSS_LOGIN_TTL` with a signed
-cookie (it works in a web app added to the iOS home screen, where HTTP Basic does not), and HTTP Basic credentials
-(`curl -u`) are still accepted. Changing the password logs out every browser. A page can be hidden (`visible: false`): it has no address of its own and is only read through the users
-holding it.
+A page can be *published* under a name, at its own address, easier to type and to remember than an address full
+of ids: `http://my-yourss-instance/p/fun` instead of
+`http://my-yourss-instance/UCVooVnzQxPSTXTMzSi1s6uw,UCQsmxaMzYr76Yd1iqMEq8TA`. A public page is readable by anyone,
+even when its user is behind a password; published names are unique across the instance.
 
 To configure them:
-- set `YOURSS_USERS_FILE` and point to a *YAML* file where you'll declare your *pages* and *users*
+- set `YOURSS_USERS_FILE` and point to a *YAML* file where you'll declare your *users* and their *pages*
 - see [sample `users.yaml`](./samples/users.yaml) for example
 
 ```yaml
-pages:
-  - name: fun                # letters, digits, - and _, 32 characters at most: /p/fun
-    channels:
-      - "@ben-j"
-      - "@JonnyGiger"
-  - name: cards
-    visible: false           # only through the users holding it
-    channels:
-      - UCQsmxaMzYr76Yd1iqMEq8TA
 users:
-  - name: alice              # /u/alice/fun, /u/alice/cards
+  - name: alice              # letters, digits, - and _, 32 characters at most: /u/alice/fun, /u/alice/cards
     pages:
       - name: fun
+        publish: fun         # optional, also published at /p/fun
+        channels:
+          - "@ben-j"
+          - "@JonnyGiger"
       - name: cards
-        label: Card magic    # optional, free text shown in the sidebar instead of the name
+        channels:
+          - UCQsmxaMzYr76Yd1iqMEq8TA
 ```
 
-> Migrating from 0.82.0: a user with `channels` becomes a page, plus a user of that one page if its `/u/` address must
-> keep working; a user with `folders` becomes one page per folder, plus the user listing them, with the folder names as
-> labels.
+> Migrating from 0.83.0: the top level `pages` are gone, a page now lives in the user listing it, with its `channels`; the
+> `label` is gone, the name is what the sidebar shows. A page held by several users is copied into each one; a page that had its own address (no `visible: false`) gets a
+> `publish` name in one of them, its former name to keep `/p/<name>` working.
 
 ## 🚫 Disable custom pages
 
