@@ -82,7 +82,7 @@ Click a channel in the sidebar to browse it without leaving your page: its recen
 - three themes (neon, dark, light), to pick on the home page or in the settings, and three density levels
 - works on desktop and mobile, can be added to the home screen of a phone
 - instant search in the titles
-- keyboard shortcuts: arrows move in the grid, `Space` plays, `n`/`p` play the next/previous video, `l` listens, `Shift`+`↑`/`↓` change channel… press `?` for the list
+- keyboard shortcuts: arrows move in the grid, `Space` plays, `n`/`p` play the next/previous video, `l` listens, `Shift`+`↑`/`↓` change channel, `Shift`+`←`/`→` change folder… press `?` for the list
 - light: server-rendered pages, [htmx](https://htmx.org/), one CSS file and a few JavaScript modules, no framework, no build step
 
 ## 💡 Philosophy

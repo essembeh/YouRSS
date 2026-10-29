@@ -43,6 +43,8 @@ async def test_page_is_read_only(client: AsyncClient) -> None:
     resp = await client.get("/p/fun")
     assert resp.status_code == 200
     soup = BeautifulSoup(resp.text, features="html.parser")
+    # A page has no folders to step through
+    assert soup.select(".yourss-folder-steps") == []
     assert soup.body is not None and not soup.body.has_attr("data-page-names")
     # No application route in the links: everything points to Youtube
     assert "/proxy/" not in resp.text
@@ -189,6 +191,13 @@ async def test_user_without_folder(client: AsyncClient) -> None:
     assert row["hx-get"] == "/u/alice/Cards" and row["hx-push-url"] == "/u/alice/Cards"
     # A user offers no flat copy
     assert soup.select("a.yourss-copy-page") == []
+    # The sidebar steps through the folders, each row has its icon, closed and open
+    steps = soup.select(".yourss-folder-steps [data-action=folder-step]")
+    assert [str(button["data-step"]) for button in steps] == ["-1", "1"]
+    for summary in soup.select("details.yourss-folder > summary"):
+        icons = [str(use["href"]) for use in summary.select("svg.yourss-folder-icon > use")]
+        assert icons == ["#i-folder", "#i-folder-open"]
+    assert soup.select("symbol#i-folder") and soup.select("symbol#i-folder-open")
 
 
 async def test_user_folder(client: AsyncClient) -> None:

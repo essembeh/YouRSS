@@ -20,6 +20,11 @@
     {% if folders is defined %}
     {# A user (docs/specs/pages-users.md): a tree of its pages, one open at a time, its row is its Home #}
     {% set user_path = "/u/" ~ (user_name|urlencode) %}
+    <div class="yourss-section yourss-folder-steps">
+      <span class="yourss-label">Folders</span>
+      <button type="button" class="yourss-icon-btn is-small yourss-row-btn" data-action="folder-step" data-step="-1" title="Previous folder (Shift+←)" aria-label="Previous folder"><svg class="is-flipped"><use href="#i-chevron" /></svg></button>
+      <button type="button" class="yourss-icon-btn is-small yourss-row-btn" data-action="folder-step" data-step="1" title="Next folder (Shift+→)" aria-label="Next folder"><svg><use href="#i-chevron" /></svg></button>
+    </div>
     {% for item in folders %}
     {% set address = user_path ~ "/" ~ (item.name|urlencode) %}
     {% set current = folder is defined and folder.name == item.name %}
@@ -27,6 +32,7 @@
       <summary class="yourss-nav-item" title="The latest videos of {{ item.name }}" hx-get="{{ address }}" hx-target="#yourss-content" hx-swap="innerHTML show:window:top" hx-sync="#yourss-content:replace"
         hx-push-url="{{ address }}" hx-trigger="click[!event.target.closest('.yourss-caret, [data-action]')]">
         <button type="button" class="yourss-caret" title="Fold / unfold" aria-label="Fold / unfold"><svg><use href="#i-chevron" /></svg></button>
+        <svg class="yourss-folder-icon is-closed"><use href="#i-folder" /></svg><svg class="yourss-folder-icon is-open"><use href="#i-folder-open" /></svg>
         <span class="yourss-label">{{ item.name }}</span>
         <span class="yourss-badge yourss-count" data-watched-feature data-folder-count="{{ item.name }}" hidden></span>
         <button type="button" class="yourss-icon-btn is-small yourss-row-btn" data-watched-feature data-action="mark-feed-watched" title="Mark every video of this folder as watched"><svg><use href="#i-check-all" /></svg></button>

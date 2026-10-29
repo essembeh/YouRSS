@@ -192,7 +192,7 @@ function unfold(el) {
   syncFolderNav()
 }
 
-// The top bar of a phone names the open folder; its chevrons are disabled at both ends
+// The top bar of a phone names the open folder; its chevrons and the sidebar's are disabled at both ends
 function syncFolderNav() {
   const name = $("#yourss-folder-name")
   if (!name) {
@@ -638,15 +638,18 @@ on("keydown", (event) => {
     return
   }
   const video = focusedVideo()
+  const shift = event.shiftKey
+  const folders = folderEls().length > 0
   const shortcuts = {
     "/": () => $("#yourss-search")?.focus(),
     "?": () => $("#yourss-shortcuts").showModal(),
     // In listen mode, Shift + left / right go back / forward 30 seconds in the mini player
-    ArrowRight: () => (listening() && event.shiftKey ? seekBy(30) : moveFocus("right")),
-    ArrowLeft: () => (listening() && event.shiftKey ? seekBy(-30) : moveFocus("left")),
+    // Otherwise, on a user, Shift + left / right open the previous / next folder
+    ArrowRight: () => (shift && listening() ? seekBy(30) : shift && folders ? stepFolder(1) : moveFocus("right")),
+    ArrowLeft: () => (shift && listening() ? seekBy(-30) : shift && folders ? stepFolder(-1) : moveFocus("left")),
     // With Shift, up / down walk the sidebar (Home, then each channel) instead of the grid
-    ArrowDown: () => (event.shiftKey ? moveChannel(1) : moveFocus("down")),
-    ArrowUp: () => (event.shiftKey ? moveChannel(-1) : moveFocus("up")),
+    ArrowDown: () => (shift ? moveChannel(1) : moveFocus("down")),
+    ArrowUp: () => (shift ? moveChannel(-1) : moveFocus("up")),
     n: () => step(1),
     p: () => step(-1),
     // Space plays the selected card (in listen mode: play / pause); without a selection, it scrolls the page
