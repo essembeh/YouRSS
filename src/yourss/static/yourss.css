@@ -351,8 +351,8 @@ body.density-compact .yourss-video-channel { display: none; }
 }
 
 /* ---- card ---- */
-.yourss-video { position: relative; display: flex; flex-direction: column; background: var(--bg-elev); border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; min-width: 0; transition: border-color .15s, box-shadow .15s; }
-.yourss-video:hover { border-color: var(--line-strong); box-shadow: 0 10px 30px var(--shadow); }
+.yourss-video, .yourss-card { position: relative; display: flex; flex-direction: column; background: var(--bg-elev); border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; min-width: 0; transition: border-color .15s, box-shadow .15s; }
+.yourss-video:hover, .yourss-card:hover { border-color: var(--line-strong); box-shadow: 0 10px 30px var(--shadow); }
 .yourss-video.is-focused { outline: 2px solid var(--accent); outline-offset: 0; }
 .yourss-video.is-filtered { display: none; }
 body.hide-watched .yourss-video.is-watched:not(.is-playing) { display: none; }
@@ -362,6 +362,10 @@ body.hide-watched.watched-ready .yourss-grid:not(:has(.yourss-video:not(.is-watc
 .yourss-media.is-portrait { aspect-ratio: 9 / 16; }
 .yourss-thumbnail { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; transition: transform .25s ease, opacity .2s; }
 .yourss-media:hover .yourss-thumbnail { transform: scale(1.03); }
+/* A playlist card: its thumbnail opens the playlist, the count of its videos over it */
+a.yourss-media { display: block; }
+.yourss-card-count { position: absolute; right: .5rem; bottom: .5rem; display: inline-flex; align-items: center; gap: .3rem; padding: .15rem .45rem; border-radius: 6px; font-size: .75rem; font-weight: 600; color: #fff; background: rgba(0, 0, 0, .75); }
+.yourss-card-count svg { width: 14px; height: 14px; }
 .yourss-play-badge { position: absolute; inset: 0; display: grid; place-items: center; pointer-events: none; opacity: 0; transition: opacity .15s; background: rgba(0,0,0,.25); }
 .yourss-play-badge svg { width: 56px; height: 56px; fill: #fff; stroke: none; filter: drop-shadow(0 2px 8px rgba(0,0,0,.6)); }
 .yourss-media:hover .yourss-play-badge { opacity: 1; }
@@ -447,6 +451,10 @@ body:not(.listening) .yourss-stage.is-docked.is-portrait .yourss-stage-player { 
 .yourss-listen-nav-entry.is-open > .yourss-listen-nav-item { background: var(--bg-hover); border-radius: 12px 12px 0 0; }
 .yourss-listen-nav-tabs { display: none; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: .35rem; padding: .35rem .5rem .6rem; margin-bottom: .3rem; background: var(--bg-hover); border-radius: 0 0 12px 12px; }
 .yourss-listen-nav-entry.is-open .yourss-listen-nav-tabs { display: grid; }
+/* The playlists of the shown channel, under its tabs once its Playlists tab is open */
+.yourss-listen-nav-playlists { display: none; flex-direction: column; margin: -.3rem 0 .3rem; padding: 0 .25rem .4rem; background: var(--bg-hover); border-radius: 0 0 12px 12px; }
+.yourss-listen-nav-entry.is-open .yourss-listen-nav-playlists { display: flex; }
+.yourss-listen-nav-entry.is-open:has(.yourss-listen-nav-playlists) .yourss-listen-nav-tabs { border-radius: 0; }
 .yourss-listen-nav-tab { height: 40px; padding: 0 .3rem; border: 1px solid var(--line-strong); border-radius: 10px; background: var(--bg-dialog, var(--bg-elev)); color: var(--fg); font: 600 .85rem var(--font); cursor: pointer; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .yourss-listen-nav-tab.is-current { border-color: var(--accent); color: var(--accent-text, var(--accent)); }
 .yourss-stage-close:hover { background: var(--accent); color: var(--accent-fg); }
@@ -545,6 +553,10 @@ body.listening .yourss-listen-btn svg { color: var(--accent); }
 .yourss-hero-handle { margin-left: .35rem; font-size: .95rem; font-weight: 400; letter-spacing: 0; color: var(--fg-muted); }
 .yourss-hero-actions { display: flex; flex-wrap: wrap; gap: .5rem; }
 .yourss-tabs-bar { padding: .5rem 0; margin-bottom: 1rem; border-bottom: 1px solid var(--line); overflow-x: auto; scrollbar-width: none; }
+/* A playlist of a channel: back to its playlists, then the name of the playlist instead of the tabs */
+.yourss-crumb { display: flex; align-items: center; gap: .5rem; }
+.yourss-crumb-title { flex: 1; min-width: 0; margin: 0; font-size: 1.1rem; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.yourss-crumb-back { flex: none; width: 40px; height: 40px; border-radius: 50%; background: var(--bg-elev); border: 1px solid var(--line-strong); }
 .yourss-tabs { display: inline-flex; gap: .25rem; background: var(--bg-elev); border-radius: 999px; padding: 4px; }
 .yourss-tab { border: 0; background: transparent; color: var(--fg-muted); padding: .45rem 1.1rem; border-radius: 999px; font-weight: 600; white-space: nowrap; }
 .yourss-tab.active { background: var(--fg); color: var(--bg); }

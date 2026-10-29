@@ -2,27 +2,15 @@
 
 from typing import Any
 
-from .channel import Continuation, VideoPage
+from .channel import Continuation, VideoPage, list_continuation_token
 from .errors import ScrapingError
 from .extract import extract_client_version, extract_initial_data
 from .items import parse_playlist_videos
-from .walk import find_key, iter_key
-
-# The last item of a list loads the next page; a continuation elsewhere loads suggestions, not the playlist
-_CONTINUATION_ITEMS = ("continuationItemViewModel", "continuationItemRenderer")
-
-
-def _next_token(last: Any) -> str | None:
-    if not isinstance(last, dict) or not any(key in last for key in _CONTINUATION_ITEMS):
-        return None
-    # A continuation item nests a tokenless command around the one holding the token
-    return next(
-        (command["token"] for command in iter_key("continuationCommand", last, dict) if command.get("token")), None
-    )
+from .walk import find_key
 
 
 def _list_page(items: list[Any], client_version: str | None) -> VideoPage:
-    token = _next_token(items[-1] if items else None)
+    token = list_continuation_token(items)
     return VideoPage(
         videos=parse_playlist_videos({"items": items}),
         continuation=Continuation(token=token, client_version=client_version) if token and client_version else None,

@@ -1,0 +1,14 @@
+{# A playlist opened from the Playlists tab of a channel: the channel keeps its header, the bar names the playlist
+   and goes back to the playlists of the channel (docs/specs/playlist-tabs.md) #}
+{% include "partials/channel-hero.jinja-html" %}
+
+{% set back = link_prefix ~ "c=" ~ channel.channel_id %}
+<div class="yourss-tabs-bar yourss-crumb" data-channel-playlist="{{ playlist.playlist_id }}">
+  <a class="yourss-icon-btn yourss-crumb-back" href="{{ back }}" hx-get="/htmx/channel/{{ channel.channel_id }}?tab=playlists" hx-target="#yourss-content"
+    hx-sync="#yourss-content:replace" hx-push-url="{{ back }}" title="Back to the playlists of {{ channel.name }}" aria-label="Back to the playlists"><svg><use href="#i-return" /></svg></a>
+  <h2 class="yourss-crumb-title" title="{{ playlist.title }}">{{ playlist.title }}</h2>
+  <a class="yourss-icon-btn" href="https://www.youtube.com/playlist?list={{ playlist.playlist_id }}" target="_blank" rel="noopener" title="Open on Youtube" aria-label="Open on Youtube"><svg><use href="#i-youtube" /></svg></a>
+  <a class="yourss-icon-btn" href="https://www.youtube.com/feeds/videos.xml?playlist_id={{ playlist.playlist_id }}" target="_blank" rel="noopener" title="RSS feed" aria-label="RSS feed"><svg><use href="#i-rss" /></svg></a>
+</div>
+
+<div id="tab-content" class="yourss-tab-content" hx-get="/htmx/playlist/{{ playlist.playlist_id }}/all" hx-trigger="load" hx-indicator="#tab-content" hx-sync="#tab-content:replace"></div>

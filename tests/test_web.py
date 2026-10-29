@@ -382,7 +382,7 @@ async def test_htmx_channel_tabs(client: AsyncClient) -> None:
     assert len(soup.find_all("div", id=re.compile(r"^yourss-video-"))) == 0
     assert soup.find("div", class_="yourss-empty") is not None
 
-    resp = await client.get(f"/htmx/playlists/{channel}", headers=HTMX)
+    resp = await client.get(f"/htmx/posts/{channel}", headers=HTMX)
     assert resp.status_code == 422
 
 
@@ -561,3 +561,73 @@ async def test_pages_are_compressed_on_request(client: AsyncClient) -> None:
     assert int(resp.headers["content-length"]) < len(resp.content) / 5  # the body is decompressed by the client
     plain = await client.get("/u/alice/Homepage", headers={"Accept-Encoding": "identity"})
     assert plain.status_code == 200 and "content-encoding" not in plain.headers
+
+
+async def test_htmx_channel_playlists_tab(client: AsyncClient) -> None:
+    resp = await client.get("/htmx/channel/UCVooVnzQxPSTXTMzSi1s6uw", headers=HTMX)
+    soup = BeautifulSoup(resp.text, features="html.parser")
+    tabs = {tab.get_text(strip=True): tab for tab in soup.select(".yourss-tabs .yourss-tab")}
+    # Shown when the channel has one; it holds playlists, nothing to listen to
+    assert tabs["Playlists"]["hx-get"] == "/htmx/playlists/UCVooVnzQxPSTXTMzSi1s6uw"
+    assert not tabs["Playlists"].has_attr("data-no-listen")
+
+    # MIT OpenCourseWare: hundreds of playlists and courses, 30 per page
+    headers = HTMX | {"HX-Current-URL": "http://test/u/alice/Music"}
+    resp = await client.get("/htmx/playlists/UCEBb1b_L6zDS3xTUrIALZOw", headers=headers)
+    assert resp.status_code == 200
+    soup = BeautifulSoup(resp.text, features="html.parser")
+    cards = soup.select(".yourss-card")
+    assert cards and not soup.select(".yourss-video")
+    # A card opens the playlist under its channel, at the address naming both
+    mit = "UCEBb1b_L6zDS3xTUrIALZOw"
+    playlist = str(cards[0]["data-playlist-id"])
+    (link,) = cards[0].select("a.yourss-media")
+    assert link["hx-get"] == f"/htmx/playlist/{playlist}?tab=all&channel={mit}"
+    assert link["hx-push-url"] == link["href"] == f"/u/alice/Music?c={mit}&p={playlist}"
+    assert cards[-1].has_attr("hx-get") and f"owner={mit}" in str(cards[-1]["hx-get"])
+
+    resp = await client.get(str(cards[-1]["hx-get"]), headers=headers)
+    soup = BeautifulSoup(resp.text, features="html.parser")
+    more = {str(card["data-playlist-id"]) for card in soup.select(".yourss-card")}
+    assert more and not more & {str(card["data-playlist-id"]) for card in cards}
+    # The next cards still open their playlist under the channel
+    assert all(f"&channel={mit}" in str(a["hx-get"]) for a in soup.select(".yourss-card a.yourss-media"))
+
+    # The header of the channel stays, the name of the playlist and a way back replace the tabs
+    resp = await client.get(f"/htmx/playlist/{playlist}?tab=all&channel={mit}", headers=headers)
+    soup = BeautifulSoup(resp.text, features="html.parser")
+    hero = soup.select_one(".yourss-hero")
+    assert hero is not None and hero["data-channel-page"] == mit
+    assert not soup.select(".yourss-tabs")
+    (crumb,) = soup.select(".yourss-crumb")
+    assert crumb["data-channel-playlist"] == playlist and crumb.select_one(".yourss-crumb-title")
+    (back,) = crumb.select("a.yourss-crumb-back")
+    assert back["hx-get"] == f"/htmx/channel/{mit}?tab=playlists"
+    assert back["hx-push-url"] == back["href"] == f"/u/alice/Music?c={mit}"
+    (content,) = soup.select("#tab-content")
+    assert content["hx-get"] == f"/htmx/playlist/{playlist}/all"
+
+    # Back: the channel opens on its Playlists tab
+    resp = await client.get(f"/htmx/channel/{mit}?tab=playlists", headers=headers)
+    soup = BeautifulSoup(resp.text, features="html.parser")
+    (active,) = soup.select(".yourss-tab.active")
+    assert active.get_text(strip=True) == "Playlists"
+    (content,) = soup.select("#tab-content")
+    assert content["hx-get"] == f"/htmx/playlists/{mit}"
+
+    # Out of a channel (a playlist of the sidebar), the playlist opens on its own tabs
+    resp = await client.get(f"/htmx/playlist/{playlist}?tab=all", headers=HTMX)
+    soup = BeautifulSoup(resp.text, features="html.parser")
+    (active,) = soup.select(".yourss-tab.active")
+    assert active.get_text(strip=True) == "All"
+    (content,) = soup.select("#tab-content")
+    assert content["hx-get"] == f"/htmx/playlist/{playlist}/all" and not content.select(".yourss-video")
+    resp = await client.get(f"/htmx/playlist/{playlist}/all", headers=HTMX)
+    assert BeautifulSoup(resp.text, features="html.parser").select(".yourss-video")
+
+
+async def test_htmx_playlists_tab_without_playlists(client: AsyncClient) -> None:
+    resp = await client.get("/htmx/playlists/UCVooVnzQxPSTXTMzSi1s6uw", headers=HTMX)
+    soup = BeautifulSoup(resp.text, features="html.parser")
+    # A dozen playlists, nothing more to load
+    assert soup.select(".yourss-card") and not soup.select(".yourss-card[hx-get]")

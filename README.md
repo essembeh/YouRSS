@@ -75,7 +75,7 @@ Turn on the *Mini player* in the settings: when you scroll away, the video keeps
 
 ### 📂 Channels and playlists, inside the page
 
-Click a channel in the sidebar to browse it without leaving your page: its recent videos, all its videos, its shorts and its streams. A playlist opens the same way, with two tabs: Recent, what its feed holds, and All, every video of the list in its order.
+Click a channel in the sidebar to browse it without leaving your page: its recent videos, all its videos, its shorts, its streams and its playlists. A playlist opens the same way, with two tabs: Recent, what its feed holds, and All, every video of the list in its order; a playlist picked in a channel opens on All, under the header of the channel, with a button back to its playlists.
 
 ### 🎁 And also
 

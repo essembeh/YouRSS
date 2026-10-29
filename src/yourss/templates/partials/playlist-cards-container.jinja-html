@@ -1,0 +1,7 @@
+{% if playlists %}
+<div class="yourss-grid">
+  {% include "partials/playlist-cards.jinja-html" %}
+</div>
+{% else %}
+{% include "partials/empty.jinja-html" %}
+{% endif %}

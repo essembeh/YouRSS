@@ -99,7 +99,7 @@ def test_channel_page_metadata_and_tabs() -> None:
     assert page.channel.handle == "@JonnyGiger"
     # The advertised avatar is resized to what the UI needs
     assert page.channel.avatar == "https://yt3.googleusercontent.com/abc=s176-c-k-c0x00ffffff-no-rj"
-    assert page.tabs == ["videos", "shorts"]
+    assert page.tabs == ["videos", "shorts", "playlists"]
     assert page.selected_tab == "videos"
 
 

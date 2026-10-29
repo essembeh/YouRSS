@@ -162,12 +162,17 @@ function moveChannel(step) {
 }
 
 // Open what the URL names when the page shows something else (fresh load, pasted URL).
+// `?c=<channel>&p=<playlist>` is a playlist of the channel, opened from its Playlists tab.
 function syncChannelFromUrl() {
   const wanted = selectionFromUrl()
   const shown = $("#yourss-content [data-channel-page]")?.dataset.channelPage
   const listed = wanted && $(`.yourss-${wanted.kind}[data-${wanted.kind}-id="${CSS.escape(wanted.id)}"]`)
-  if (listed && wanted.id !== shown) {
-    htmx.ajax("GET", `/htmx/${wanted.kind}/${encodeURIComponent(wanted.id)}`, { target: "#yourss-content" })
+  const nested = wanted?.kind === "channel" ? new URLSearchParams(location.search).get("p") : null
+  const shownNested = $("#yourss-content [data-channel-playlist]")?.dataset.channelPlaylist ?? null
+  if (listed && (wanted.id !== shown || nested !== shownNested)) {
+    const id = encodeURIComponent(wanted.id)
+    const url = nested ? `/htmx/playlist/${encodeURIComponent(nested)}?tab=all&channel=${id}` : `/htmx/${wanted.kind}/${id}`
+    htmx.ajax("GET", url, { target: "#yourss-content" })
   }
   markActiveChannel()
 }

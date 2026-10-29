@@ -91,13 +91,19 @@ def build_url(base_url: str, params: dict[str, Any]) -> str:
     return base_url + "?" + urlencode(params)
 
 
-def next_page_url(continuation: Continuation | None, *, shorts: bool = False, playlist: bool = False) -> str | None:
-    """URL of the htmx request which appends the next page of a channel tab, or of the whole list of a playlist."""
+def next_page_url(
+    continuation: Continuation | None, *, shorts: bool = False, playlist: bool = False, owner: str | None = None
+) -> str | None:
+    """URL of the htmx request which appends the next page of a channel tab, of the whole list of a playlist
+    (`playlist`), or of the playlists of the channel `owner`."""
     if continuation is None:
         return None
     params: dict[str, Any] = {"token": continuation.token, "version": continuation.client_version, "shorts": shorts}
     if playlist:
         params["playlist"] = True
+    if owner:
+        params["cards"] = True
+        params["owner"] = owner
     return build_url("/htmx/next", params)
 
 

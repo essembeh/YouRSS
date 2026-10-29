@@ -1,19 +1,8 @@
-{% from "partials/macros.jinja-html" import avatar %}
-<section class="yourss-hero" data-channel-page="{{ channel.channel_id }}">
-  {{ avatar(channel, 96, "yourss-hero-avatar") }}
-  <div class="yourss-hero-info">
-    <h1>{{ channel.name }}{% if channel.handle %} <span class="yourss-hero-handle">{{ channel.handle }}</span>{% endif %}</h1>
-    <div class="yourss-hero-actions">
-      <a class="yourss-btn yt" href="{{ channel.home }}" target="_blank" rel="noopener"><svg><use href="#i-youtube" /></svg><span>YouTube</span></a>
-      <a class="yourss-btn rss" href="https://www.youtube.com/feeds/videos.xml?channel_id={{ channel.channel_id }}" target="_blank" rel="noopener"><svg><use href="#i-rss" /></svg><span>RSS</span></a>
-      <button type="button" class="yourss-btn" data-watched-feature data-action="mark-channel-watched" data-channel-id="{{ channel.channel_id }}" title="Mark the videos of this channel as watched"><svg><use href="#i-check-all" /></svg><span>Mark all watched</span></button>
-    </div>
-  </div>
-</section>
+{% include "partials/channel-hero.jinja-html" %}
 
 <div class="yourss-tabs-bar">
   <div class="yourss-tabs" role="tablist">
-    <button type="button" class="yourss-tab active" role="tab" data-action="tab" hx-get="/htmx/rss/{{ channel.channel_id }}" hx-target="#tab-content" hx-indicator="#tab-content" hx-sync="#tab-content:replace">Recent</button>
+    <button type="button" class="yourss-tab{% if open_tab != 'playlists' %} active{% endif %}" role="tab" data-action="tab" hx-get="/htmx/rss/{{ channel.channel_id }}" hx-target="#tab-content" hx-indicator="#tab-content" hx-sync="#tab-content:replace">Recent</button>
     {% if tabs is not defined or "videos" in tabs %}
     <button type="button" class="yourss-tab" role="tab" data-action="tab" hx-get="/htmx/videos/{{ channel.channel_id }}" hx-target="#tab-content" hx-indicator="#tab-content" hx-sync="#tab-content:replace">Videos</button>
     {% endif %}
@@ -23,7 +12,13 @@
     {% if tabs is not defined or "streams" in tabs %}
     <button type="button" class="yourss-tab" role="tab" data-action="tab" hx-get="/htmx/streams/{{ channel.channel_id }}" hx-target="#tab-content" hx-indicator="#tab-content" hx-sync="#tab-content:replace">Streams</button>
     {% endif %}
+    {# Playlists, not videos: chosen in the listen sheet, it lists them to pick one (listen-mode.md) #}
+    {% if tabs is defined and "playlists" in tabs %}
+    <button type="button" class="yourss-tab{% if open_tab == 'playlists' %} active{% endif %}" role="tab" data-action="tab" hx-get="/htmx/playlists/{{ channel.channel_id }}" hx-target="#tab-content" hx-indicator="#tab-content" hx-sync="#tab-content:replace">Playlists</button>
+    {% endif %}
   </div>
 </div>
 
-<div id="tab-content" class="yourss-tab-content" hx-get="/htmx/rss/{{ channel.channel_id }}" hx-trigger="load" hx-indicator="#tab-content" hx-sync="#tab-content:replace"></div>
+{# Back from one of its playlists, the channel opens on its Playlists tab #}
+{% set opened = "/htmx/playlists/" if open_tab == "playlists" else "/htmx/rss/" %}
+<div id="tab-content" class="yourss-tab-content" hx-get="{{ opened }}{{ channel.channel_id }}" hx-trigger="load" hx-indicator="#tab-content" hx-sync="#tab-content:replace"></div>

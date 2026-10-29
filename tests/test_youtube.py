@@ -78,8 +78,8 @@ async def test_channel_page(name: str) -> None:
     assert page.channel.home == f"https://www.youtube.com/channel/{CHANNEL}"
     assert page.channel.avatar is not None
     assert page.selected_tab is None
-    # This channel publishes videos and shorts but no live stream
-    assert page.tabs == ["videos", "shorts"]
+    # This channel publishes videos, shorts and playlists, but no live stream
+    assert page.tabs == ["videos", "shorts", "playlists"]
 
 
 async def test_channel_cached(monkeypatch: MonkeyPatch, tmp_path: Path) -> None:
@@ -387,3 +387,20 @@ async def test_playlist_videos_next_pages() -> None:
     assert len(page.videos) == 100 and page.continuation is not None
     more = await api.get_more_playlist_videos(page.continuation)
     assert more.videos and not {video.video_id for video in more.videos} & {video.video_id for video in page.videos}
+
+
+async def test_playlists_tab() -> None:
+    page = await YoutubeApi().get_channel_page(CHANNEL, "playlists")
+    assert "playlists" in page.tabs
+    cards = page.playlists()
+    assert cards.playlists and all(card.playlist_id.startswith(("PL", "FL")) for card in cards.playlists)
+    assert all(card.title and card.thumbnail and card.count_text for card in cards.playlists)
+    # A dozen playlists, one page: the continuation of the side panel is not the one of the grid
+    assert cards.continuation is None
+
+
+async def test_playlists_tab_next_page() -> None:
+    api = YoutubeApi()
+    # MIT OpenCourseWare: hundreds of playlists and courses, 30 per page
+    first = (await api.get_channel_page("UCEBb1b_L6zDS3xTUrIALZOw", "playlists")).playlists()
+    assert len(first.playlists) == 30 and first.continuation is not None

@@ -48,3 +48,13 @@ class VideoDescription(BaseModel, frozen=True):
                 "thumbnail": f"https://i.ytimg.com/vi/{data['video_id']}/hqdefault.jpg",
             }
         return data
+
+
+class PlaylistDescription(BaseModel, frozen=True):
+    """A playlist as a card of the Playlists tab of a channel shows it."""
+
+    playlist_id: str
+    title: str
+    thumbnail: str = ""
+    # The text Youtube displays, like "11 videos"
+    count_text: str | None = None

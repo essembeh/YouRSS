@@ -20,12 +20,14 @@ from .scraping import (
     ChannelPage,
     ChannelTab,
     Continuation,
+    PlaylistCardPage,
     ScrapingError,
     VideoPage,
     parse_channel_page,
     parse_continuation,
     parse_playlist_continuation,
     parse_playlist_page,
+    parse_playlists_continuation,
 )
 from .utils import is_channel_id, is_user, parse_channel_reference
 
@@ -159,6 +161,10 @@ class YoutubeApi(RapidApi):
     async def get_more_videos(self, continuation: Continuation, *, shorts: bool = False) -> VideoPage:
         """Next page of a channel tab."""
         return parse_continuation(await self._browse(continuation), continuation, shorts=shorts)
+
+    async def get_more_playlists(self, continuation: Continuation) -> PlaylistCardPage:
+        """Next page of the Playlists tab of a channel."""
+        return parse_playlists_continuation(await self._browse(continuation), continuation)
 
     async def _browse(self, continuation: Continuation) -> dict[str, Any]:
         return await self.api_browse(

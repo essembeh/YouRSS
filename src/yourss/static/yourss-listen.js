@@ -167,7 +167,10 @@ const entriesList = () => $("details.yourss-folder[open] .yourss-channels") || $
 const shownSource = () => $(".yourss-hero[data-channel-page]")?.dataset.channelPage
 const shownTabs = () => $$(".yourss-tabs .yourss-tab")
 // The tabs of a channel not shown yet are not in the page: the usual ones, a missing one falls back to Recent
-const TABS = ["Recent", "Videos", "Shorts", "Streams"]
+const TABS = ["Recent", "Videos", "Shorts", "Streams", "Playlists"]
+// The Playlists tab holds playlists, not videos: chosen here, the sheet comes back to pick one (`data-listen-pick`)
+const PLAYLISTS = "Playlists"
+const shownPlaylists = () => $$("#tab-content .yourss-card[data-playlist-id]")
 
 function icon(name) {
   const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg")
@@ -231,6 +234,17 @@ function buildNav(list) {
         tabs.append(chip)
       })
       li.append(tabs)
+      const playlists = id === shown ? shownPlaylists() : []
+      if (playlists.length) {
+        const picks = document.createElement("div")
+        picks.className = "yourss-listen-nav-playlists"
+        for (const card of playlists) {
+          const title = $(".yourss-video-title", card)?.textContent.trim() || card.dataset.playlistId
+          const data = { action: "listen-go", go: "card", id: card.dataset.playlistId }
+          picks.append(navButton("yourss-listen-nav-item", data, [icon("list"), label(title)]))
+        }
+        li.append(picks)
+      }
       li.classList.toggle("is-open", id === shown)
     }
     rows.push(li)
@@ -282,14 +296,24 @@ export function listenNavGo(el) {
     }
   } else if (go === "entry") {
     entryLink(id)?.click()
-  } else if (id === shownSource()) {
+  } else if (go === "card") {
+    // The playlist opens on All, its first video starts
+    $(`.yourss-card[data-playlist-id="${CSS.escape(id)}"] a.yourss-media`)?.click()
+  } else if (id === shownSource() && shownTabs().some((button) => button.textContent.trim() === tab)) {
+    if (tab === PLAYLISTS) {
+      document.body.dataset.listenPick = "1"
+    }
     shownTabs()
       .find((button) => button.textContent.trim() === tab)
       ?.click()
   } else {
+    // A channel not shown, or shown without its tabs (one of its playlists): it loads again, then the tab opens
     const link = entryLink(id)
     if (link && tab !== TABS[0]) {
       document.body.dataset.listenTab = tab
+    }
+    if (link && tab === PLAYLISTS) {
+      document.body.dataset.listenPick = "1"
     }
     link?.click()
   }
@@ -342,6 +366,14 @@ export function listenRefresh() {
     const tab = shownTabs().find((button) => button.textContent.trim() === pending)
     if (tab) {
       tab.click()
+      return
+    }
+  }
+  // The playlists of the channel are in: the sheet lists them, nothing to play until one is picked
+  if (document.body.dataset.listenPick) {
+    delete document.body.dataset.listenPick
+    if (shownPlaylists().length) {
+      listenNav(true)
       return
     }
   }

@@ -1,10 +1,13 @@
 from .client import YoutubeApi as YoutubeApi
 from .model import ChannelDescription as ChannelDescription
+from .model import PlaylistDescription as PlaylistDescription
 from .model import VideoDescription as VideoDescription
 from .schema import Feed as Feed
+from .scraping import PLAYLIST_TABS as PLAYLIST_TABS
 from .scraping import ChannelPage as ChannelPage
 from .scraping import ChannelTab as ChannelTab
 from .scraping import Continuation as Continuation
+from .scraping import PlaylistCardPage as PlaylistCardPage
 from .scraping import ScrapingError as ScrapingError
 from .scraping import VideoPage as VideoPage
 from .utils import is_channel_id as is_channel_id

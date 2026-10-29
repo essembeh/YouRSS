@@ -8,7 +8,7 @@ from typing import Any
 
 from glom import Coalesce, GlomError, glom  # type: ignore[import-untyped]  # glom has no type hints
 
-from ..model import ChannelDescription, VideoDescription
+from ..model import ChannelDescription, PlaylistDescription, VideoDescription
 from .errors import ScrapingError
 from .walk import find_key, iter_key
 
@@ -299,3 +299,43 @@ def parse_videos(payload: dict[str, Any], *, shorts: bool = False) -> list[Video
 def parse_playlist_videos(payload: dict[str, Any]) -> list[VideoDescription]:
     """Videos of a playlist found anywhere in ``payload``, in playlist order, with their channel."""
     return [VideoDescription(**item) for item in parse_items(payload, PLAYLIST_PARSERS)]
+
+
+class LockupPlaylistParser(ItemParser):
+    """``lockupViewModel`` playlists, the Playlists tab of a channel (podcasts and courses are playlists too)."""
+
+    node_key = "lockupViewModel"
+    _KINDS = ("PLAYLIST", "PODCAST", "COURSE")
+
+    _TITLE = Coalesce("metadata.lockupMetadataViewModel.title.content", default=None)
+    _THUMBNAIL = Coalesce(
+        "contentImage.collectionThumbnailViewModel.primaryThumbnail.thumbnailViewModel.image.sources.0.url",
+        default="",
+    )
+
+    def extract(self, node: dict[str, Any]) -> dict[str, Any] | None:
+        if not node.get("contentType", "").endswith(self._KINDS):
+            return None
+        playlist_id, title = node.get("contentId"), glom(node, self._TITLE)
+        if not playlist_id or not title:
+            return None
+        badges = iter_key("thumbnailBadgeViewModel", node.get("contentImage") or {}, dict)
+        return {
+            "playlist_id": playlist_id,
+            "title": title,
+            "thumbnail": glom(node, self._THUMBNAIL),
+            "count_text": next((badge["text"] for badge in badges if badge.get("text")), None),
+        }
+
+
+PLAYLIST_CARD_PARSERS: list[ItemParser] = [LockupPlaylistParser()]
+
+
+def parse_playlist_cards(payload: dict[str, Any]) -> list[PlaylistDescription]:
+    """Playlists found anywhere in ``payload``, in page order; like the videos, nodes none can read are an error."""
+    for parser in PLAYLIST_CARD_PARSERS:
+        if items := parser.parse(payload):
+            return [PlaylistDescription(**item) for item in items]
+    if any(next(iter_key(parser.node_key, payload, dict), None) is not None for parser in PLAYLIST_CARD_PARSERS):
+        raise ScrapingError("Youtube payload contains playlist-like nodes but none could be parsed.")
+    return []

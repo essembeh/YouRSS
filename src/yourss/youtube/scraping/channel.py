@@ -8,16 +8,18 @@ from typing import Any, Literal, get_args
 from glom import Coalesce, glom  # type: ignore[import-untyped]  # glom has no type hints
 from pydantic import BaseModel
 
-from ..model import ChannelDescription, VideoDescription
+from ..model import ChannelDescription, PlaylistDescription, VideoDescription
 from ..utils import parse_channel_reference
 from .errors import ScrapingError
 from .extract import extract_client_version, extract_initial_data
-from .items import parse_videos
+from .items import parse_playlist_cards, parse_videos
 from .walk import find_key, iter_key
 
 # Tabs of a channel, named after the last segment of their Youtube URL
-ChannelTab = Literal["videos", "shorts", "streams"]
+ChannelTab = Literal["videos", "shorts", "streams", "playlists"]
 CHANNEL_TABS: tuple[str, ...] = get_args(ChannelTab)
+# The tabs listing playlists rather than videos
+PLAYLIST_TABS: tuple[str, ...] = ("playlists",)
 
 # Where things live in ytInitialData: the only place to touch when Youtube moves them
 _CHANNEL = Coalesce("metadata.channelMetadataRenderer", default=None)
@@ -48,6 +50,42 @@ def _video_page(payload: dict[str, Any], client_version: str | None, shorts: boo
     )
 
 
+class PlaylistCardPage(BaseModel):
+    playlists: list[PlaylistDescription]
+    continuation: Continuation | None = None
+
+
+# The last item of a list loads its next page; a continuation elsewhere (a side panel, suggestions) loads something else
+_CONTINUATION_ITEMS = ("continuationItemViewModel", "continuationItemRenderer")
+
+
+def list_continuation_token(items: list[Any]) -> str | None:
+    """The token of the next page of a list, held by its last item when there is one."""
+    last = items[-1] if items else None
+    if not isinstance(last, dict) or not any(key in last for key in _CONTINUATION_ITEMS):
+        return None
+    # A continuation item nests a tokenless command around the one holding the token
+    return next(
+        (command["token"] for command in iter_key("continuationCommand", last, dict) if command.get("token")), None
+    )
+
+
+def _card_items(payload: dict[str, Any]) -> list[Any]:
+    # Playlists sit in a grid, a next page in the items of a continuation
+    if (grid := find_key("gridRenderer", payload, dict)) is not None:
+        return list(grid.get("items") or [])
+    return list(find_key("continuationItems", payload, list) or [])
+
+
+def _playlist_card_page(payload: dict[str, Any], client_version: str | None) -> PlaylistCardPage:
+    items = _card_items(payload)
+    token = list_continuation_token(items)
+    return PlaylistCardPage(
+        playlists=parse_playlist_cards({"items": items}),
+        continuation=Continuation(token=token, client_version=client_version) if token and client_version else None,
+    )
+
+
 @dataclass(frozen=True)
 class ChannelPage:
     channel: ChannelDescription
@@ -60,6 +98,10 @@ class ChannelPage:
     def videos(self, *, shorts: bool = False) -> VideoPage:
         """First page of videos (or shorts) displayed by this page."""
         return _video_page(self.data, self.client_version, shorts)
+
+    def playlists(self) -> PlaylistCardPage:
+        """First page of playlists displayed by this page (the Playlists tab)."""
+        return _playlist_card_page(self.data, self.client_version)
 
 
 def _parse_channel(data: dict[str, Any]) -> ChannelDescription:
@@ -103,3 +145,8 @@ def parse_channel_page(html: str) -> ChannelPage:
 def parse_continuation(payload: dict[str, Any], continuation: Continuation, *, shorts: bool = False) -> VideoPage:
     """Next page of a tab, from the response of the ``browse`` endpoint."""
     return _video_page(payload, continuation.client_version, shorts)
+
+
+def parse_playlists_continuation(payload: dict[str, Any], continuation: Continuation) -> PlaylistCardPage:
+    """Next page of a Playlists tab, from the response of the ``browse`` endpoint."""
+    return _playlist_card_page(payload, continuation.client_version)
