@@ -69,6 +69,8 @@ class Page(BaseModel):
     name: Name
     # The name of the page at `/p/<publish>`, unique across the users
     publish: Name | None = None
+    # Refreshed by the background warm-up (YOURSS_WARMUP_ENABLED); off, its feeds are only fetched on a visit
+    warmup: bool = True
     channels: Channels
 
 

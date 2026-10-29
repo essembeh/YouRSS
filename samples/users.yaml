@@ -20,6 +20,8 @@ users:
 
       # A page not published is only read through its user
       - name: Cards
+        # Not refreshed in the background by the warm-up, only when visited (true by default)
+        warmup: false
         channels:
           - UCQsmxaMzYr76Yd1iqMEq8TA
 

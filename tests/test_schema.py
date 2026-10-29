@@ -19,6 +19,7 @@ def test_sample_users_file() -> None:
     alice, bob = config.users
     assert [page.name for page in alice.pages] == ["Homepage", "Cards", "Podcast", "Music"]
     assert [page.publish for page in alice.pages] == ["fun", None, None, "music"]
+    assert [page.warmup for page in config.pages] == [True, False, True, True, True]
     assert alice.page("Cards") is not None and alice.page("unknown") is None
     assert [page.name for page in bob.pages] == ["Homepage"] and bob.password is not None
     assert [page.name for page in config.pages] == ["Homepage", "Cards", "Podcast", "Music", "Homepage"]

@@ -63,7 +63,7 @@ Durations are ISO-8601 (`PT30M`, `PT48H`) or a number of seconds.
 ### Warmup
 
 With the cache on, `yourss.warmupEnabled: true` makes the application refresh the feeds of every
-page in the background: a first round at startup, then one every `cacheRssTtl` minus a minute, so that a
+page (but those with `warmup: false`) in the background: a first round at startup, then one every `cacheRssTtl` minus a minute, so that a
 visitor always finds fresh feeds and channel metadata on disk, and still gets them from the
 fallback cache during Youtube's bad hours. It asks Youtube whether anyone visits or not, which is
 why it is off by default. Each pod refreshes its own cache; the failures are in the application
@@ -90,6 +90,7 @@ yourss:
             - "@jonnygiger"
             - UCVooVnzQxPSTXTMzSi1s6uw
         - name: cards
+          warmup: false # not refreshed by the warm-up, only on a visit
           channels:
             - UCQsmxaMzYr76Yd1iqMEq8TA
 ```

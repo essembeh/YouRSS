@@ -68,6 +68,7 @@ yourss:
     #         - "@jonnygiger"
     #         - "@berrics"
     #     - name: cards
+    #       warmup: false # optional, left out of the background refresh
     #       channels:
     #         - UCQsmxaMzYr76Yd1iqMEq8TA
 

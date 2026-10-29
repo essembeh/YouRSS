@@ -5,9 +5,12 @@ from pathlib import Path
 from loguru import logger
 from pytest import MonkeyPatch
 
+from yourss.async_utils import async_fetch
 from yourss.main import lifespan
+from yourss.security import read_config
 from yourss.settings import current_config
 from yourss.warmup import warm_forever, warm_interval, warm_round
+from yourss.youtube import YoutubeApi
 
 
 async def test_warm_round_refreshes_every_page() -> None:
@@ -18,8 +21,8 @@ async def test_warm_round_refreshes_every_page() -> None:
     finally:
         logger.remove(handler)
     (summary,) = [line for line in lines if line.startswith("Warm-up:")]
-    # The five pages of the sample file, their channels counted once each per page
-    assert summary.startswith("Warm-up: 5 pages, 11 channels, 0 failed, ")
+    # The pages of the sample file but Cards (`warmup: false`), their channels counted once each per page
+    assert summary.startswith("Warm-up: 4 pages (1 skipped), 10 channels, 0 failed, ")
 
 
 def _feed_mtimes(folder: Path) -> dict[Path, int]:
@@ -27,13 +30,20 @@ def _feed_mtimes(folder: Path) -> dict[Path, int]:
 
 
 async def test_warm_round_refreshes_whatever_the_age(test_cache_folder: Path) -> None:
+    config = read_config()
+    assert config is not None
+    (skipped,) = [page for page in config.pages if not page.warmup]
+    skipped_feeds = {test_cache_folder / f"{channel}.rss" for channel in skipped.channels}
+    await async_fetch(skipped.channels, api=YoutubeApi())
     await warm_round()
     before = _feed_mtimes(test_cache_folder)
     await asyncio.sleep(0.01)
     await warm_round()
-    # Every feed was fresh (younger than the TTL), every one was written again
+    # Every feed was fresh (younger than the TTL), every one was written again but those of the skipped page
     after = _feed_mtimes(test_cache_folder)
-    assert before and all(after[path] > mtime for path, mtime in before.items())
+    assert skipped_feeds and skipped_feeds <= before.keys()
+    assert all(after[path] > mtime for path, mtime in before.items() if path not in skipped_feeds)
+    assert all(after[path] == before[path] for path in skipped_feeds)
 
 
 async def test_warm_round_without_a_file(monkeypatch: MonkeyPatch) -> None:

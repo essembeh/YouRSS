@@ -165,7 +165,7 @@ Then visit [http://localhost:8000/](http://localhost:8000/)
 | YOURSS_CACHE_RSS_FALLBACK_TTL | `PT48H` | `yourss.cacheRssFallbackTtl` | How long a cached feed may replace a failed fetch, at least `YOURSS_CACHE_RSS_TTL`. An older feed is deleted and the error is propagated |
 | YOURSS_CACHE_METADATA_TTL | `P7D` | `yourss.cacheMetadataTtl` | How long the name and avatar of a channel are served without scraping its page on Youtube (ISO-8601 duration or seconds). When the scrape fails, the cached ones are served whatever their age. Browsers keep the redirect to an avatar as long |
 | YOURSS_LOGIN_TTL | `P90D` | `yourss.loginTtl` | How long a browser stays logged in to a user behind a password once its form is filled (ISO-8601 duration or seconds). Behind a TLS proxy, the cookie is `Secure` only when the proxy sends `X-Forwarded-Proto` |
-| YOURSS_WARMUP_ENABLED | `False` | `yourss.warmupEnabled` | With the cache on, refresh the feeds of every configured page in the background: a first round at startup, then one every `YOURSS_CACHE_RSS_TTL` minus a minute, so that a visitor always finds fresh feeds, Youtube's bad hours included (the fallback cache). It asks Youtube whether anyone visits or not. Each process refreshes its own cache: run one worker per cache |
+| YOURSS_WARMUP_ENABLED | `False` | `yourss.warmupEnabled` | With the cache on, refresh the feeds of every configured page (but those with `warmup: false`) in the background: a first round at startup, then one every `YOURSS_CACHE_RSS_TTL` minus a minute, so that a visitor always finds fresh feeds, Youtube's bad hours included (the fallback cache). It asks Youtube whether anyone visits or not. Each process refreshes its own cache: run one worker per cache |
 
 > Note: in the users file, a channel is a *channel_id* (24 characters, like `UCa_Dlwrwv3ktrhCy91HpVRw`) or a handle (like `@JonnyGiger`), and a playlist is its id (`PL…`). The address of a page only holds ids.
 
@@ -199,6 +199,7 @@ users:
           - "@ben-j"
           - "@JonnyGiger"
       - name: cards
+        warmup: false        # optional, not refreshed by the warm-up (YOURSS_WARMUP_ENABLED), true by default
         channels:
           - UCQsmxaMzYr76Yd1iqMEq8TA
 ```
