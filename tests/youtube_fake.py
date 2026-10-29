@@ -39,6 +39,10 @@ def fixture_path(request: Request) -> Path:
         video = parse_qs(urlparse(query.get("url", [""])[0]).query).get("v", [""])[0]
         if video:
             return FIXTURES / "oembed" / f"{video}.json"
+    elif url.path == "/playlist":
+        (playlist,) = query.get("list") or [""]
+        if re.fullmatch(r"[A-Za-z0-9_-]+", playlist):
+            return FIXTURES / "pages" / f"playlist.{playlist}.html.gz"
     elif url.path == "/youtubei/v1/browse" and request.method == "POST":
         return FIXTURES / "browse" / f"{hashlib.sha256(request.content).hexdigest()[:16]}.json.gz"
     else:

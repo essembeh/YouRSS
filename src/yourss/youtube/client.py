@@ -24,6 +24,8 @@ from .scraping import (
     VideoPage,
     parse_channel_page,
     parse_continuation,
+    parse_playlist_continuation,
+    parse_playlist_page,
 )
 from .utils import is_channel_id, is_user, parse_channel_reference
 
@@ -104,6 +106,11 @@ class YoutubeApi(RapidApi):
     @get("{path}")
     async def get_html(self, path: Annotated[str, Path()], ucbcb: Annotated[int, Query()] = 1) -> Response: ...  # type: ignore[empty-body]
 
+    @get("/playlist")
+    async def _get_playlist_html(  # type: ignore[empty-body]
+        self, playlist_id: Annotated[str, Query(alias="list")], ucbcb: Annotated[int, Query()] = 1
+    ) -> Response: ...
+
     @post("/youtubei/v1/browse")
     async def api_browse(self, data: Annotated[dict[str, Any], JsonBody()]) -> dict[str, Any]: ...  # type: ignore[empty-body]
 
@@ -151,19 +158,25 @@ class YoutubeApi(RapidApi):
 
     async def get_more_videos(self, continuation: Continuation, *, shorts: bool = False) -> VideoPage:
         """Next page of a channel tab."""
-        payload = await self.api_browse(
+        return parse_continuation(await self._browse(continuation), continuation, shorts=shorts)
+
+    async def _browse(self, continuation: Continuation) -> dict[str, Any]:
+        return await self.api_browse(
             {
-                "context": {
-                    "client": {
-                        "clientName": "WEB",
-                        "clientVersion": continuation.client_version,
-                        "hl": "en",
-                    }
-                },
+                "context": {"client": {"clientName": "WEB", "clientVersion": continuation.client_version, "hl": "en"}},
                 "continuation": continuation.token,
             }
         )
-        return parse_continuation(payload, continuation, shorts=shorts)
+
+    async def get_playlist_videos(self, playlist_id: str) -> VideoPage:
+        """First page of the whole list of a playlist, beyond the 15 latest videos of its feed."""
+        resp = await self._get_playlist_html(playlist_id)
+        resp.raise_for_status()
+        return parse_playlist_page(resp.text)
+
+    async def get_more_playlist_videos(self, continuation: Continuation) -> VideoPage:
+        """Next page of the list of a playlist."""
+        return parse_playlist_continuation(await self._browse(continuation), continuation)
 
     async def iter_videos(self, channel: str) -> AsyncIterator[list[VideoDescription]]:
         """Every video of a channel, one page at a time."""

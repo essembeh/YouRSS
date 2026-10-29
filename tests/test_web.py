@@ -4,6 +4,8 @@ from bs4 import BeautifulSoup
 from httpx import AsyncClient, BasicAuth
 from pytest import MonkeyPatch, mark
 
+from tests.sample import sample_playlist
+from yourss.routers.utils import next_page_url
 from yourss.settings import current_config, static_folder
 from yourss.youtube import YoutubeApi
 
@@ -481,6 +483,45 @@ async def test_htmx_playlist(client: AsyncClient) -> None:
 
     resp = await client.get("/htmx/playlist/UCVooVnzQxPSTXTMzSi1s6uw", headers=HTMX)
     assert resp.status_code == 422
+
+
+async def test_htmx_playlist_tabs(client: AsyncClient) -> None:
+    playlist = sample_playlist()
+    resp = await client.get(f"/htmx/playlist/{playlist}", headers=HTMX)
+    soup = BeautifulSoup(resp.text, features="html.parser")
+    # Two tabs, Recent open with the videos of the feed already in place
+    tabs = soup.select(".yourss-tabs .yourss-tab")
+    assert [(tab.get_text(strip=True), str(tab["hx-get"])) for tab in tabs] == [
+        ("Recent", f"/htmx/playlist/{playlist}/recent"),
+        ("All", f"/htmx/playlist/{playlist}/all"),
+    ]
+    recent = [str(div["data-video-id"]) for div in soup.select("#tab-content .yourss-video")]
+    assert recent
+
+    resp = await client.get(f"/htmx/playlist/{playlist}/recent", headers=HTMX)
+    soup = BeautifulSoup(resp.text, features="html.parser")
+    assert [str(div["data-video-id"]) for div in soup.select(".yourss-video")] == recent
+
+    # All: the whole list, longer than the feed, each video with its channel
+    resp = await client.get(f"/htmx/playlist/{playlist}/all", headers=HTMX)
+    assert resp.status_code == 200
+    soup = BeautifulSoup(resp.text, features="html.parser")
+    videos = soup.select(".yourss-video")
+    assert len(videos) > len(recent) and set(recent) <= {str(div["data-video-id"]) for div in videos}
+    assert all(div.has_attr("data-channel-id") for div in videos)
+    # Under a hundred videos, nothing more to load
+    assert not soup.select(".yourss-video[hx-get]")
+
+
+async def test_htmx_playlist_next_page(client: AsyncClient) -> None:
+    page = await YoutubeApi().get_playlist_videos("UUVooVnzQxPSTXTMzSi1s6uw")
+    url = next_page_url(page.continuation, playlist=True)
+    assert url is not None and "playlist=True" in url
+    resp = await client.get(url, headers=HTMX)
+    assert resp.status_code == 200
+    soup = BeautifulSoup(resp.text, features="html.parser")
+    ids = {str(div["data-video-id"]) for div in soup.select(".yourss-video")}
+    assert ids and not ids & {video.video_id for video in page.videos}
 
 
 async def test_handle_in_address_points_to_the_add_form(client: AsyncClient) -> None:

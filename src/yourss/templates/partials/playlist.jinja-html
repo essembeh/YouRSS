@@ -9,4 +9,14 @@
   </div>
 </section>
 
-{% include "partials/videos-container.jinja-html" %}
+<div class="yourss-tabs-bar">
+  <div class="yourss-tabs" role="tablist">
+    <button type="button" class="yourss-tab active" role="tab" data-action="tab" title="The latest videos, from the RSS feed" hx-get="/htmx/playlist/{{ playlist.playlist_id }}/recent" hx-target="#tab-content" hx-indicator="#tab-content" hx-sync="#tab-content:replace">Recent</button>
+    <button type="button" class="yourss-tab" role="tab" data-action="tab" title="Every video of the playlist, in its order" hx-get="/htmx/playlist/{{ playlist.playlist_id }}/all" hx-target="#tab-content" hx-indicator="#tab-content" hx-sync="#tab-content:replace">All</button>
+  </div>
+</div>
+
+{# Recent is open: the feed was already fetched for the title of the playlist #}
+<div id="tab-content" class="yourss-tab-content">
+  {% include "partials/videos-container.jinja-html" %}
+</div>

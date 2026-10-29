@@ -8,7 +8,7 @@ from typing import Any
 
 from glom import Coalesce, GlomError, glom  # type: ignore[import-untyped]  # glom has no type hints
 
-from ..model import VideoDescription
+from ..model import ChannelDescription, VideoDescription
 from .errors import ScrapingError
 from .walk import find_key, iter_key
 
@@ -146,6 +146,34 @@ class LockupVideoParser(ItemParser):
         }
 
 
+class PlaylistLockupParser(LockupVideoParser):
+    """The ``lockupViewModel`` of a playlist page: each video also names its channel, a playlist mixes them."""
+
+    _AVATAR = Coalesce(
+        "metadata.lockupMetadataViewModel.image.decoratedAvatarViewModel.avatar.avatarViewModel.image.sources.0.url",
+        default="",
+    )
+
+    def extract(self, node: dict[str, Any]) -> dict[str, Any] | None:
+        out = super().extract(node)
+        if out is not None:
+            out["channel"] = self._channel(node)
+        return out
+
+    def _channel(self, node: dict[str, Any]) -> ChannelDescription | None:
+        # The channel is the metadata part whose text links to a browse endpoint of a channel
+        for part in iter_key("metadataParts", glom(node, self._METADATA_ROWS) or [], list):
+            for item in part:
+                text = item.get("text") or {}
+                for run in text.get("commandRuns") or []:
+                    browse = find_key("browseEndpoint", run, dict) or {}
+                    if str(browse.get("browseId", "")).startswith("UC") and text.get("content"):
+                        return ChannelDescription(
+                            channel_id=browse["browseId"], name=text["content"], avatar=glom(node, self._AVATAR)
+                        )
+        return None
+
+
 class LegacyVideoParser(ItemParser):
     """Legacy ``videoRenderer`` videos (kept as a fallback)."""
 
@@ -232,6 +260,7 @@ class LegacyShortsParser(ItemParser):
 # Parser chains: tried in order, first one that yields items wins.
 VIDEO_PARSERS: list[ItemParser] = [LockupVideoParser(), LegacyVideoParser()]
 SHORTS_PARSERS: list[ItemParser] = [ShortsLockupParser(), LegacyShortsParser()]
+PLAYLIST_PARSERS: list[ItemParser] = [PlaylistLockupParser(), LegacyVideoParser()]
 
 
 def _looks_like_video_payload(payload: dict[str, Any]) -> bool:
@@ -265,3 +294,8 @@ def parse_videos(payload: dict[str, Any], *, shorts: bool = False) -> list[Video
     """Videos (or shorts) found anywhere in ``payload``, in page order."""
     parsers = SHORTS_PARSERS if shorts else VIDEO_PARSERS
     return [VideoDescription(**item) for item in parse_items(payload, parsers)]
+
+
+def parse_playlist_videos(payload: dict[str, Any]) -> list[VideoDescription]:
+    """Videos of a playlist found anywhere in ``payload``, in playlist order, with their channel."""
+    return [VideoDescription(**item) for item in parse_items(payload, PLAYLIST_PARSERS)]

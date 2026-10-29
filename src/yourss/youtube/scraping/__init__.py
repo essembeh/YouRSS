@@ -8,3 +8,5 @@ from .channel import VideoPage as VideoPage
 from .channel import parse_channel_page as parse_channel_page
 from .channel import parse_continuation as parse_continuation
 from .errors import ScrapingError as ScrapingError
+from .playlist import parse_playlist_continuation as parse_playlist_continuation
+from .playlist import parse_playlist_page as parse_playlist_page

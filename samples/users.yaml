@@ -35,6 +35,8 @@ users:
         channels:
           - UCuU-wlg6DNHlybI-T4c1aDg
           - UCGbyt2Lm2WlWULsMuhMeZvg
+          # A playlist opens on its Recent tab (the feed) and offers All, every video of the list
+          - PLS66eMqyKkK2o9y7b1kE-q24xWuC8tB2B
 
   # A user behind a password (a login form, or HTTP Basic), which protects every folder but not the public pages
   - name: bob

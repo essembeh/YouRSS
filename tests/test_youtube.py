@@ -5,6 +5,7 @@ from bs4 import BeautifulSoup
 from httpx import get
 from pytest import MonkeyPatch, mark, raises, skip
 
+from tests.sample import sample_playlist
 from yourss.settings import current_config
 from yourss.youtube import ScrapingError, YoutubeApi
 from yourss.youtube.cache import read_cached_channel
@@ -364,3 +365,25 @@ def test_parser_shorts_lockup() -> None:
             "short": True,
         }
     ]
+
+
+async def test_playlist_videos() -> None:
+    api = YoutubeApi()
+    playlist = sample_playlist()
+    feed = await api.get_playlist_rss(playlist)
+    page = await api.get_playlist_videos(playlist)
+    # The whole list, beyond the 15 of the feed, with the channel of every video; under 100, no next page
+    assert len(page.videos) > len(feed.entries)
+    assert {entry.video_id for entry in feed.entries} <= {video.video_id for video in page.videos}
+    assert all(video.channel is not None and video.channel.channel_id.startswith("UC") for video in page.videos)
+    # The continuation of the suggestions under the list is not the one of the playlist
+    assert page.continuation is None
+
+
+async def test_playlist_videos_next_pages() -> None:
+    api = YoutubeApi()
+    # The uploads playlist of a channel: hundreds of videos, a hundred per page
+    page = await api.get_playlist_videos("UU" + CHANNEL[2:])
+    assert len(page.videos) == 100 and page.continuation is not None
+    more = await api.get_more_playlist_videos(page.continuation)
+    assert more.videos and not {video.video_id for video in more.videos} & {video.video_id for video in page.videos}

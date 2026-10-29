@@ -26,6 +26,11 @@ BASE = "https://www.youtube.com"
         ("GET", f"{BASE}/@JonnyGiger?ucbcb=1", "pages/jonnygiger.html.gz"),
         ("GET", f"{BASE}/@jonnygiger/videos?ucbcb=1", "pages/jonnygiger.videos.html.gz"),
         ("GET", f"{BASE}/channel/UCVooVnzQxPSTXTMzSi1s6uw/shorts", "pages/UCVooVnzQxPSTXTMzSi1s6uw.shorts.html.gz"),
+        (
+            "GET",
+            f"{BASE}/playlist?list=PLw-vK1_d04zZCal3yMX_T23h5nDJ2toTk&ucbcb=1",
+            "pages/playlist.PLw-vK1_d04zZCal3yMX_T23h5nDJ2toTk.html.gz",
+        ),
     ],
 )
 def test_fixture_path(method: str, url: str, expected: str) -> None:

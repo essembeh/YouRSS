@@ -91,18 +91,14 @@ def build_url(base_url: str, params: dict[str, Any]) -> str:
     return base_url + "?" + urlencode(params)
 
 
-def next_page_url(continuation: Continuation | None, *, shorts: bool) -> str | None:
-    """URL of the htmx request which appends the next page of a channel tab."""
+def next_page_url(continuation: Continuation | None, *, shorts: bool = False, playlist: bool = False) -> str | None:
+    """URL of the htmx request which appends the next page of a channel tab, or of the whole list of a playlist."""
     if continuation is None:
         return None
-    return build_url(
-        "/htmx/next",
-        {
-            "token": continuation.token,
-            "version": continuation.client_version,
-            "shorts": shorts,
-        },
-    )
+    params: dict[str, Any] = {"token": continuation.token, "version": continuation.client_version, "shorts": shorts}
+    if playlist:
+        params["playlist"] = True
+    return build_url("/htmx/next", params)
 
 
 def get_videos_from_feeds(feeds: list[Feed], channels: dict[str, ChannelDescription]) -> list[VideoDescription]:

@@ -27,10 +27,29 @@ async def htmx_channel(request: Request, channel: ChannelId | UserId) -> HTMLRes
 
 @router.get("/playlist/{playlist}", response_class=HTMLResponse)
 async def htmx_playlist(request: Request, playlist: PlaylistId) -> HTMLResponse:
+    """The playlist with its Recent tab open, read from the feed fetched for its title (docs/specs/playlist-tabs.md)."""
     feed = await YoutubeApi().get_playlist_rss(playlist)
     # No request for the channels: the ones the cache knows have their avatar, the others their initial
     videos = get_videos_from_feeds([feed], {})
     return template_page(request, "partials/playlist.jinja-html", playlist=feed, videos=videos)
+
+
+@router.get("/playlist/{playlist}/recent", response_class=HTMLResponse)
+async def htmx_playlist_recent(request: Request, playlist: PlaylistId) -> HTMLResponse:
+    feed = await YoutubeApi().get_playlist_rss(playlist)
+    return template_page(request, "partials/videos-container.jinja-html", videos=get_videos_from_feeds([feed], {}))
+
+
+@router.get("/playlist/{playlist}/all", response_class=HTMLResponse)
+async def htmx_playlist_all(request: Request, playlist: PlaylistId) -> HTMLResponse:
+    """Every video of the playlist, in its order, scraped from its page a hundred at a time."""
+    page = await YoutubeApi().get_playlist_videos(playlist)
+    return template_page(
+        request,
+        "partials/videos-container.jinja-html",
+        videos=page.videos,
+        next_page_url=next_page_url(page.continuation, playlist=True),
+    )
 
 
 @router.get("/rss/{channel}", response_class=HTMLResponse)
@@ -46,14 +65,19 @@ async def htmx_next(
     token: Annotated[str, Query()],
     version: Annotated[str, Query()],
     shorts: Annotated[bool, Query()] = False,
+    playlist: Annotated[bool, Query()] = False,
 ) -> HTMLResponse:
     continuation = Continuation(token=token, client_version=version)
-    page = await YoutubeApi().get_more_videos(continuation, shorts=shorts)
+    api = YoutubeApi()
+    if playlist:
+        page = await api.get_more_playlist_videos(continuation)
+    else:
+        page = await api.get_more_videos(continuation, shorts=shorts)
     return template_page(
         request,
         "partials/videos.jinja-html",
         videos=page.videos,
-        next_page_url=next_page_url(page.continuation, shorts=shorts),
+        next_page_url=next_page_url(page.continuation, shorts=shorts, playlist=playlist),
     )
 
 
