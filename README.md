@@ -80,6 +80,7 @@ Click a channel in the sidebar to browse it without leaving your page: its recen
 ### 🎁 And also
 
 - three themes (neon, dark, light), to pick on the home page or in the settings, and three density levels
+- thumbnails: the cover chosen by the channel, or a frame from the middle of the video, less clickbait
 - works on desktop and mobile, can be added to the home screen of a phone
 - instant search in the titles
 - keyboard shortcuts: arrows move in the grid, `Space` plays, `n`/`p` play the next/previous video, `l` listens, `Shift`+`↑`/`↓` change channel, `Shift`+`←`/`→` change folder… press `?` for the list

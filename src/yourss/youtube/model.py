@@ -45,7 +45,7 @@ class VideoDescription(BaseModel, frozen=True):
         if isinstance(data, dict) and "video_id" in data and not data.get("thumbnail"):
             data = {
                 **data,
-                "thumbnail": f"https://i.ytimg.com/vi/{data['video_id']}/hqdefault.jpg",
+                "thumbnail": f"https://i.ytimg.com/vi/{data['video_id']}/mqdefault.jpg",
             }
         return data
 

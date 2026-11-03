@@ -16,6 +16,38 @@
         document.documentElement.dataset.theme = theme
       }
     } catch (e) {}
+    // Thumbnail setting: a frame from the middle of the video replaces the cover before the lazy images load.
+    try {
+      if (localStorage.getItem("yourss-thumbnail") === "frame") {
+        document.documentElement.dataset.thumbnail = "frame"
+      }
+    } catch (e) {}
+    (() => {
+      const COVER = /^https:\/\/i\d?\.ytimg\.com\/vi(?:_webp)?\/([\w-]{11})\/(?:(?:hq|mq|sd|maxres)default|hq720)\.(?:jpg|webp)$/
+      const swap = (img) => {
+        const cover = img.dataset.cover || img.getAttribute("src") || ""
+        const id = cover.match(COVER)?.[1]
+        if (!id) return
+        img.dataset.cover = cover
+        const src = document.documentElement.dataset.thumbnail === "frame" ? `https://i.ytimg.com/vi/${id}/mq2.jpg` : cover
+        if (img.getAttribute("src") !== src) img.src = src
+      }
+      const SELECTOR = ".yourss-video img.yourss-thumbnail"
+      window.yourssThumbnails = (root) => root.querySelectorAll(SELECTOR).forEach(swap)
+      new MutationObserver((mutations) => {
+        if (document.documentElement.dataset.thumbnail !== "frame") return
+        for (const node of mutations.flatMap((m) => [...m.addedNodes])) {
+          if (node instanceof Element) node.matches(SELECTOR) ? swap(node) : window.yourssThumbnails(node)
+        }
+      }).observe(document.documentElement, { childList: true, subtree: true })
+      // A video without a frame keeps its cover
+      document.addEventListener("error", (event) => {
+        const img = event.target
+        if (img instanceof HTMLImageElement && img.dataset.cover && img.getAttribute("src") !== img.dataset.cover) {
+          img.src = img.dataset.cover
+        }
+      }, true)
+    })()
   </script>
   <link href="{{ static_url('yourss.css') }}" rel="stylesheet" />
   <link rel="icon" type="image/png" sizes="32x32" href="{{ static_url('icons/favicon-32.png') }}" />

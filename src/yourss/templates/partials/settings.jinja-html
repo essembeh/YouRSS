@@ -23,6 +23,14 @@
       </div>
     </div>
 
+    <div class="yourss-setting">
+      <span class="yourss-setting-name" title="Cover: the thumbnail chosen by the channel. Frame: an image from the middle of the video">Thumbnail</span>
+      <div class="yourss-segment" role="group" aria-label="Thumbnail">
+        <button type="button" data-action="set-thumbnail" data-value="cover"><svg><use href="#i-image" /></svg><span>Cover</span></button>
+        <button type="button" data-action="set-thumbnail" data-value="frame"><svg><use href="#i-video" /></svg><span>Frame</span></button>
+      </div>
+    </div>
+
     <button type="button" class="yourss-toggle" data-action="toggle" data-flag="new-videos" aria-pressed="false">
       <svg><use href="#i-check-all" /></svg><span class="yourss-toggle-text"><strong>Show new videos</strong><small>Remember the videos you played: New markers, counters and the All / New filter</small></span><i class="yourss-switch"></i>
     </button>

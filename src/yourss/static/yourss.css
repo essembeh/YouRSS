@@ -640,7 +640,6 @@ button.yourss-nav-item { width: 100%; border: 0; background: transparent; text-a
 .yourss-topbar { view-transition-name: topbar; }
 .yourss-sidebar { view-transition-name: sidebar; }
 .yourss-loading { view-transition-name: loading; }
-#tab-content { view-transition-name: tab; }
 ::view-transition-old(root), ::view-transition-new(root) { animation-duration: .22s; animation-timing-function: ease; }
 /* A folder reached by a swipe or a chevron: the old content leaves on one side, the new one enters from the other */
 html[data-slide="next"] { --slide-dir: 1; }

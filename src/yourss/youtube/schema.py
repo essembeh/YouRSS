@@ -80,7 +80,8 @@ class Entry(AtomXmlModel):
         return VideoDescription(
             video_id=self.video_id,
             title=self.title,
-            thumbnail=str(self.media_info.thumbnail.url),
+            # 16:9, where the one of the feed (hqdefault) is 4:3 with black bars
+            thumbnail=f"https://i.ytimg.com/vi/{self.video_id}/mqdefault.jpg",
             short=self.is_short,
             channel=channel,
             published_at=self.published,

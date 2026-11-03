@@ -42,6 +42,7 @@ import {
 /* ---------- settings: theme, density and on/off flags ---------- */
 const THEMES = ["neon", "dark", "light"]
 const DENSITIES = ["compact", "normal", "large"]
+const THUMBNAILS = ["cover", "frame"]
 const pick = (key, choices, fallback) => (choices.includes(store.get(key)) ? store.get(key) : fallback)
 
 function setPressed(el, pressed) {
@@ -55,6 +56,10 @@ function applySettings() {
   const density = pick("density", DENSITIES, "normal")
   document.documentElement.dataset.theme = theme
   DENSITIES.forEach((d) => document.body.classList.toggle(`density-${d}`, d === density))
+  // The cover or a frame of the video: the swap itself is done by the head script of the page (base template)
+  const thumbnail = pick("thumbnail", THUMBNAILS, "cover")
+  document.documentElement.dataset.thumbnail = thumbnail
+  window.yourssThumbnails?.(document)
   document.body.classList.toggle("rail", flag("rail"))
   document.body.classList.toggle("listen-cover", flag("listen-cover"))
   document.body.classList.toggle("no-watched", !flag("new-videos"))
@@ -68,6 +73,7 @@ function applySettings() {
   $('meta[name="theme-color"]')?.setAttribute("content", chrome)
   $$('[data-action="set-theme"]').forEach((el) => setPressed(el, el.dataset.value === theme))
   $$('[data-action="set-density"]').forEach((el) => setPressed(el, el.dataset.value === density))
+  $$('[data-action="set-thumbnail"]').forEach((el) => setPressed(el, el.dataset.value === thumbnail))
   $$('[data-action="toggle"]').forEach((el) => el.setAttribute("aria-pressed", String(flag(el.dataset.flag))))
   $$('[data-action="set-flag"]').forEach((el) => setPressed(el, flag(el.dataset.flag) === (el.dataset.value === "1")))
 }
@@ -522,6 +528,7 @@ const actions = {
   "close-dialog": (el) => el.closest("dialog").close(),
   "set-theme": (el) => setSetting("theme", el.dataset.value),
   "set-density": (el) => setSetting("density", el.dataset.value),
+  "set-thumbnail": (el) => setSetting("thumbnail", el.dataset.value),
   toggle: (el) => setSetting(el.dataset.flag, flag(el.dataset.flag) ? "0" : "1"),
   "set-flag": (el) => setSetting(el.dataset.flag, el.dataset.value),
   "reset-storage": () => {

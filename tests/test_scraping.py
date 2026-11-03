@@ -127,7 +127,7 @@ def test_channel_page_videos_and_continuation() -> None:
     page = parse_channel_page(_page(_channel_data(_tab("videos", selected=True), contents=contents)))
     videos = page.videos()
     assert [v.video_id for v in videos.videos] == ["aaaaaaaaaaa", "bbbbbbbbbbb"]
-    assert videos.videos[0].thumbnail == "https://i.ytimg.com/vi/aaaaaaaaaaa/hqdefault.jpg"
+    assert videos.videos[0].thumbnail == "https://i.ytimg.com/vi/aaaaaaaaaaa/mqdefault.jpg"
     assert videos.continuation == Continuation(token="TOKEN", client_version="2.20260101.00.00")  # noqa: S106  # a continuation token is not a secret
 
 
