@@ -13,6 +13,8 @@ class ChannelDescription(BaseModel, frozen=True):
     home: str = ""
     # "@name", empty when unknown (a channel only known through its feed)
     handle: str = ""
+    # The tabs of its page (videos, shorts, streams, playlists); None when its page was not read
+    tabs: tuple[str, ...] | None = None
 
     @model_validator(mode="before")
     @classmethod

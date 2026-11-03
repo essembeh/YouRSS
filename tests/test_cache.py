@@ -44,7 +44,12 @@ def _channel_page() -> str:
                 "avatar": {"thumbnails": [{"url": "https://yt3.googleusercontent.com/abc=s900"}]},
             }
         },
-        "contents": {"tabs": []},
+        "contents": {
+            "tabs": [
+                {"tabRenderer": {"endpoint": {"commandMetadata": {"webCommandMetadata": {"url": f"/{HANDLE}/{tab}"}}}}}
+                for tab in ("featured", "videos", "shorts")
+            ]
+        },
     }
     return f"<html><script>var ytInitialData = {json.dumps(data)};</script></html>"
 
@@ -219,6 +224,27 @@ async def test_fresh_channel_skips_the_scrape(api: ApiFixture) -> None:
     # Known under the lowercased handle and under the channel id
     assert (tmp_path / f"{HANDLE.lower()}.json").is_file()
     assert (tmp_path / f"{CHANNEL_ID}.json").is_file()
+
+
+async def test_channel_keeps_its_tabs(api: ApiFixture) -> None:
+    instance, calls, tmp_path = api
+
+    assert (await instance.get_channel(CHANNEL_ID)).tabs == ("videos", "shorts")
+    assert (await instance.get_channel(CHANNEL_ID)).tabs == ("videos", "shorts")
+    assert calls["count"] == 1
+    cached = read_cached_channel(tmp_path, CHANNEL_ID, None)
+    assert cached is not None and cached.tabs == ("videos", "shorts")
+
+
+async def test_channel_cached_without_tabs_is_scraped_once(api: ApiFixture) -> None:
+    instance, calls, tmp_path = api
+    # A description cached before the tabs were kept
+    write_cached_channel(tmp_path, CHANNEL_ID, ChannelDescription(channel_id=CHANNEL_ID, name="Jonny Giger"))
+
+    await instance.get_channel(CHANNEL_ID)
+    await instance.get_channel(CHANNEL_ID)
+
+    assert calls["count"] == 1
 
 
 async def test_expired_channel_is_scraped_again(api: ApiFixture) -> None:

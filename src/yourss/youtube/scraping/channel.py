@@ -89,11 +89,15 @@ def _playlist_card_page(payload: dict[str, Any], client_version: str | None) -> 
 @dataclass(frozen=True)
 class ChannelPage:
     channel: ChannelDescription
-    # Tabs the channel really has, and the one this page displays (None on the channel home)
-    tabs: list[str]
+    # The tab this page displays, None on the channel home
     selected_tab: str | None
     client_version: str | None = field(repr=False)
     data: dict[str, Any] = field(repr=False)
+
+    @property
+    def tabs(self) -> list[str]:
+        """Tabs the channel really has."""
+        return list(self.channel.tabs or ())
 
     def videos(self, *, shorts: bool = False) -> VideoPage:
         """First page of videos (or shorts) displayed by this page."""
@@ -134,8 +138,8 @@ def parse_channel_page(html: str) -> ChannelPage:
     # Youtube serves the channel home ("featured") when the requested tab does not exist
     selected = next((name for name, selected in tabs if selected), None)
     return ChannelPage(
-        channel=_parse_channel(data),
-        tabs=[tab for tab in CHANNEL_TABS if tab in names],
+        # The tabs go with the description, so that the cache keeps them (docs/specs/disk-cache.md)
+        channel=_parse_channel(data).model_copy(update={"tabs": tuple(tab for tab in CHANNEL_TABS if tab in names)}),
         selected_tab=selected if selected in CHANNEL_TABS else None,
         client_version=extract_client_version(html),
         data=data,

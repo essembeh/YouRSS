@@ -25,8 +25,10 @@ router = APIRouter(prefix="/htmx", dependencies=[Depends(require_htmx)])
 async def htmx_channel(
     request: Request, channel: ChannelId | UserId, tab: Annotated[Literal["recent", "playlists"], Query()] = "recent"
 ) -> HTMLResponse:
-    page = await YoutubeApi().get_channel_page(channel)
-    return template_page(request, "partials/channel.jinja-html", channel=page.channel, tabs=page.tabs, open_tab=tab)
+    # The cached description holds the tabs: the channel page is only scraped once in a while
+    description = await YoutubeApi().get_channel(channel)
+    tabs = list(description.tabs) if description.tabs is not None else None
+    return template_page(request, "partials/channel.jinja-html", channel=description, tabs=tabs, open_tab=tab)
 
 
 @router.get("/playlist/{playlist}", response_class=HTMLResponse)

@@ -7,7 +7,7 @@ from pytest import MonkeyPatch, mark
 from tests.sample import sample_playlist
 from yourss.routers.utils import next_page_url
 from yourss.settings import current_config, static_folder
-from yourss.youtube import YoutubeApi
+from yourss.youtube import ChannelPage, ChannelTab, YoutubeApi
 
 # What htmx sends with each of its requests
 HTMX = {"HX-Request": "true"}
@@ -359,6 +359,23 @@ async def test_page_items_are_limited(client: AsyncClient, monkeypatch: MonkeyPa
 async def test_htmx_channel(client: AsyncClient, name: str, http_status: int) -> None:
     resp = await client.get(f"/htmx/channel/{name}", headers=HTMX)
     assert resp.status_code == http_status
+
+
+async def test_htmx_channel_reads_the_cache(client: AsyncClient, monkeypatch: MonkeyPatch) -> None:
+    scrapes: list[str] = []
+    scrape = YoutubeApi.get_channel_page
+
+    async def counted(self: YoutubeApi, name: str, tab: ChannelTab | None = None) -> ChannelPage:
+        scrapes.append(name)
+        return await scrape(self, name, tab)
+
+    monkeypatch.setattr(YoutubeApi, "get_channel_page", counted)
+    channel = "UCVooVnzQxPSTXTMzSi1s6uw"
+    for _ in range(2):
+        resp = await client.get(f"/htmx/channel/{channel}", headers=HTMX)
+        assert resp.status_code == 200 and f"/htmx/videos/{channel}" in resp.text
+    # Scraped at most once (another test may have cached it), never on the second visit
+    assert len(scrapes) <= 1
 
 
 async def test_htmx_channel_tabs(client: AsyncClient) -> None:

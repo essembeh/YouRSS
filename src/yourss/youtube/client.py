@@ -179,12 +179,13 @@ class YoutubeApi(RapidApi):
         return resp.text
 
     async def get_channel(self, name: str) -> ChannelDescription:
-        """Name, id, avatar and home of a channel, through the optional disk cache (docs/specs/disk-cache.md)."""
+        """Name, id, avatar, home and tabs of a channel, through the optional disk cache (docs/specs/disk-cache.md)."""
         folder = cache_folder()
         if folder is None:
             return (await self.get_channel_page(name)).channel
         cached = read_cached_channel(folder, name, current_config.cache_metadata_ttl)
-        if cached is not None:
+        # A description cached before the tabs were kept is read again once
+        if cached is not None and cached.tabs is not None:
             return cached
         try:
             return (await self.get_channel_page(name)).channel
