@@ -5,7 +5,7 @@ from fastapi import APIRouter, Depends, Header, HTTPException, Query, Request
 from starlette.responses import HTMLResponse
 from starlette.status import HTTP_404_NOT_FOUND
 
-from ..youtube import PLAYLIST_TABS, ChannelTab, Continuation, YoutubeApi
+from ..youtube import PLAYLIST_TABS, ChannelDescription, ChannelTab, Continuation, Feed, YoutubeApi, is_channel_id
 from ..youtube.utils import CHANNEL_PATTERN
 from .jinja import template_page
 from .schema import ChannelId, ShownPlaylistId, UserId
@@ -21,14 +21,38 @@ def require_htmx(hx_request: Annotated[str | None, Header()] = None) -> None:
 router = APIRouter(prefix="/htmx", dependencies=[Depends(require_htmx)])
 
 
+async def _channel_and_feed(api: YoutubeApi, name: str) -> tuple[ChannelDescription, Feed | None]:
+    """A channel and its feed, asked together when its id is known (a handle first); a failed feed is None."""
+    if is_channel_id(name):
+        description, feed = await asyncio.gather(
+            api.get_channel(name), api.get_channel_rss(name), return_exceptions=True
+        )
+        if isinstance(description, BaseException):
+            raise description
+    else:
+        description = await api.get_channel(name)
+        (feed,) = await asyncio.gather(api.get_channel_rss(description.channel_id), return_exceptions=True)
+    return description, None if isinstance(feed, BaseException) else feed
+
+
 @router.get("/channel/{channel}", response_class=HTMLResponse)
 async def htmx_channel(
     request: Request, channel: ChannelId | UserId, tab: Annotated[Literal["recent", "playlists"], Query()] = "recent"
 ) -> HTMLResponse:
+    api = YoutubeApi()
+    videos = None
+    if tab == "playlists":
+        description = await api.get_channel(channel)
+    else:
+        # The Recent tab comes with the channel; a failed feed leaves it to its own request, which shows the failure
+        description, feed = await _channel_and_feed(api, channel)
+        if feed is not None:
+            videos = [entry.to_video() for entry in feed.entries]
     # The cached description holds the tabs: the channel page is only scraped once in a while
-    description = await YoutubeApi().get_channel(channel)
     tabs = list(description.tabs) if description.tabs is not None else None
-    return template_page(request, "partials/channel.jinja-html", channel=description, tabs=tabs, open_tab=tab)
+    return template_page(
+        request, "partials/channel.jinja-html", channel=description, tabs=tabs, open_tab=tab, videos=videos
+    )
 
 
 @router.get("/playlist/{playlist}", response_class=HTMLResponse)

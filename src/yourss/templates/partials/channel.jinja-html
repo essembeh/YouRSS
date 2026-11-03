@@ -19,6 +19,13 @@
   </div>
 </div>
 
+{% if videos is defined %}
+{# Recent is open: its feed came with the channel #}
+<div id="tab-content" class="yourss-tab-content">
+  {% include "partials/videos-container.jinja-html" %}
+</div>
+{% else %}
 {# Back from one of its playlists, the channel opens on its Playlists tab #}
 {% set opened = "/htmx/playlists/" if open_tab == "playlists" else "/htmx/rss/" %}
 <div id="tab-content" class="yourss-tab-content" hx-get="{{ opened }}{{ channel.channel_id }}" hx-trigger="load" hx-indicator="#tab-content" hx-sync="#tab-content:replace"></div>
+{% endif %}

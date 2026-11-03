@@ -378,6 +378,26 @@ async def test_htmx_channel_reads_the_cache(client: AsyncClient, monkeypatch: Mo
     assert len(scrapes) <= 1
 
 
+async def test_htmx_channel_comes_with_its_recent_tab(client: AsyncClient, monkeypatch: MonkeyPatch) -> None:
+    channel = "UCVooVnzQxPSTXTMzSi1s6uw"
+    resp = await client.get(f"/htmx/channel/{channel}", headers=HTMX)
+    soup = BeautifulSoup(resp.text, features="html.parser")
+    assert soup.select("#tab-content .yourss-video") and f"/htmx/rss/{channel}" not in str(
+        soup.select_one("#tab-content")
+    )
+    # The Playlists tab, and a feed that fails, are left to their own request
+    resp = await client.get(f"/htmx/channel/{channel}", params={"tab": "playlists"}, headers=HTMX)
+    assert 'hx-get="/htmx/playlists/' in resp.text
+
+    async def failing(self: YoutubeApi, channel_id: str, *, refresh: bool = False) -> None:
+        raise RuntimeError("down")
+
+    monkeypatch.setattr(YoutubeApi, "get_channel_rss", failing)
+    for name in (channel, "@CardMagicByJason"):
+        resp = await client.get(f"/htmx/channel/{name}", headers=HTMX)
+        assert resp.status_code == 200 and 'hx-get="/htmx/rss/UC' in resp.text and "yourss-video" not in resp.text
+
+
 async def test_htmx_channel_tabs(client: AsyncClient) -> None:
     # @JonnyGiger publishes videos and shorts but has no live stream tab
     channel = "UCVooVnzQxPSTXTMzSi1s6uw"
