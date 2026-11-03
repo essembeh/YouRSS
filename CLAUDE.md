@@ -37,8 +37,8 @@ media.
 ## Stack
 
 Python 3.13, FastAPI, Jinja2, Pydantic (settings, models, `pydantic-xml` for the feeds),
-`rapid-api-client` for every HTTP call, loguru. Front: htmx, one CSS file, five JavaScript modules
-(ES modules resolved by an import map, no build step).
+`rapid-api-client` for every HTTP call (one shared httpx client over HTTP/2), loguru. Front: htmx served
+by the instance, one CSS file, five JavaScript modules (ES modules resolved by an import map, no build step).
 
 ## Layout
 
@@ -49,7 +49,7 @@ Python 3.13, FastAPI, Jinja2, Pydantic (settings, models, `pydantic-xml` for the
 | `src/yourss/warmup.py` | the background refresh of every page, started by the `lifespan` of the application |
 | `src/yourss/routers/` | pages (`web`), htmx fragments (`htmx`), `api` |
 | `src/yourss/youtube/` | HTTP client, RSS feed models, video and channel models |
-| `src/yourss/templates/`, `static/` | Jinja templates, `yourss.css`, the `yourss*.js` modules, icons |
+| `src/yourss/templates/`, `static/` | Jinja templates, `yourss.css`, the `yourss*.js` modules, `htmx-<version>.min.js` (bumped by hand), icons |
 | `charts/yourss/` | Helm chart, one value per setting, same defaults as the application |
 | `samples/users.yaml` | example of a pages and users file, also used by the development `.env` |
 | `tests/` | pytest suite, its RSS fixtures are in `tests/data/` |
@@ -76,7 +76,9 @@ The `Justfile` is the interface of the project:
 - Front-end: every command is a `[data-action]` element handled in `yourss.js` (the entry module;
   `yourss-core.js`, `yourss-watched.js`, `yourss-player.js` and `yourss-listen.js` are its imports), CSS classes are
   prefixed `yourss-`, themes are sets of CSS variables selected by `<html data-theme>`. Anything
-  a visitor can tune is a browser setting, not a server one.
+  a visitor can tune is a browser setting, not a server one. The only inline script, in the head of
+  `base.jinja-html`, applies what must act before first paint: the theme, and the Frame thumbnails
+  swapped before the lazy images load.
 - Front-end state lives in two places only: the URL (what is shown, bookmarkable) and
   `localStorage` (what belongs to the visitor). Everything else is read from the DOM when needed,
   never mirrored in a script variable that has to be kept in sync. A copy made for a reason (the
