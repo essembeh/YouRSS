@@ -333,9 +333,9 @@ a.yourss-start:hover { border-color: var(--accent); transform: translateY(-2px);
 /* Column count is derived from the available width: each density sets a minimum card width */
 .yourss-grid { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fill, minmax(min(var(--card-min), 100%), 1fr)); }
 /* The viewport share takes over on very wide screens, where a fixed minimum gives too many columns */
-body { --card-min: max(260px, 11vw); }
-body.density-compact { --card-min: max(185px, 7.5vw); }
-body.density-large { --card-min: max(380px, 16vw); }
+body { --card-min: max(325px, 13.5vw); }
+body.density-compact { --card-min: max(230px, 9.5vw); }
+body.density-large { --card-min: max(475px, 20vw); }
 body.density-compact .yourss-grid { gap: .6rem; }
 body.density-compact .yourss-video-body { padding: .55rem .6rem; }
 body.density-compact .yourss-video-title { font-size: .85rem; -webkit-line-clamp: 2; }
