@@ -245,8 +245,10 @@ export function play(videoId) {
   if (!video || stage.videoId === videoId) {
     return
   }
-  // Already in the mini player: the next video starts there, the page does not move
-  const docked = listening() || $(".yourss-video.is-playing.is-docked") !== null
+  // Already in the mini player and the card off screen: the next video starts there, the page does not move
+  const box = video.getBoundingClientRect()
+  const offScreen = box.bottom <= 0 || box.top >= innerHeight
+  const docked = listening() || ($(".yourss-video.is-playing.is-docked") !== null && offScreen)
   releaseCard()
   stage.videoId = videoId
   video.classList.add("is-playing")
