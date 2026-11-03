@@ -58,6 +58,8 @@ def client_options() -> dict[str, Any]:
         "headers": {"user-agent": MOZILLA_USER_AGENT, "accept-language": "en"},
         "follow_redirects": True,
         "cookies": _youtube_cookies(),
+        # The feeds of a page go through one connection instead of one each
+        "http2": True,
     }
 
 
