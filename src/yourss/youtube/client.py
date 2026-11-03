@@ -1,9 +1,12 @@
 from collections.abc import AsyncIterator, Awaitable, Callable
+from contextlib import asynccontextmanager
+from http.cookiejar import Cookie, CookieJar, DefaultCookiePolicy
 from typing import Annotated, Any
+from urllib.request import Request
 
-from httpx import Cookies, Response
+from httpx import AsyncClient, Cookies, Response
 from loguru import logger
-from rapid_api_client import JsonBody, Path, Query, RapidApi, get, post, rapid_default
+from rapid_api_client import JsonBody, Path, Query, RapidApi, get, post
 
 from ..settings import current_config
 from .cache import (
@@ -35,23 +38,56 @@ BASE_URL = "https://www.youtube.com"
 MOZILLA_USER_AGENT = "Mozilla/5.0 (X11; Linux x86_64; rv:109.0) Gecko/20100101 Firefox/117.0"
 
 
-def _youtube_cookies() -> Cookies:
-    out = Cookies()
+class _KeepNoCookie(DefaultCookiePolicy):
+    """The cookies Youtube sets are dropped: a shared client must not carry a session from one visitor to the next."""
+
+    def set_ok(self, cookie: Cookie, request: Request) -> bool:
+        return False
+
+
+def _youtube_cookies() -> CookieJar:
+    out = Cookies(CookieJar(policy=_KeepNoCookie()))
     out.set("CONSENT", "YES+cb", domain=".youtube.com")
-    return out
+    return out.jar
 
 
-@rapid_default(
-    base_url=BASE_URL,
-    headers={"user-agent": MOZILLA_USER_AGENT, "accept-language": "en"},
-    follow_redirects=True,
-    cookies=_youtube_cookies(),
-)
+def client_options() -> dict[str, Any]:
+    """The options of every client which talks to Youtube."""
+    return {
+        "base_url": BASE_URL,
+        "headers": {"user-agent": MOZILLA_USER_AGENT, "accept-language": "en"},
+        "follow_redirects": True,
+        "cookies": _youtube_cookies(),
+    }
+
+
+# The client opened by `shared_client`, None outside of it
+_shared: AsyncClient | None = None
+
+
+@asynccontextmanager
+async def shared_client(**options: Any) -> AsyncIterator[AsyncClient]:
+    """One connection pool for every `YoutubeApi` created while the context lasts (the life of the application)."""
+    global _shared  # the lifespan task and the request tasks share no context variable
+    async with AsyncClient(**client_options() | options) as client:
+        _shared = client
+        try:
+            yield client
+        finally:
+            _shared = None
+
+
 class YoutubeApi(RapidApi):
     """
     Transport only: what is asked to Youtube and how. Reading the answers is the
     job of the ``schema`` module (RSS) and of the ``scraping`` package (pages).
     """
+
+    def __init__(self, **kwargs: Any) -> None:
+        # Without the shared client, rapid-api-client opens and closes one client per request
+        if _shared is not None:
+            kwargs.setdefault("async_client", _shared)
+        super().__init__(**client_options() | kwargs)
 
     # Endpoints declared with `...`: rapid-api-client implements them, hence the empty-body ignores
 

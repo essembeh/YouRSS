@@ -16,6 +16,7 @@ from .routers.jinja import template_page
 from .security import LoginRequired, UnknownUser
 from .settings import current_config, iso_duration, static_folder
 from .warmup import warm_forever, warm_interval
+from .youtube import shared_client
 
 
 class CachedStaticFiles(StaticFiles):
@@ -31,19 +32,20 @@ class CachedStaticFiles(StaticFiles):
 
 @asynccontextmanager
 async def lifespan(app: FastAPI) -> AsyncIterator[None]:
-    """The warm-up task runs for the life of the application, when enabled."""
-    task = None
-    if current_config.warmup_enabled and not current_config.cache_enabled:
-        logger.warning("YOURSS_WARMUP_ENABLED is set but the cache is disabled: nothing to warm up")
-    elif current_config.warmup_enabled:
-        interval = warm_interval(current_config.cache_rss_ttl)
-        logger.info("Warm-up of every page every {}", iso_duration(interval))
-        task = asyncio.create_task(warm_forever(interval))
-    yield
-    if task is not None:
-        task.cancel()
-        with suppress(asyncio.CancelledError):
-            await task
+    """The client shared by every request to Youtube, and the warm-up task when enabled, live as long as the app."""
+    async with shared_client():
+        task = None
+        if current_config.warmup_enabled and not current_config.cache_enabled:
+            logger.warning("YOURSS_WARMUP_ENABLED is set but the cache is disabled: nothing to warm up")
+        elif current_config.warmup_enabled:
+            interval = warm_interval(current_config.cache_rss_ttl)
+            logger.info("Warm-up of every page every {}", iso_duration(interval))
+            task = asyncio.create_task(warm_forever(interval))
+        yield
+        if task is not None:
+            task.cancel()
+            with suppress(asyncio.CancelledError):
+                await task
 
 
 async def unknown_user(request: Request, error: UnknownUser) -> Response:

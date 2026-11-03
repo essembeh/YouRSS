@@ -1,4 +1,5 @@
 from .client import YoutubeApi as YoutubeApi
+from .client import shared_client as shared_client
 from .model import ChannelDescription as ChannelDescription
 from .model import PlaylistDescription as PlaylistDescription
 from .model import VideoDescription as VideoDescription
