@@ -5,7 +5,7 @@ from pathlib import Path
 from loguru import logger
 from pytest import MonkeyPatch
 
-from yourss.async_utils import async_fetch
+from yourss.async_utils import SubscriptionStatus, async_fetch
 from yourss.main import lifespan
 from yourss.security import read_config
 from yourss.settings import current_config
@@ -21,8 +21,21 @@ async def test_warm_round_refreshes_every_page() -> None:
     finally:
         logger.remove(handler)
     (summary,) = [line for line in lines if line.startswith("Warm-up:")]
-    # The pages of the sample file but Cards (`warmup: false`), their channels counted once each per page
-    assert summary.startswith("Warm-up: 4 pages (1 skipped), 11 channels, 0 failed, ")
+    # The pages of the sample file but Cards (`warmup: false`), a channel in several pages counted once
+    assert summary.startswith("Warm-up: 4 pages (1 skipped), 9 channels, 0 failed, ")
+
+
+async def test_warm_round_asks_a_channel_once(monkeypatch: MonkeyPatch) -> None:
+    asked: list[str] = []
+    fetch = async_fetch
+
+    async def counted(names: list[str], api: YoutubeApi, *, refresh: bool = False) -> list[SubscriptionStatus]:
+        asked.extend(names)
+        return await fetch(names, api, refresh=refresh)
+
+    monkeypatch.setattr("yourss.warmup.async_fetch", counted)
+    await warm_round()
+    assert asked and len(asked) == len(set(asked))
 
 
 def _feed_mtimes(folder: Path) -> dict[Path, int]:
