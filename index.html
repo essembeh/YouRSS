@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>YouRSS Helm repository</title>
+  <meta name="description" content="Helm repository of YouRSS, an alternative front-end to YouTube built on its RSS feeds.">
+  <link rel="icon" href="https://raw.githubusercontent.com/essembeh/YouRSS/main/src/yourss/static/icons/favicon-32.png">
+  <style>
+    :root {
+      --bg: #f7f8fa; --bg-elev: #ffffff; --fg: #171a21; --fg-muted: #4f5868;
+      --line: #d2d7df; --accent: #e0352b; --accent-soft: rgba(224, 53, 43, .12); --code-bg: #eef0f4;
+      --font: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      --mono: ui-monospace, "SF Mono", "JetBrains Mono", Menlo, Consolas, monospace;
+      color-scheme: light dark;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #0c0f14; --bg-elev: #171c25; --fg: #e9ecf2; --fg-muted: #8a93a6;
+        --line: #222938; --accent: #ff4e45; --accent-soft: rgba(255, 78, 69, .16); --code-bg: #10141b;
+      }
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--fg); font: 16px/1.6 var(--font); }
+    main { max-width: 760px; margin: 0 auto; padding: 48px 16px 64px; }
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    header { display: flex; align-items: center; gap: 18px; margin-bottom: 8px; }
+    header img { width: 64px; height: 64px; border-radius: 14px; }
+    h1 { margin: 0; font-size: 2rem; line-height: 1.2; }
+    h1 small { display: block; font-size: 1rem; font-weight: 500; color: var(--fg-muted); }
+    h2 { margin: 44px 0 10px; font-size: 1.25rem; }
+    p { margin: 10px 0; }
+    .lead { font-size: 1.1rem; color: var(--fg-muted); }
+    .links { display: flex; flex-wrap: wrap; gap: 10px; margin: 22px 0 0; padding: 0; list-style: none; }
+    .links a { display: inline-block; padding: 7px 14px; border: 1px solid var(--line); border-radius: 999px; background: var(--bg-elev); color: var(--fg); font-weight: 600; font-size: .92rem; }
+    .links a:hover { border-color: var(--accent); text-decoration: none; }
+    .links a.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+    .version { display: inline-block; margin-top: 18px; padding: 3px 12px; border-radius: 999px; background: var(--accent-soft); color: var(--accent); font-weight: 600; font-size: .9rem; }
+    .version:empty { display: none; }
+    pre { position: relative; margin: 12px 0; padding: 14px 16px; overflow-x: auto; border: 1px solid var(--line); border-radius: 10px; background: var(--code-bg); font: .88rem/1.55 var(--mono); }
+    code { font-family: var(--mono); font-size: .9em; }
+    p code, li code { padding: 1px 5px; border-radius: 5px; background: var(--code-bg); }
+    pre .comment { color: var(--fg-muted); }
+    .copy { position: absolute; top: 8px; right: 8px; padding: 3px 9px; border: 1px solid var(--line); border-radius: 6px; background: var(--bg-elev); color: var(--fg-muted); font: 600 .75rem var(--font); cursor: pointer; }
+    .copy:hover { color: var(--fg); border-color: var(--accent); }
+    ul { padding-left: 1.2rem; }
+    footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--line); color: var(--fg-muted); font-size: .88rem; }
+  </style>
+</head>
+<body>
+<main>
+  <header>
+    <img src="https://raw.githubusercontent.com/essembeh/YouRSS/main/src/yourss/static/icons/icon-192.png" alt="">
+    <h1>YouRSS <small>Helm repository</small></h1>
+  </header>
+  <p class="lead">
+    An alternative front-end to YouTube built on the RSS feeds YouTube publishes for every channel and playlist:
+    the latest videos of the channels you chose, on one page. No account, no ads, no recommendations, no tracking.
+  </p>
+  <span class="version" id="version"></span>
+  <ul class="links">
+    <li><a class="primary" href="https://github.com/essembeh/YouRSS">Project on GitHub</a></li>
+    <li><a href="https://github.com/essembeh/YouRSS/tree/main/charts/yourss">Chart documentation</a></li>
+    <li><a href="https://github.com/essembeh/YouRSS#%EF%B8%8F-configuration">Configuration</a></li>
+    <li><a href="https://github.com/essembeh/YouRSS/pkgs/container/yourss">Docker image</a></li>
+    <li><a href="index.yaml">index.yaml</a></li>
+  </ul>
+
+  <h2>Install with Helm</h2>
+  <p>You need access to a Kubernetes cluster and the <code>helm</code> tool.</p>
+  <pre><code><span class="comment"># add the repository</span>
+helm repo add yourss https://essembeh.github.io/YouRSS/
+<span class="comment"># get the values and edit them for your needs</span>
+helm show values yourss/yourss &gt; myvalues.yaml
+<span class="comment"># install a release</span>
+helm install my-yourss yourss/yourss -f myvalues.yaml</code></pre>
+  <p>The chart deploys a single stateless <code>Deployment</code> with its <code>Service</code>, and optionally an
+    <code>Ingress</code>, a <code>HorizontalPodAutoscaler</code> and a <code>Secret</code> holding the users and their pages.
+    Without an ingress, forward the service to try it, then open <a href="http://localhost:8000/">http://localhost:8000/</a>:</p>
+  <pre><code>kubectl port-forward service/my-yourss 8000:http</code></pre>
+  <p>The chart version follows the application version: <code>appVersion</code> is the default image tag. Every value
+    under <code>yourss</code> maps to one <code>YOURSS_*</code> variable, with the same default as the application; see the
+    <a href="https://github.com/essembeh/YouRSS/tree/main/charts/yourss">chart documentation</a>.</p>
+
+  <h2>Install with Flux</h2>
+  <pre><code>apiVersion: source.toolkit.fluxcd.io/v1
+kind: HelmRepository
+metadata:
+  name: yourss
+spec:
+  interval: 1h
+  url: https://essembeh.github.io/YouRSS/
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: yourss
+spec:
+  interval: 10m
+  chart:
+    spec:
+      chart: yourss
+      version: "*"  <span class="comment"># or pin a version</span>
+      sourceRef:
+        kind: HelmRepository
+        name: yourss
+  values:
+    yourss:
+      cacheEnabled: true</code></pre>
+
+  <h2>Run with Docker</h2>
+  <pre><code>docker run -d --name yourss -p 8000:8000 ghcr.io/essembeh/yourss:main</code></pre>
+
+  <footer>
+    YouRSS is free software, see the <a href="https://github.com/essembeh/YouRSS">repository</a> for its license, issues and releases.
+  </footer>
+</main>
+<script>
+  // Copy buttons on the code blocks
+  for (const pre of document.querySelectorAll("pre")) {
+    const button = document.createElement("button")
+    button.className = "copy"
+    button.textContent = "Copy"
+    button.addEventListener("click", async () => {
+      try {
+        await navigator.clipboard.writeText(pre.querySelector("code").innerText)
+        button.textContent = "Copied"
+      } catch {
+        button.textContent = "Failed"
+      }
+      setTimeout(() => (button.textContent = "Copy"), 1500)
+    })
+    pre.append(button)
+  }
+  // The latest chart version, read from the index: entries are listed newest first
+  fetch("index.yaml")
+    .then((response) => (response.ok ? response.text() : ""))
+    .then((text) => {
+      const version = text.match(/^\s+version:\s*"?([^\s"]+)/m)?.[1]
+      if (version) {
+        document.getElementById("version").textContent = `Latest chart: ${version}`
+      }
+    })
+    .catch(() => {})
+</script>
+</body>
+</html>
