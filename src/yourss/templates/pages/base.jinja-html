@@ -50,6 +50,14 @@
     })()
   </script>
   <link href="{{ static_url('yourss.css') }}" rel="stylesheet" />
+  {# The import map must precede any module, preloaded ones included #}
+  <script type="importmap">
+    {"imports": {"yourss/core": "{{ static_url('yourss-core.js') }}", "yourss/watched": "{{ static_url('yourss-watched.js') }}", "yourss/player": "{{ static_url('yourss-player.js') }}", "yourss/listen": "{{ static_url('yourss-listen.js') }}"}}
+  </script>
+  {# The modules are fetched with the page, not one after the other as the imports are found #}
+  {% for module in ["yourss.js", "yourss-core.js", "yourss-watched.js", "yourss-player.js", "yourss-listen.js"] %}
+  <link rel="modulepreload" href="{{ static_url(module) }}" />
+  {% endfor %}
   <link rel="icon" type="image/png" sizes="32x32" href="{{ static_url('icons/favicon-32.png') }}" />
   <link rel="icon" type="image/png" sizes="192x192" href="{{ static_url('icons/icon-192.png') }}" />
   <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
@@ -103,10 +111,7 @@
   <template id="yourss-stage-template">{% include "partials/stage.jinja-html" %}</template>
   <button id="scroll-to-top" type="button" data-action="scroll-top" title="Back to top"><svg><use href="#i-up" /></svg></button>
 
-  <script src="https://unpkg.com/htmx.org@2.0.11" integrity="sha384-2OatzQy1H+Zd/IIrjr1TcuDGqLXeHhbooAyJY1KdQMKnr4LZ22k31GBLdYKHmVjg" crossorigin="anonymous"></script>
-  <script type="importmap">
-    {"imports": {"yourss/core": "{{ static_url('yourss-core.js') }}", "yourss/watched": "{{ static_url('yourss-watched.js') }}", "yourss/player": "{{ static_url('yourss-player.js') }}", "yourss/listen": "{{ static_url('yourss-listen.js') }}"}}
-  </script>
+  <script src="{{ static_url('htmx-2.0.11.min.js') }}"></script>
   <script type="module" src="{{ static_url('yourss.js') }}"></script>
 </body>
 
