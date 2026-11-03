@@ -1,8 +1,8 @@
 {% macro avatar(channel, size, extra="") -%}
 {% if channel.avatar -%}
-<img class="yourss-avatar {{ extra }}" referrerpolicy="no-referrer" src="{{ channel.avatar }}" alt="" width="{{ size }}" height="{{ size }}" />
+<img class="yourss-avatar {{ extra }}" referrerpolicy="no-referrer" src="{{ channel.avatar }}" alt="" decoding="async" width="{{ size }}" height="{{ size }}" />
 {%- else -%}
-<img class="yourss-avatar {{ extra }}" referrerpolicy="no-referrer" src="/avatar/{{ channel.channel_id }}?n={{ channel.name[:1]|urlencode }}" alt="" width="{{ size }}" height="{{ size }}" loading="lazy" />
+<img class="yourss-avatar {{ extra }}" referrerpolicy="no-referrer" src="/avatar/{{ channel.channel_id }}?n={{ channel.name[:1]|urlencode }}" alt="" decoding="async" width="{{ size }}" height="{{ size }}" loading="lazy" />
 {%- endif %}
 {%- endmacro %}
 

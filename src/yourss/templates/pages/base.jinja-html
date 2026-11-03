@@ -50,6 +50,9 @@
     })()
   </script>
   <link href="{{ static_url('yourss.css') }}" rel="stylesheet" />
+  {# The thumbnails and the avatars come from these hosts: connect while the page is read #}
+  <link rel="preconnect" href="https://i.ytimg.com" />
+  <link rel="preconnect" href="https://yt3.googleusercontent.com" />
   {# The import map must precede any module, preloaded ones included #}
   <script type="importmap">
     {"imports": {"yourss/core": "{{ static_url('yourss-core.js') }}", "yourss/watched": "{{ static_url('yourss-watched.js') }}", "yourss/player": "{{ static_url('yourss-player.js') }}", "yourss/listen": "{{ static_url('yourss-listen.js') }}"}}

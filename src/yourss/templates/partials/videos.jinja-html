@@ -4,7 +4,7 @@
   {% if loop.last and next_page_url %} hx-get="{{ next_page_url }}" hx-trigger="revealed" hx-swap="afterend transition:false"{% endif %}>
   {# The chrome of the player (bars, container) is cloned in by the script when the card plays: partials/player #}
   <div class="yourss-media" data-action="play">
-    <img referrerpolicy="no-referrer" class="yourss-thumbnail" src="{{ video.thumbnail }}" alt="" loading="lazy" />
+    <img referrerpolicy="no-referrer" class="yourss-thumbnail" src="{{ video.thumbnail }}" alt="" decoding="async" loading="lazy" />
     <span class="yourss-play-badge"><svg><use href="#i-play" /></svg></span>
     <span class="yourss-new" data-watched-feature title="Not watched yet">New</span>
   </div>
