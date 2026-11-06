@@ -67,11 +67,11 @@ Turn on *Show new videos* in the settings and the videos you played for a few se
 
 ### ▶️ Play in the page
 
-Click a thumbnail to play: the player takes the whole row, or the whole screen on a phone. A link on each card opens the video on Youtube. The next video can be played automatically.
+Click a thumbnail to play: the player takes the whole row, or the whole screen on a phone. A link on each card opens the video on Youtube. To play the videos one after the other, use *Listen*.
 
 ### 📺 Keep watching while you browse
 
-Turn on the *Mini player* in the settings: when you scroll away, the video keeps playing in a corner of the screen, without a gap, while you browse the rest of the page. Its card shows where it comes from, a click (or ↩) brings you back to it, 🎧 turns it into the listen player, and with *Autoplay next* the next video starts in the mini player. Without it, the player is closed as soon as its card leaves the screen. Opening another folder or channel closes it.
+Turn on the *Mini player* in the settings: when you scroll away, the video keeps playing in a corner of the screen, without a gap, while you browse the rest of the page. Its card shows where it comes from, a click (or ↩) brings you back to it and 🎧 turns it into the listen player. Without it, the player is closed as soon as its card leaves the screen. Opening another folder or channel closes it.
 
 ### 📂 Channels and playlists, inside the page
 
@@ -81,6 +81,7 @@ Click a channel in the sidebar to browse it without leaving your page: its recen
 
 - three themes (neon, dark, light), to pick on the home page or in the settings, and three density levels
 - thumbnails: the cover chosen by the channel, or a frame from the middle of the video, less clickbait
+- *No captions* in the settings: Youtube turns captions on by itself (a video in another language than your browser), this setting starts every video without them
 - works on desktop and mobile, can be added to the home screen of a phone
 - instant search in the titles
 - keyboard shortcuts: arrows move in the grid, `Space` plays, `n`/`p` play the next/previous video, `l` listens, `Shift`+`↑`/`↓` change channel, `Shift`+`←`/`→` change folder… press `?` for the list

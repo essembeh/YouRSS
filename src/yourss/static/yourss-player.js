@@ -73,6 +73,8 @@ export function createPlayer(YT, host, videoId, { onReady, onEnded, onState, onE
         }
       },
       onError: (event) => onError?.(event.data),
+      // Undocumented: the captions module loads after onReady and again with each video, firing this event
+      onApiChange: (event) => flag("no-captions") && event.target.setOption?.("captions", "track", {}),
     },
   })
 }
@@ -224,9 +226,9 @@ function onState(state) {
   hooks.onState?.(on, state)
 }
 
-// End of a video: the next one in listen mode or with autoplay, else a mini player is closed.
+// End of a video: the next one in listen mode, else a mini player is closed.
 function onEnded() {
-  if (listening() || flag("autoplay")) {
+  if (listening()) {
     step(1)
   } else if ($(".yourss-video.is-docked")) {
     closePlayer()

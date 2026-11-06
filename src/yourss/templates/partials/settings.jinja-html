@@ -34,11 +34,11 @@
     <button type="button" class="yourss-toggle" data-action="toggle" data-flag="new-videos" aria-pressed="false">
       <svg><use href="#i-check-all" /></svg><span class="yourss-toggle-text"><strong>Show new videos</strong><small>Remember the videos you played: New markers, counters and the All / New filter</small></span><i class="yourss-switch"></i>
     </button>
-    <button type="button" class="yourss-toggle" data-action="toggle" data-flag="autoplay" aria-pressed="false">
-      <svg><use href="#i-play" /></svg><span class="yourss-toggle-text"><strong>Autoplay next</strong><small>Play the next video when one ends</small></span><i class="yourss-switch"></i>
-    </button>
     <button type="button" class="yourss-toggle" data-action="toggle" data-flag="dock" aria-pressed="false">
       <svg><use href="#i-dock" /></svg><span class="yourss-toggle-text"><strong>Mini player</strong><small>Keep playing in a corner when the video leaves the screen, instead of closing the player</small></span><i class="yourss-switch"></i>
+    </button>
+    <button type="button" class="yourss-toggle" data-action="toggle" data-flag="no-captions" aria-pressed="false">
+      <svg><use href="#i-captions" /></svg><span class="yourss-toggle-text"><strong>No captions</strong><small>Start every video without captions, even when Youtube would show them</small></span><i class="yourss-switch"></i>
     </button>
 
     <button type="button" class="yourss-btn yourss-reset-btn" data-action="reset-storage" title="Back to the default settings and forget the watched videos">
