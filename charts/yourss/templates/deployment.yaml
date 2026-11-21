@@ -46,6 +46,10 @@ spec:
               value: {{ .Values.yourss.customPagesEnabled | quote }}
             - name: YOURSS_MAX_PAGE_ITEMS
               value: {{ .Values.yourss.maxPageItems | quote }}
+            - name: YOURSS_ME_ENABLED
+              value: {{ .Values.yourss.meEnabled | quote }}
+            - name: YOURSS_ME_MAX_FOLDERS
+              value: {{ .Values.yourss.meMaxFolders | quote }}
             - name: YOURSS_API_DOCS_ENABLED
               value: {{ .Values.yourss.apiDocsEnabled | quote }}
             - name: YOURSS_CLEAN_TITLES

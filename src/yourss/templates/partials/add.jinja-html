@@ -5,6 +5,6 @@
       <button type="button" class="yourss-icon-btn" data-action="close-dialog" aria-label="Close"><svg><use href="#i-close" /></svg></button>
     </div>
     {% include "partials/add-form.jinja-html" %}
-    <p class="yourss-settings-note">It goes in the address of this page: bookmark it again afterwards.</p>
+    <p class="yourss-settings-note">{% if me_page %}It goes in this folder, stored in this browser.{% else %}It goes in the address of this page: bookmark it again afterwards.{% endif %}</p>
   </div>
 </dialog>

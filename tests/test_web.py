@@ -6,6 +6,7 @@ from pytest import MonkeyPatch, mark
 
 from tests.sample import sample_playlist
 from yourss.routers.utils import next_page_url
+from yourss.schema import AppSettings
 from yourss.settings import current_config, static_folder
 from yourss.youtube import ChannelPage, ChannelTab, YoutubeApi
 
@@ -39,6 +40,83 @@ async def test_page_is_editable(client: AsyncClient) -> None:
     assert soup.body is not None
     assert soup.body["data-page-names"] == "UCVooVnzQxPSTXTMzSi1s6uw,UCQsmxaMzYr76Yd1iqMEq8TA"
     assert len(soup.find_all("button", attrs={"data-action": "remove-channel"})) == 2
+
+
+async def test_me_disabled(client: AsyncClient, monkeypatch: MonkeyPatch) -> None:
+    assert AppSettings.model_fields["me_enabled"].default is False
+    monkeypatch.setattr(current_config, "me_enabled", False)
+    assert (await client.get("/me")).status_code == 403
+    assert (await client.get("/me/music")).status_code == 403
+    assert (await client.get("/htmx/me/music", headers=HTMX)).status_code == 403
+
+
+async def test_me_shell(client: AsyncClient, monkeypatch: MonkeyPatch) -> None:
+    monkeypatch.setattr(current_config, "me_enabled", True)
+    monkeypatch.setattr(current_config, "me_max_folders", 7)
+    for path in ("/me", "/me/unknown-here"):
+        resp = await client.get(path)
+        assert resp.status_code == 200
+        soup = BeautifulSoup(resp.text, features="html.parser")
+        assert soup.body is not None and soup.body["data-me-max-folders"] == "7"
+        assert soup.body["data-page-max"] == str(current_config.max_page_items)
+        assert not soup.body.has_attr("data-page-names")
+        assert soup.select_one("#yourss-me-share") is not None
+        assert soup.select_one("#yourss-add") is not None
+        # Its rare commands sit on the parent row of the folders, not in the settings
+        assert len(soup.select('.yourss-folder-steps.is-me [data-action^="me-"]')) == 2
+        assert soup.select('#yourss-settings [data-action^="me-"]') == []
+        # The folders come from the browser: only the empty row to clone is served
+        assert soup.select("nav details.yourss-folder") == []
+        assert "yourss-me-folder-template" in resp.text
+
+
+async def test_me_folder_fragment(client: AsyncClient, monkeypatch: MonkeyPatch) -> None:
+    monkeypatch.setattr(current_config, "me_enabled", True)
+    channel = "UCVooVnzQxPSTXTMzSi1s6uw"
+    resp = await client.get(f"/htmx/me/music?ids={channel}", headers=HTMX)
+    assert resp.status_code == 200
+    soup = BeautifulSoup(resp.text, features="html.parser")
+    assert soup.select_one('[data-folder-page="music"]') is not None
+    assert soup.select_one('ul[data-folder-list="music"][hx-swap-oob="true"]') is not None
+    remove = soup.select_one('button[data-action="remove-channel"]')
+    assert remove is not None and remove["data-id"] == channel
+    link = soup.select_one(f'li[data-channel-id="{channel}"] a')
+    assert link is not None and link["href"] == f"/me/music?c={channel}"
+
+
+async def test_me_empty_folder_asks_nothing(client: AsyncClient, monkeypatch: MonkeyPatch) -> None:
+    monkeypatch.setattr(current_config, "me_enabled", True)
+    resp = await client.get("/htmx/me/empty", headers=HTMX)
+    assert resp.status_code == 200
+    assert 'data-folder-page="empty"' in resp.text
+
+
+@mark.parametrize(
+    "path,http_status",
+    [
+        ("/htmx/me/music?ids=nope", 422),  # not an id
+        ("/htmx/me/music?ids=@JonnyGiger", 422),  # a handle is resolved when it is added
+        ("/htmx/me/bad%20name?ids=UCVooVnzQxPSTXTMzSi1s6uw", 422),  # not a folder name
+    ],
+)
+async def test_me_folder_refused(client: AsyncClient, monkeypatch: MonkeyPatch, path: str, http_status: int) -> None:
+    monkeypatch.setattr(current_config, "me_enabled", True)
+    assert (await client.get(path, headers=HTMX)).status_code == http_status
+
+
+async def test_me_folder_limit(client: AsyncClient, monkeypatch: MonkeyPatch) -> None:
+    monkeypatch.setattr(current_config, "me_enabled", True)
+    monkeypatch.setattr(current_config, "max_page_items", 1)
+    ids = "UCVooVnzQxPSTXTMzSi1s6uw,UCQsmxaMzYr76Yd1iqMEq8TA"
+    assert (await client.get(f"/htmx/me/music?ids={ids}", headers=HTMX)).status_code == 422
+
+
+async def test_me_keeps_resolve_without_custom_pages(client: AsyncClient, monkeypatch: MonkeyPatch) -> None:
+    monkeypatch.setattr(current_config, "custom_pages_enabled", False)
+    monkeypatch.setattr(current_config, "me_enabled", False)
+    assert (await client.get("/api/resolve?q=UCVooVnzQxPSTXTMzSi1s6uw")).status_code == 403
+    monkeypatch.setattr(current_config, "me_enabled", True)
+    assert (await client.get("/api/resolve?q=UCVooVnzQxPSTXTMzSi1s6uw")).status_code == 200
 
 
 async def test_page_is_read_only(client: AsyncClient) -> None:
@@ -435,6 +513,7 @@ async def test_api_resolve_from_video(client: AsyncClient) -> None:
 
 async def test_custom_pages_disabled(client: AsyncClient, monkeypatch: MonkeyPatch) -> None:
     monkeypatch.setattr(current_config, "custom_pages_enabled", False)
+    monkeypatch.setattr(current_config, "me_enabled", False)
 
     # The home page and the multi channel pages are an error page
     for path in ("/", "/UCVooVnzQxPSTXTMzSi1s6uw"):

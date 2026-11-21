@@ -35,6 +35,17 @@
       <span class="yourss-start-go">Open my page <svg><use href="#i-chevron" /></svg></span>
     </a>
 
+    {% if me_enabled %}
+    <a id="yourss-me" class="yourss-start" href="/me">
+      <span class="yourss-start-head">
+        <span class="yourss-start-icon"><svg><use href="#i-folder" /></svg></span>
+        <strong>My folders<small>In this browser</small></strong>
+      </span>
+      <span class="yourss-start-text">Sort your channels into folders, then copy them to your other devices.</span>
+      <span class="yourss-start-go">Open /me <svg><use href="#i-chevron" /></svg></span>
+    </a>
+    {% endif %}
+
     <a id="yourss-demo" class="yourss-start" data-action="open-demo" href="/{{ demo.keys()|join(',') }}">
       <span class="yourss-start-head">
         <span class="yourss-start-icon"><svg><use href="#i-play" /></svg></span>

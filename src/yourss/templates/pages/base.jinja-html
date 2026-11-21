@@ -55,10 +55,10 @@
   <link rel="preconnect" href="https://yt3.googleusercontent.com" />
   {# The import map must precede any module, preloaded ones included #}
   <script type="importmap">
-    {"imports": {"yourss/core": "{{ static_url('yourss-core.js') }}", "yourss/watched": "{{ static_url('yourss-watched.js') }}", "yourss/player": "{{ static_url('yourss-player.js') }}", "yourss/listen": "{{ static_url('yourss-listen.js') }}"}}
+    {"imports": {"yourss/core": "{{ static_url('yourss-core.js') }}", "yourss/watched": "{{ static_url('yourss-watched.js') }}", "yourss/player": "{{ static_url('yourss-player.js') }}", "yourss/listen": "{{ static_url('yourss-listen.js') }}", "yourss/me": "{{ static_url('yourss-me.js') }}"}}
   </script>
   {# The modules are fetched with the page, not one after the other as the imports are found #}
-  {% for module in ["yourss.js", "yourss-core.js", "yourss-watched.js", "yourss-player.js", "yourss-listen.js"] %}
+  {% for module in ["yourss.js", "yourss-core.js", "yourss-watched.js", "yourss-player.js", "yourss-listen.js", "yourss-me.js"] %}
   <link rel="modulepreload" href="{{ static_url(module) }}" />
   {% endfor %}
   <link rel="icon" type="image/png" sizes="32x32" href="{{ static_url('icons/favicon-32.png') }}" />
@@ -72,7 +72,7 @@
   <meta name="theme-color" content="#0a0718" />
 </head>
 
-<body class="no-watched" hx-indicator="#yourss-loading"{% if page_names is defined %} data-page-names="{{ page_names|join(',') }}" data-page-max="{{ max_page_items }}"{% endif %}>
+<body class="no-watched" hx-indicator="#yourss-loading"{% if page_names is defined %} data-page-names="{{ page_names|join(',') }}" data-page-max="{{ max_page_items }}"{% endif %}{% if me_page %} data-me data-me-max-folders="{{ me_max_folders }}" data-page-max="{{ max_page_items }}"{% endif %}>
   {% include "partials/icons.jinja-html" %}
   <div id="yourss-loading" class="yourss-loading" aria-hidden="true"></div>
 
@@ -110,6 +110,11 @@
   {% include "partials/settings.jinja-html" %}
   {% include "partials/shortcuts.jinja-html" %}
   {% if page_names is defined %}{% include "partials/add.jinja-html" %}{% include "partials/welcome.jinja-html" %}{% endif %}
+  {% if me_page %}
+  {% include "partials/add.jinja-html" %}
+  {% include "partials/me-share.jinja-html" %}
+  <template id="yourss-me-folder-template">{% with folder_name="", address="", current=false %}{% include "partials/folder-row.jinja-html" %}{% endwith %}</template>
+  {% endif %}
   <template id="yourss-empty-template">{% include "partials/empty.jinja-html" %}</template>
   <template id="yourss-failed-template">{% include "partials/failed.jinja-html" %}</template>
   <template id="yourss-player-template">{% include "partials/player.jinja-html" %}</template>

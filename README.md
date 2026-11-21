@@ -158,6 +158,8 @@ Then visit [http://localhost:8000/](http://localhost:8000/)
 |----------|---------|------------|-------------|
 | YOURSS_CUSTOM_PAGES_ENABLED | `True` | `yourss.customPagesEnabled` | Let visitors build their own page by putting channels in its URL. If set to `false`, the home page and the multi channel pages show an error (`403`), and only the *user* pages remain |
 | YOURSS_MAX_PAGE_ITEMS | `12` | `yourss.maxPageItems` | How many channels and playlists the address of a custom page may hold. A longer address is refused (`422`) before anything is asked to Youtube. Configured pages are not limited |
+| YOURSS_ME_ENABLED | `False` | `yourss.meEnabled` | Offer the `/me` page: folders of channels built with buttons, kept in the browser (`localStorage`) and copied to other devices by address, QR code or JSON file. Nothing is stored on the server. When off, `/me` answers `403` |
+| YOURSS_ME_MAX_FOLDERS | `20` | `yourss.meMaxFolders` | How many folders `/me` may hold, checked by the browser. Each folder holds at most `YOURSS_MAX_PAGE_ITEMS` channels, checked by the server |
 | YOURSS_API_DOCS_ENABLED | `False` | `yourss.apiDocsEnabled` | If set to `true`, the generated API documentation is served at `/docs`, `/redoc` and `/openapi.json`. Meant for development: it is off in the docker image and in the Helm chart |
 | YOURSS_USERS_FILE |  | `yourss.users` | The users of the instance and their pages, in a YAML file (the Helm chart builds it from the values and stores it in a *Secret*) |
 | YOURSS_CLEAN_TITLES | `False` | `yourss.cleanTitles` | If set to `true`, videos titles are cleaned to prevent UPPERCASE TITLES |

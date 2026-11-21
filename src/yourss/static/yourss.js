@@ -21,12 +21,13 @@
  *
  * ES modules without a build step, resolved by the import map of the base template:
  * `yourss/core` (helpers, storage), `yourss/watched` (watched videos, counters), `yourss/player` (YouTube
- * player), `yourss/listen` (listen mode), and this entry point (settings, navigation, editable pages, commands,
+ * player), `yourss/listen` (listen mode), `yourss/me` (the /me page), and this entry point (settings, navigation, editable pages, commands,
  * htmx hooks).
  */
 import { $, $$, flag, focusVideo, focusedVideo, listening, on, store, videoOf, visibleVideos } from "yourss/core"
 import { applyWatched, captureFeed, feedIds, setWatched } from "yourss/watched"
 import { enterListen, listenInUrl, listenNav, listenNavGo, listenNavUnfold, listenRefresh, withListen } from "yourss/listen"
+import { ME_KEYS, initMe, isMePage, meActions, meChannels, meOpenAdd, meRemoveChannel, meSetChannels } from "yourss/me"
 import {
   closePlayer,
   dismissPlayer,
@@ -188,11 +189,11 @@ const folderEls = () => $$("details.yourss-folder")
 const folderEl = (name) => folderEls().find((el) => el.dataset.folder === name) || null
 const folderLoaded = (name) => ($(`ul[data-folder-list="${CSS.escape(name)}"]`)?.children.length || 0) > 0
 
-// The address of a folder is `/u/<user>/<page>`; the address of the user is its first segment
-const userPath = () => location.pathname.replace(/^(\/u\/[^/]+).*$/, "$1")
+// The address of a folder is `/u/<user>/<page>` or `/me/<folder>`; what precedes the folder is the user
+const userPath = () => location.pathname.replace(/^(\/u\/[^/]+|\/me)(?:\/.*)?$/, "$1")
 
 function folderFromUrl() {
-  const match = location.pathname.match(/^\/u\/[^/]+\/([^/]+)$/)
+  const match = location.pathname.match(/^(?:\/u\/[^/]+|\/me)\/([^/]+)$/)
   const name = match && decodeURIComponent(match[1])
   return name && folderEl(name) ? name : null
 }
@@ -319,6 +320,7 @@ function showFolder(name, { push }) {
 // Open the folder of the URL. Without one, the page goes to the last folder shown of this user, else to its first one.
 function syncFolderFromUrl() {
   if (folderEls().length === 0) {
+    syncFolderNav()
     return
   }
   const name = folderFromUrl()
@@ -328,7 +330,7 @@ function syncFolderFromUrl() {
     const known = remembered.startsWith(`${user}/`) && folderEl(decodeURIComponent(remembered.slice(user.length + 1)))
     const target = known ? remembered : `${user}/${encodeURIComponent(folderEls()[0].dataset.folder)}`
     location.replace(listenInUrl() ? withListen(target) : target)
-  } else if (folderLoaded(name)) {
+  } else if (folderLoaded(name) && !$("#yourss-content [data-me-shell]")) {
     unfold(folderEl(name))
     store.set("user-page", location.pathname)
   } else {
@@ -368,7 +370,9 @@ function flagEdited(value) {
 }
 
 function removeChannel(el) {
-  if (confirm(`Remove ${el.dataset.name} from this page?`)) {
+  if (isMePage) {
+    meRemoveChannel(el)
+  } else if (confirm(`Remove ${el.dataset.name} from this page?`)) {
     goToPage(pageNames().filter((name) => name !== el.dataset.id))
   }
 }
@@ -378,6 +382,10 @@ function showAddError(form, message) {
   error.textContent = message
   error.hidden = message === ""
 }
+
+// What the add form edits: the address of the page, or the open folder of /me
+const editedNames = () => (isMePage ? meChannels() : pageNames())
+const saveNames = (names) => (isMePage ? meSetChannels(names) : goToPage(names))
 
 // The server resolves what was typed to a channel or playlist id, the browser builds the new address.
 async function addChannel(form) {
@@ -393,12 +401,12 @@ async function addChannel(form) {
     const body = await response.json().catch(() => ({}))
     if (!response.ok) {
       showAddError(form, typeof body.detail === "string" ? body.detail : `The server failed (error ${response.status}), try again`)
-    } else if (pageNames().includes(body.id)) {
+    } else if (editedNames().includes(body.id)) {
       showAddError(form, `${body.name} is already on this page`)
-    } else if (pageNames().length >= Number(document.body.dataset.pageMax)) {
+    } else if (editedNames().length >= Number(document.body.dataset.pageMax)) {
       showAddError(form, `A page holds at most ${document.body.dataset.pageMax} channels and playlists: remove one first`)
     } else {
-      goToPage([...pageNames(), body.id])
+      saveNames([...editedNames(), body.id])
       return
     }
   } catch {
@@ -407,9 +415,9 @@ async function addChannel(form) {
   form.classList.remove("is-busy")
 }
 
-function openAddDialog() {
+function openAddDialog(el) {
   const dialog = $("#yourss-add")
-  if (dialog && $(".yourss-channels")) {
+  if (dialog && $(".yourss-channels") && (!isMePage || meOpenAdd(el))) {
     $$(".is-highlighted").forEach((el) => el.classList.remove("is-highlighted"))
     dialog.showModal()
     $("input", dialog).focus()
@@ -533,7 +541,7 @@ const actions = {
   "set-flag": (el) => setSetting(el.dataset.flag, el.dataset.value),
   "reset-storage": () => {
     if (confirm("Reset every setting and forget the watched videos?")) {
-      store.clear()
+      store.clear(ME_KEYS)
       location.reload()
     }
   },
@@ -560,6 +568,7 @@ const actions = {
   "remove-channel": removeChannel,
   "copy-link": copyLink,
   "scroll-top": () => window.scrollTo({ top: 0, behavior: "smooth" }),
+  ...meActions,
 }
 
 on("click", (event) => {
@@ -733,6 +742,7 @@ window.addEventListener("scroll", () => $("#scroll-to-top").classList.toggle("vi
 })
 applySettings()
 initEditablePage()
+initMe()
 captureFeed()
 syncFolderFromUrl()
 syncChannelFromUrl()

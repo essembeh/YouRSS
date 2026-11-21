@@ -1,0 +1,19 @@
+<dialog id="yourss-me-share" class="yourss-settings" data-qr-src="{{ static_url('qrcode-generator-1.4.4.js') }}">
+  <div class="yourss-settings-box">
+    <div class="yourss-settings-head">
+      <strong>Share my folders</strong>
+      <button type="button" class="yourss-icon-btn" data-action="close-dialog" aria-label="Close"><svg><use href="#i-close" /></svg></button>
+    </div>
+    <input id="yourss-me-url" class="yourss-me-url" type="text" readonly aria-label="Address holding your folders" />
+    <div class="yourss-me-actions">
+      <button type="button" class="yourss-btn" data-action="me-copy-url">Copy the address</button>
+      <button type="button" class="yourss-btn" data-action="me-show-qr">Show the QR code</button>
+      <button type="button" class="yourss-btn" data-action="me-download">Download JSON</button>
+      <button type="button" class="yourss-btn" data-action="me-import">Import a file</button>
+    </div>
+    <input id="yourss-me-file" type="file" accept="application/json,.json" hidden />
+    <canvas id="yourss-me-qr" class="yourss-me-qr" role="img" aria-label="QR code of the address" hidden></canvas>
+    <p id="yourss-me-qr-error" class="yourss-add-error" role="alert" hidden>Too many channels for a QR code: use the address or the JSON file.</p>
+    <p class="yourss-settings-note">Opening the address or importing the file replaces the folders of the other device. Its settings and watched videos stay.</p>
+  </div>
+</dialog>

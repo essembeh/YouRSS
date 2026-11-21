@@ -12,6 +12,16 @@
 <div id="yourss-content" hx-history-elt>
   {% if folder is defined %}
   <div data-folder-page="{{ folder.name }}">{% include "partials/videos-container.jinja-html" %}</div>
+  {% elif me_page %}
+  <div class="yourss-empty" data-me-shell>
+    <strong id="yourss-me-empty">Create your first folder</strong>
+    <strong id="yourss-me-choose" hidden>Choose a folder</strong>
+    <span>Your folders stay in this browser, and can be copied to your other devices.</span>
+    <div id="yourss-me-start" class="yourss-me-start">
+      <button type="button" class="yourss-btn" data-action="me-new-folder"><svg><use href="#i-plus" /></svg><span>New folder</span></button>
+      <button type="button" class="yourss-btn" data-action="me-import"><svg><use href="#i-folder-open" /></svg><span>Import a file</span></button>
+    </div>
+  </div>
   {% elif folders is defined %}
   <div class="yourss-empty">
     <strong>Choose a folder</strong>

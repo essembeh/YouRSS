@@ -35,8 +35,8 @@ async def _channel_name(api: YoutubeApi, text: str) -> str | None:
 @router.get("/resolve")
 async def resolve(q: Annotated[str, Query(min_length=1, max_length=200)]) -> dict[str, str]:
     """Resolve what a visitor typed to a channel or a playlist (docs/specs/custom-pages.md)."""
-    if not current_config.custom_pages_enabled:
-        raise HTTPException(HTTP_403_FORBIDDEN, detail="Custom pages are disabled on this instance")
+    if not (current_config.custom_pages_enabled or current_config.me_enabled):
+        raise HTTPException(HTTP_403_FORBIDDEN, detail="Editable pages are disabled on this instance")
     api = YoutubeApi()
     try:
         if (playlist_id := parse_playlist_reference(q)) is not None:

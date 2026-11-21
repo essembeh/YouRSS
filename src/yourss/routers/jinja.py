@@ -62,6 +62,7 @@ def template_page(
             "request": request,
             "link_prefix": link_prefix(request),
             "max_page_items": current_config.max_page_items,
+            "me_enabled": current_config.me_enabled,
             "version": __version__,
         }
         | {k: v for k, v in kwargs.items() if v is not None},

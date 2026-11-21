@@ -38,7 +38,7 @@ media.
 
 Python 3.13, FastAPI, Jinja2, Pydantic (settings, models, `pydantic-xml` for the feeds),
 `rapid-api-client` for every HTTP call (one shared httpx client over HTTP/2), loguru. Front: htmx served
-by the instance, one CSS file, five JavaScript modules (ES modules resolved by an import map, no build step).
+by the instance, one CSS file, six JavaScript modules (ES modules resolved by an import map, no build step).
 
 ## Layout
 
@@ -74,7 +74,7 @@ The `Justfile` is the interface of the project:
 - A setting is a `YOURSS_*` variable declared in `AppSettings`, documented in the README table and
   mirrored by a Helm value with the same default.
 - Front-end: every command is a `[data-action]` element handled in `yourss.js` (the entry module;
-  `yourss-core.js`, `yourss-watched.js`, `yourss-player.js` and `yourss-listen.js` are its imports), CSS classes are
+  `yourss-core.js`, `yourss-watched.js`, `yourss-player.js`, `yourss-listen.js` and `yourss-me.js` are its imports), CSS classes are
   prefixed `yourss-`, themes are sets of CSS variables selected by `<html data-theme>`. Anything
   a visitor can tune is a browser setting, not a server one. The only inline script, in the head of
   `base.jinja-html`, applies what must act before first paint: the theme, and the Frame thumbnails

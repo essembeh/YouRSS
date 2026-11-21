@@ -1,15 +1,19 @@
 import asyncio
 from typing import Annotated, Literal
 
-from fastapi import APIRouter, Depends, Header, HTTPException, Query, Request
+from fastapi import APIRouter, Depends, Header, HTTPException, Path, Query, Request
+from pydantic import ValidationError
 from starlette.responses import HTMLResponse
-from starlette.status import HTTP_404_NOT_FOUND
+from starlette.status import HTTP_403_FORBIDDEN, HTTP_404_NOT_FOUND, HTTP_422_UNPROCESSABLE_CONTENT
 
+from ..async_utils import async_fetch
+from ..schema import NAME_PATTERN
+from ..settings import current_config
 from ..youtube import PLAYLIST_TABS, ChannelDescription, ChannelTab, Continuation, Feed, YoutubeApi, is_channel_id
 from ..youtube.utils import CHANNEL_PATTERN
 from .jinja import template_page
-from .schema import ChannelId, ShownPlaylistId, UserId
-from .utils import get_videos_from_feeds, next_page_url
+from .schema import SUBSCRIPTIONS, ChannelId, ShownPlaylistId, UserId
+from .utils import get_videos_from_feeds, next_page_url, page_context
 
 
 def require_htmx(hx_request: Annotated[str | None, Header()] = None) -> None:
@@ -129,6 +133,31 @@ async def htmx_next(
         "partials/videos.jinja-html",
         videos=page.videos,
         next_page_url=next_page_url(page.continuation, shorts=shorts, playlist=playlist),
+    )
+
+
+@router.get("/me/{folder}", response_class=HTMLResponse)
+async def htmx_me_folder(
+    request: Request,
+    folder: Annotated[str, Path(pattern=NAME_PATTERN)],
+    ids: Annotated[str, Query(description="Channel and playlist ids, separated by commas")] = "",
+) -> HTMLResponse:
+    """A folder of /me: the browser names its channels, held to the limit of a custom page."""
+    if not current_config.me_enabled:
+        raise HTTPException(HTTP_403_FORBIDDEN)
+    try:
+        names = SUBSCRIPTIONS.validate_python(ids) if ids else []
+    except ValidationError as error:
+        raise HTTPException(HTTP_422_UNPROCESSABLE_CONTENT) from error
+    statuses = await async_fetch(names, api=YoutubeApi()) if names else []
+    return template_page(
+        request,
+        "partials/folder.jinja-html",
+        title="/me",
+        link_prefix=f"/me/{folder}?",
+        folder={"name": folder},
+        page_names=names,
+        **page_context(statuses),
     )
 
 

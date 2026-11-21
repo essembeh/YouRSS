@@ -16,6 +16,10 @@ class AppSettings(BaseSettings):
     custom_pages_enabled: bool = True
     # How many channels and playlists the address of a custom page may hold
     max_page_items: int = Field(default=12, ge=1)
+    # The /me page, its folders kept in the browser (docs/specs/me-page.md)
+    me_enabled: bool = False
+    # How many folders /me may hold, checked by the browser; each holds at most max_page_items channels
+    me_max_folders: int = Field(default=20, ge=1)
     # Serve the generated API documentation (/docs, /redoc, /openapi.json); off outside development
     api_docs_enabled: bool = False
     # YAML file declaring the user pages
@@ -57,7 +61,8 @@ class Password(BaseModel):
 # Channel ids, handles and playlist ids, at least one
 Channels = Annotated[list[str], Field(min_length=1)]
 # A page or user name: in the URL (`/p/<page>`, `/u/<user>/<page>`), a DOM id, a Secret key in the chart
-Name = Annotated[str, Field(pattern=r"^[A-Za-z0-9][A-Za-z0-9_-]{0,31}$")]
+NAME_PATTERN = r"^[A-Za-z0-9][A-Za-z0-9_-]{0,31}$"
+Name = Annotated[str, Field(pattern=NAME_PATTERN)]
 
 
 class Page(BaseModel):

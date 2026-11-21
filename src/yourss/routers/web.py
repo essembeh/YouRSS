@@ -238,6 +238,29 @@ async def user_folder(
     )
 
 
+@router.get("/me", response_class=HTMLResponse)
+@router.get("/me/{folder}", response_class=HTMLResponse)
+async def me_page(request: Request) -> HTMLResponse:
+    """The shell of /me: its folders live in the browser, which fills the sidebar (docs/specs/me-page.md)."""
+    if not current_config.me_enabled:
+        return template_page(
+            request,
+            "pages/error.jinja-html",
+            status_code=HTTP_403_FORBIDDEN,
+            title="This page is disabled",
+            message="The administrator of this instance does not offer the /me page.",
+        )
+    return template_page(
+        request,
+        "pages/view.jinja-html",
+        title="/me",
+        home_path="/me",
+        folders=[],
+        me_page=True,
+        me_max_folders=current_config.me_max_folders,
+    )
+
+
 @router.get("/{subscriptions}", response_class=HTMLResponse)
 async def page(
     request: Request,

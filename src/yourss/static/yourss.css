@@ -761,3 +761,19 @@ html[data-slide]::view-transition-new(root) { animation: yourss-slide-in .2s eas
 [data-theme="light"] .yourss-search { background: #ffffff; box-shadow: inset 0 0 0 1px var(--line); }
 [data-theme="light"] .yourss-nav-item { font-weight: 500; }
 [data-theme="light"] .yourss-nav-item:hover, [data-theme="light"] .yourss-nav-item.active { background: #ffffff; box-shadow: inset 0 0 0 1px var(--line); }
+
+/* The /me page: folders kept in the browser (docs/specs/me-page.md) */
+.yourss-me-start svg { width: 15px; height: 15px; }
+.yourss-me-start { display: flex; flex-wrap: wrap; justify-content: center; gap: .5rem; margin-top: .75rem; }
+.yourss-me-start[hidden] { display: none; }
+[data-action="me-share"] { position: relative; }
+[data-action="me-share"].is-dirty::after { content: ""; position: absolute; top: 1px; right: 1px; width: 7px; height: 7px; border-radius: 50%; background: var(--accent); }
+/* The row of /me stays on phones for its commands, the top bar has the chevrons */
+@media (max-width: 899px) { .yourss-folder-steps.is-me { display: flex; } .yourss-folder-steps.is-me [data-action="folder-step"] { display: none; } }
+.yourss-me-folders { display: contents; }
+.yourss-folder:not([open]) .yourss-me-row-btn { display: none; }
+.yourss-me-url { width: 100%; box-sizing: border-box; height: 36px; padding: 0 .6rem; border: 1px solid var(--line); border-radius: 10px; background: var(--bg); color: var(--fg-muted); font: inherit; font-size: .8rem; }
+.yourss-me-actions { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .4rem; }
+.yourss-me-actions .yourss-btn { justify-content: center; }
+.yourss-me-qr { display: block; width: min(100%, 360px); height: auto; margin: 0 auto; border-radius: 6px; image-rendering: pixelated; }
+.yourss-me-qr[hidden] { display: none; }

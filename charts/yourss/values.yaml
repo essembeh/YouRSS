@@ -17,6 +17,10 @@ yourss:
   customPagesEnabled: true
   # YOURSS_MAX_PAGE_ITEMS: how many channels and playlists the address of a custom page may hold
   maxPageItems: 12
+  # YOURSS_ME_ENABLED: offer the /me page, folders kept in the browser and copied between devices
+  meEnabled: false
+  # YOURSS_ME_MAX_FOLDERS: how many folders /me may hold, each with at most maxPageItems channels
+  meMaxFolders: 20
   # YOURSS_API_DOCS_ENABLED: serve the generated API documentation (/docs, /redoc, /openapi.json)
   apiDocsEnabled: false
   # YOURSS_CLEAN_TITLES: capitalize the titles to tame UPPERCASE ones

@@ -21,10 +21,11 @@ export const store = {
       /* private mode */
     }
   },
-  clear() {
+  // Every key but those named in `keep`
+  clear(keep = []) {
     try {
       Object.keys(localStorage)
-        .filter((key) => key.startsWith("yourss-"))
+        .filter((key) => key.startsWith("yourss-") && !keep.includes(key.slice("yourss-".length)))
         .forEach((key) => localStorage.removeItem(key))
     } catch {
       /* private mode */
