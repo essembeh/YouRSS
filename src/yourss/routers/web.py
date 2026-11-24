@@ -157,6 +157,15 @@ async def user_login(
     logout: Annotated[str, Form()] = "",
 ) -> Response:
     """The login form posts to the page it protects, the answer goes back to it (docs/specs/login.md §2, §7)."""
+    # Set by the browser, a page cannot forge it: no login or logout from another site (#10); absent, it passes
+    if request.headers.get("sec-fetch-site") == "cross-site":
+        return template_page(
+            request,
+            "pages/error.jinja-html",
+            status_code=HTTP_403_FORBIDDEN,
+            title="Cross-site form refused",
+            message="This form can only be sent from this instance.",
+        )
     if user is None:
         raise UnknownUser()
     if logout:

@@ -82,6 +82,25 @@ async def test_logout(client: AsyncClient) -> None:
     assert resp.status_code == 401
 
 
+async def test_cross_site_forms_refused(client: AsyncClient) -> None:
+    await client.post("/u/bob", data={"password": "foo"})
+    cross = {"Sec-Fetch-Site": "cross-site"}
+    # Another site can neither log out nor log in
+    resp = await client.post("/u/bob", data={"logout": "1"}, headers=cross)
+    assert resp.status_code == 403
+    assert "set-cookie" not in resp.headers
+    assert (await client.get("/u/bob")).status_code == 200
+    client.cookies.clear()
+    resp = await client.post("/u/bob", data={"password": "foo"}, headers=cross)
+    assert resp.status_code == 403
+    assert "set-cookie" not in resp.headers
+    # The instance itself, or a client without the header (curl), still can
+    for headers in ({"Sec-Fetch-Site": "same-origin"}, {}):
+        resp = await client.post("/u/bob", data={"password": "foo"}, headers=headers)
+        assert resp.status_code == 303
+        assert "set-cookie" in resp.headers
+
+
 async def test_basic_still_accepted(client: AsyncClient) -> None:
     resp = await client.get("/u/bob", auth=BasicAuth("bob", "foo"))
     assert resp.status_code == 200
