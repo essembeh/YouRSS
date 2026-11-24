@@ -63,5 +63,7 @@ EXPOSE 8000
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s \
   CMD ["python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/api/version', timeout=2)"]
 # No `uv run` here: PATH points to the venv, uv run would sync again at startup.
-# The scheme the proxy saw (X-Forwarded-Proto) makes the login cookie Secure: only the proxy reaches the pod
-CMD ["python", "-m", "uvicorn", "--host", "0.0.0.0", "--port", "8000", "--forwarded-allow-ips", "*", "yourss.main:app"]
+# The scheme the proxy saw (X-Forwarded-Proto) makes the login cookie Secure: only the proxy reaches the pod.
+# Read by uvicorn, a container reached without a proxy should restrict it to the proxy's address
+ENV FORWARDED_ALLOW_IPS="*"
+CMD ["python", "-m", "uvicorn", "--host", "0.0.0.0", "--port", "8000", "yourss.main:app"]
