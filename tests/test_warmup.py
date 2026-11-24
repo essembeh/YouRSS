@@ -5,7 +5,7 @@ from pathlib import Path
 from loguru import logger
 from pytest import MonkeyPatch
 
-from yourss.async_utils import SubscriptionStatus, async_fetch
+from yourss.async_utils import Kind, State, SubscriptionStatus, async_fetch
 from yourss.main import lifespan
 from yourss.security import read_config
 from yourss.settings import current_config
@@ -22,7 +22,7 @@ async def test_warm_round_refreshes_every_page() -> None:
         logger.remove(handler)
     (summary,) = [line for line in lines if line.startswith("Warm-up:")]
     # The pages of the sample file but Cards (`warmup: false`), a channel in several pages counted once
-    assert summary.startswith("Warm-up: 4 pages (1 skipped), 9 channels, 0 failed, ")
+    assert summary.startswith("Warm-up: 4 pages (1 skipped), 9 channels, 0 stale, 0 failed, ")
 
 
 async def test_warm_round_asks_a_channel_once(monkeypatch: MonkeyPatch) -> None:
@@ -36,6 +36,28 @@ async def test_warm_round_asks_a_channel_once(monkeypatch: MonkeyPatch) -> None:
     monkeypatch.setattr("yourss.warmup.async_fetch", counted)
     await warm_round()
     assert asked and len(asked) == len(set(asked))
+
+
+async def test_warm_round_counts_stale_feeds(monkeypatch: MonkeyPatch) -> None:
+    states = [State.OK, State.STALE, State.FAILED]
+
+    async def fake(names: list[str], api: YoutubeApi, *, refresh: bool = False) -> list[SubscriptionStatus]:
+        return [
+            SubscriptionStatus(name=name, kind=Kind.CHANNEL, state=states[i % len(states)])
+            for i, name in enumerate(names)
+        ]
+
+    monkeypatch.setattr("yourss.warmup.async_fetch", fake)
+    lines: list[str] = []
+    handler = logger.add(lambda message: lines.append(message.strip()), level="INFO", format="{message}")
+    try:
+        await warm_round()
+    finally:
+        logger.remove(handler)
+    (summary,) = [line for line in lines if line.startswith("Warm-up:")]
+    assert ", 9 channels, " in summary
+    assert " stale, " in summary and " failed, " in summary
+    assert "0 stale" not in summary and "0 failed" not in summary
 
 
 def _feed_mtimes(folder: Path) -> dict[Path, int]:

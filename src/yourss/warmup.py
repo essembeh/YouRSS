@@ -23,19 +23,22 @@ async def warm_round() -> None:
     start = monotonic()
     api = YoutubeApi()
     done: set[str] = set()
-    failed = 0
+    stale = failed = 0
     pages = [page for page in config.pages if page.warmup]
     for page in pages:
         names = [name for name in page.channels if name not in done]
         done.update(names)
         statuses = await async_fetch(names, api=api, refresh=True)
+        # Stale: Youtube failed and the fallback cache served an old copy (the feed may be dead)
+        stale += sum(status.state == State.STALE for status in statuses)
         failed += sum(status.state == State.FAILED for status in statuses)
     channels = len(done)
     logger.info(
-        "Warm-up: {} pages ({} skipped), {} channels, {} failed, {:.1f}s",
+        "Warm-up: {} pages ({} skipped), {} channels, {} stale, {} failed, {:.1f}s",
         len(pages),
         len(config.pages) - len(pages),
         channels,
+        stale,
         failed,
         monotonic() - start,
     )
