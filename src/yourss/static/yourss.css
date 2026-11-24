@@ -366,6 +366,8 @@ body.hide-watched.watched-ready .yourss-grid:not(:has(.yourss-video:not(.is-watc
 a.yourss-media { display: block; }
 .yourss-card-count { position: absolute; right: .5rem; bottom: .5rem; display: inline-flex; align-items: center; gap: .3rem; padding: .15rem .45rem; border-radius: 6px; font-size: .75rem; font-weight: 600; color: #fff; background: rgba(0, 0, 0, .75); }
 .yourss-card-count svg { width: 14px; height: 14px; }
+.yourss-duration { pointer-events: none; font-variant-numeric: tabular-nums; }
+.yourss-video.is-playing .yourss-duration { display: none; }
 .yourss-play-badge { position: absolute; inset: 0; display: grid; place-items: center; pointer-events: none; opacity: 0; transition: opacity .15s; background: rgba(0,0,0,.25); }
 .yourss-play-badge svg { width: 56px; height: 56px; fill: #fff; stroke: none; filter: drop-shadow(0 2px 8px rgba(0,0,0,.6)); }
 .yourss-media:hover .yourss-play-badge { opacity: 1; }

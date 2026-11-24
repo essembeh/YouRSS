@@ -11,6 +11,7 @@ from yourss.youtube.scraping.extract import (
     extract_initial_data,
     extract_json,
 )
+from yourss.youtube.scraping.items import parse_videos
 
 CHANNEL_ID = "UCVooVnzQxPSTXTMzSi1s6uw"
 
@@ -177,3 +178,18 @@ async def test_channel_page_is_retried_once(monkeypatch: MonkeyPatch) -> None:
     pages.extend(["<html>nothing</html>", "<html>nothing</html>"])
     with raises(ScrapingError):
         await api.get_channel_page(CHANNEL_ID)
+
+
+def test_video_duration() -> None:
+    def badged(video_id: str, *texts: str) -> dict[str, Any]:
+        out = _lockup(video_id)
+        badges = [{"thumbnailBadgeViewModel": {"text": text}} for text in texts]
+        out["lockupViewModel"]["contentImage"] = {"thumbnailViewModel": {"overlays": badges}}
+        return out
+
+    payload = {"items": [badged("aaaaaaaaaaa", "11:46"), badged("bbbbbbbbbbb", "LIVE"), _lockup("ccccccccccc")]}
+    payload["items"].append(badged("ddddddddddd", "LIVE", "1:02:03"))
+    assert [v.duration_text for v in parse_videos(payload)] == ["11:46", None, None, "1:02:03"]
+    # The legacy layout gives it as a text of its own
+    legacy = {"videoRenderer": {"videoId": "eeeeeeeeeee", "lengthText": {"simpleText": "4:05"}}}
+    assert [v.duration_text for v in parse_videos({"items": [legacy]})] == ["4:05"]

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import re
 from abc import ABC, abstractmethod
 from collections.abc import Iterator
 from typing import Any
@@ -67,6 +68,18 @@ def _views_from_metadata_rows(rows: Any) -> str | None:
                 return label
             if "view" in text.lower():
                 return text
+    return None
+
+
+# The badge of a video thumbnail is its duration ("11:46", "1:02:03"), or a label such as "LIVE"
+_DURATION = re.compile(r"^\d{1,2}(?::\d{2}){1,2}$")
+
+
+def _duration_from_badges(image: Any) -> str | None:
+    """The duration shown on the thumbnail of a ``lockupViewModel``, when it has one."""
+    for badge in iter_key("thumbnailBadgeViewModel", image if isinstance(image, dict) else {}, dict):
+        if _DURATION.match(text := str(badge.get("text") or "")):
+            return text
     return None
 
 
@@ -142,6 +155,7 @@ class LockupVideoParser(ItemParser):
             "title": glom(node, self._TITLE) or "",
             "published_text": _published_from_metadata_rows(rows),
             "views_text": _views_from_metadata_rows(rows),
+            "duration_text": _duration_from_badges(node.get("contentImage")),
             "thumbnail": simple_url(thumbnail) if thumbnail else None,
         }
 
@@ -182,6 +196,7 @@ class LegacyVideoParser(ItemParser):
     _TITLE = Coalesce("title.runs.0.text", "title.simpleText", default=None)
     _PUBLISHED = Coalesce("publishedTimeText.simpleText", default=None)
     _VIEWS = Coalesce("viewCountText.simpleText", default=None)
+    _DURATION = Coalesce("lengthText.simpleText", default=None)
     _THUMBNAIL = Coalesce("thumbnail.thumbnails.0.url", default=None)
 
     def extract(self, node: dict[str, Any]) -> dict[str, Any] | None:
@@ -194,6 +209,7 @@ class LegacyVideoParser(ItemParser):
             "title": glom(node, self._TITLE) or "",
             "published_text": glom(node, self._PUBLISHED),
             "views_text": glom(node, self._VIEWS),
+            "duration_text": glom(node, self._DURATION),
             "thumbnail": simple_url(thumbnail) if thumbnail else None,
         }
 

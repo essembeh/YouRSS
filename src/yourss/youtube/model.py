@@ -40,6 +40,8 @@ class VideoDescription(BaseModel, frozen=True):
     published_text: str | None = None
     views: int | None = None
     views_text: str | None = None
+    # Shown on the thumbnail of a scraped video ("11:46"); the RSS feed does not give it
+    duration_text: str | None = None
 
     @model_validator(mode="before")
     @classmethod

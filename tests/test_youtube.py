@@ -1,3 +1,4 @@
+import re
 from pathlib import Path
 from typing import Any
 
@@ -14,6 +15,8 @@ from yourss.youtube.scraping.items import SHORTS_PARSERS, VIDEO_PARSERS, parse_i
 CHANNEL = "UCVooVnzQxPSTXTMzSi1s6uw"
 # @thinkerview streams its interviews
 STREAMING_CHANNEL = "UCQgWpmt02UtJkyO32HGUASQ"
+# The duration of a scraped video, as Youtube shows it: "11:46", "1:02:03"
+DURATION = r"\d{1,2}(:\d{2}){1,2}"
 
 
 def is_rgpd_applicable() -> bool:
@@ -123,6 +126,7 @@ async def test_scrap_videos_fields() -> None:
         assert video.published_at is None
         assert not video.short
         assert video.thumbnail
+        assert re.fullmatch(DURATION, video.duration_text or "")
 
 
 async def test_scrap_shorts() -> None:
@@ -139,6 +143,7 @@ async def test_scrap_shorts() -> None:
         assert short.video_id
         assert short.title
         assert short.thumbnail
+        assert short.duration_text is None
 
 
 async def test_scrap_streams() -> None:
@@ -203,6 +208,7 @@ def test_parser_legacy_video_fallback() -> None:
             "title": "Legacy title",
             "published_text": "2 days ago",
             "views_text": None,
+            "duration_text": None,
             "thumbnail": "https://i.ytimg.com/x.jpg",
         }
     ]
@@ -246,6 +252,7 @@ def test_parser_lockup_video() -> None:
             "title": "New title",
             "published_text": "4 weeks ago",
             "views_text": "90K views",
+            "duration_text": None,
             "thumbnail": "https://i.ytimg.com/x.jpg",
         }
     ]
@@ -387,6 +394,8 @@ async def test_playlist_videos_next_pages() -> None:
     assert len(page.videos) == 100 and page.continuation is not None
     more = await api.get_more_playlist_videos(page.continuation)
     assert more.videos and not {video.video_id for video in more.videos} & {video.video_id for video in page.videos}
+    # The scraped pages show the duration of each video, the next ones too
+    assert all(re.fullmatch(DURATION, video.duration_text or "") for video in (*page.videos, *more.videos))
 
 
 async def test_playlists_tab() -> None:

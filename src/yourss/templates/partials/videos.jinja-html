@@ -7,6 +7,7 @@
     <img referrerpolicy="no-referrer" class="yourss-thumbnail" src="{{ video.thumbnail }}" alt="" decoding="async" loading="lazy" />
     <span class="yourss-play-badge"><svg><use href="#i-play" /></svg></span>
     <span class="yourss-new" data-watched-feature title="Not watched yet">New</span>
+    {% if video.duration_text %}<span class="yourss-card-count yourss-duration" title="Duration">{{ video.duration_text }}</span>{% endif %}
   </div>
   <div class="yourss-video-body">
     {% if video.channel %}
