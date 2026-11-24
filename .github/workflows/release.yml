@@ -37,8 +37,6 @@ jobs:
   python-audit:
     name: Dependency audit
     runs-on: ubuntu-latest
-    # Informative for now: a new advisory must not block a release by itself
-    continue-on-error: true
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: astral-sh/setup-uv@07a047e608db84b3d8c06cd9a7c7dcc9c355c18e # v10.3.2
@@ -49,7 +47,7 @@ jobs:
 
   docker-build:
     name: Build docker image
-    needs: [python-check, python-test]
+    needs: [python-check, python-test, python-audit]
     # The token of the run is enough to push to ghcr.io, once the package grants this repository write access
     permissions:
       contents: read
