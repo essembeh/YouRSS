@@ -12,7 +12,8 @@ FROM ghcr.io/astral-sh/uv:${UV_VERSION} AS uv
 ## Stage: base
 FROM python:${PYTHON_VERSION}-slim AS base
 
-RUN groupadd -r app && useradd -r -d /app -g app -N app \
+# A fixed high UID, the one of the Helm chart: no clash with an account of the host
+RUN groupadd -r -g 10001 app && useradd -r -u 10001 -d /app -g app -N app \
  && mkdir -p /app && chown app:app /app
 WORKDIR /app
 
@@ -26,7 +27,7 @@ FROM base AS builder
 
 COPY --from=uv /uv /usr/local/bin/uv
 
-USER app
+USER 10001:10001
 ENV UV_LINK_MODE=copy \
     UV_COMPILE_BYTECODE=1 \
     UV_PYTHON_DOWNLOADS=never
@@ -47,7 +48,7 @@ FROM base AS production
 RUN apt-get update && apt-get install -y tini && rm -rf /var/lib/apt/lists/*
 ENTRYPOINT ["tini", "--"]
 
-USER app
+USER 10001:10001
 COPY --from=builder --chown=app:app /app/.venv /app/.venv
 # PATH is enough: the package is installed in the venv, no PYTHONPATH needed.
 ENV PATH="/app/.venv/bin:$PATH"
