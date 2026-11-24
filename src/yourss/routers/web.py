@@ -5,7 +5,7 @@ from fastapi import APIRouter, Depends, Form, Header, HTTPException, Path, Query
 from fastapi.responses import FileResponse, RedirectResponse
 from loguru import logger
 from pydantic import ValidationError
-from starlette.responses import HTMLResponse, Response
+from starlette.responses import HTMLResponse, PlainTextResponse, Response
 from starlette.status import (
     HTTP_303_SEE_OTHER,
     HTTP_401_UNAUTHORIZED,
@@ -93,6 +93,22 @@ async def apple_touch_icon() -> FileResponse:
     return FileResponse(
         static_folder / "icons" / "apple-touch-icon.png", headers={"Cache-Control": "public, max-age=3600"}
     )
+
+
+@router.get("/favicon.ico", response_class=FileResponse)
+async def favicon() -> FileResponse:
+    """The icon asked by what is not a page (an image, a JSON answer, a bot): a PNG, every browser accepts it."""
+    return FileResponse(
+        static_folder / "icons" / "favicon-32.png",
+        media_type="image/png",
+        headers={"Cache-Control": "public, max-age=3600"},
+    )
+
+
+@router.get("/robots.txt", response_class=PlainTextResponse)
+async def robots() -> PlainTextResponse:
+    """No robot on the instance: its content is Youtube's, and each visit fetches feeds."""
+    return PlainTextResponse("User-agent: *\nDisallow: /\n", headers={"Cache-Control": "public, max-age=86400"})
 
 
 @router.get("/p/{page}", response_class=HTMLResponse)
@@ -229,13 +245,14 @@ async def page(
         ),
     ],
 ) -> HTMLResponse:
-    if not current_config.custom_pages_enabled:
-        return custom_pages_disabled(request)
-    # Split and checked by the type, before anything is asked to Youtube
+    # Split and checked by the type, before anything is asked to Youtube; an unknown path is a 404 even when disabled
     try:
         ids = SUBSCRIPTIONS.validate_python(subscriptions)
     except ValidationError as error:
-        if any(detail["type"] == TOO_MANY for detail in error.errors()):
+        too_many = any(detail["type"] == TOO_MANY for detail in error.errors())
+        if too_many and not current_config.custom_pages_enabled:
+            return custom_pages_disabled(request)
+        if too_many:
             return template_page(
                 request,
                 "pages/error.jinja-html",
@@ -243,6 +260,15 @@ async def page(
                 title="Too many subscriptions",
                 message=f"A page of this instance holds at most {current_config.max_page_items} items.",
                 home_link=True,
+            )
+        if not current_config.custom_pages_enabled:
+            # No hint towards the home page: it is refused too
+            return template_page(
+                request,
+                "pages/error.jinja-html",
+                status_code=HTTP_404_NOT_FOUND,
+                title="This page does not exist",
+                message="No page of this instance has this address.",
             )
         return template_page(
             request,
@@ -255,6 +281,8 @@ async def page(
             ),
             home_link=True,
         )
+    if not current_config.custom_pages_enabled:
+        return custom_pages_disabled(request)
     statuses = await async_fetch(ids, api=YoutubeApi())
     context = page_context(statuses)
     return template_page(

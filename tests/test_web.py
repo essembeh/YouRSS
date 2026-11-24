@@ -169,7 +169,7 @@ async def test_page_content_invalid_names(client: AsyncClient) -> None:
     assert soup.find("template", id="yourss-failed-template") is not None
 
 
-@mark.parametrize("path", ["/foo", "/favicon.ico", "/robots.txt", "/foo,UCVooVnzQxPSTXTMzSi1s6uw"])
+@mark.parametrize("path", ["/foo", "/foo,UCVooVnzQxPSTXTMzSi1s6uw"])
 async def test_stray_path_is_not_a_page(client: AsyncClient, path: str) -> None:
     resp = await client.get(path)
     assert resp.status_code == 404
@@ -445,10 +445,43 @@ async def test_custom_pages_disabled(client: AsyncClient, monkeypatch: MonkeyPat
     resp = await client.get("/api/resolve", params={"q": "UCVooVnzQxPSTXTMzSi1s6uw"})
     assert resp.status_code == 403
 
+    # Too many ids is a custom page as well
+    resp = await client.get("/" + ",".join(["UCVooVnzQxPSTXTMzSi1s6uw"] * (current_config.max_page_items + 1)))
+    assert resp.status_code == 403
+
     # User pages remain, without the way to a custom copy
     resp = await client.get("/p/fun")
     assert resp.status_code == 200
     assert "yourss-copy-page" not in resp.text
+
+
+@mark.parametrize("enabled", [True, False])
+async def test_unknown_path(client: AsyncClient, monkeypatch: MonkeyPatch, enabled: bool) -> None:
+    # Not a list of ids: a 404, never the 403 of the custom pages
+    monkeypatch.setattr(current_config, "custom_pages_enabled", enabled)
+    for path in ("/wp-login.php", "/.env", "/sitemap.xml"):
+        resp = await client.get(path)
+        assert resp.status_code == 404
+        assert "This page does not exist" in resp.text
+        assert ("the form of the home page" in resp.text) is enabled
+
+
+async def test_favicon(client: AsyncClient) -> None:
+    resp = await client.get("/favicon.ico")
+    assert resp.status_code == 200
+    assert resp.headers["content-type"] == "image/png"
+    assert resp.content == (static_folder / "icons" / "favicon-32.png").read_bytes()
+
+
+async def test_no_robots(client: AsyncClient) -> None:
+    resp = await client.get("/robots.txt")
+    assert resp.status_code == 200
+    assert resp.headers["content-type"].startswith("text/plain")
+    assert resp.text == "User-agent: *\nDisallow: /\n"
+    # A page linked elsewhere is not indexed either, the login form of a user included
+    for path in ("/", "/p/fun", "/u/bob"):
+        resp = await client.get(path)
+        assert BeautifulSoup(resp.text, "html.parser").select('meta[name=robots][content="noindex"]')
 
 
 async def test_removed_routes(client: AsyncClient) -> None:

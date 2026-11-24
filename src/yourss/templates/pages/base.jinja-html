@@ -67,6 +67,8 @@
   <link rel="manifest" href="{{ static_url('manifest.json') }}" />
   <meta name="apple-mobile-web-app-title" content="YouRSS" />
   <meta name="application-name" content="YouRSS" />
+  {# robots.txt keeps the polite robots out, this keeps a page linked elsewhere out of the results #}
+  <meta name="robots" content="noindex" />
   <meta name="theme-color" content="#0a0718" />
 </head>
 
