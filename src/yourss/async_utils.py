@@ -8,7 +8,7 @@ from pydantic import BaseModel, ValidationError
 from starlette.status import HTTP_404_NOT_FOUND
 
 from .settings import current_config
-from .youtube import ChannelDescription, Feed, ScrapingError, YoutubeApi, is_playlist_id, is_user
+from .youtube import ChannelDescription, Feed, ScrapingError, YoutubeApi, is_channel_id, is_playlist_id, is_user
 from .youtube.cache import known_channel
 
 
@@ -86,6 +86,13 @@ def _failed(name: str, kind: Kind, error: BaseException, channel: ChannelDescrip
     return SubscriptionStatus(name=name, kind=kind, state=State.FAILED, channel=channel, reason=reason_of(error))
 
 
+def _invalid(name: str) -> SubscriptionStatus:
+    """A name of the users file which cannot be asked to Youtube (#8): failed, without any request."""
+    logger.warning("Not a channel id, a playlist id or a handle: {!r}", name)
+    reason = "Not a channel id, a playlist id or a handle"
+    return SubscriptionStatus(name=name, kind=Kind.CHANNEL, state=State.FAILED, reason=reason)
+
+
 def _fetched(name: str, kind: Kind, feed: Feed, resolved: ChannelDescription | None) -> SubscriptionStatus:
     channel = resolved or known_channel(feed.channel_id)
     if channel is None:
@@ -106,6 +113,8 @@ async def async_fetch(names: list[str], api: YoutubeApi, *, refresh: bool = Fals
 
     targets: dict[str, str] = {}
     for name in names:
+        if not (is_channel_id(name) or is_playlist_id(name) or is_user(name)):
+            continue
         if not is_user(name):
             targets[name] = name
         elif isinstance(channel := resolved[name], ChannelDescription):
@@ -129,6 +138,9 @@ async def async_fetch(names: list[str], api: YoutubeApi, *, refresh: bool = Fals
     out = []
     for name in names:
         kind = Kind.PLAYLIST if is_playlist_id(name) else Kind.CHANNEL
+        if name not in targets and name not in resolved:
+            out.append(_invalid(name))
+            continue
         if name not in targets:
             error = resolved[name]
             assert isinstance(error, BaseException)  # noqa: S101  # the only reason for a handle to have no target

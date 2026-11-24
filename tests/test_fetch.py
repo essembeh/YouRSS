@@ -117,6 +117,24 @@ async def test_stale_feed(monkeypatch: MonkeyPatch, api: YoutubeApi) -> None:
     assert status.state is State.OK and status.age is None
 
 
+@mark.parametrize("name", ["", "/", ".", "foo", "UCVooVnzQxPSTXTMzSi1s6u"])
+async def test_invalid_name(monkeypatch: MonkeyPatch, api: YoutubeApi, name: str) -> None:
+    asked: list[str] = []
+    get_channel_rss = api.get_channel_rss
+
+    async def counted(channel_id: str, *, refresh: bool = False) -> Feed:
+        asked.append(channel_id)
+        return await get_channel_rss(channel_id, refresh=refresh)
+
+    monkeypatch.setattr(api, "get_channel_rss", counted)
+    # Neither an id nor a handle: failed without asking Youtube nor reading the cache, the others still fetched
+    invalid, ok = await async_fetch([name, CHANNEL_ID], api)
+    assert invalid.state is State.FAILED and invalid.feed is None and invalid.channel is None
+    assert invalid.reason == "Not a channel id, a playlist id or a handle"
+    assert ok.state is State.OK
+    assert asked == [CHANNEL_ID]
+
+
 async def test_handles(api: YoutubeApi) -> None:
     statuses = await async_fetch([HANDLE, "@unknown"], api)
 

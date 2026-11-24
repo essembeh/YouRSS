@@ -60,6 +60,25 @@ async def test_warm_round_counts_stale_feeds(monkeypatch: MonkeyPatch) -> None:
     assert "0 stale" not in summary and "0 failed" not in summary
 
 
+async def test_warm_round_goes_past_an_invalid_name(monkeypatch: MonkeyPatch, tmp_path: Path) -> None:
+    users = tmp_path / "users.yaml"
+    users.write_text(
+        "users:\n  - name: eve\n    pages:\n"
+        '      - name: Bad\n        channels: ["", "/", "foo", "PLw-vK1_d04zZCal3yMX_T23h5nDJ2toTk"]\n'
+        '      - name: Good\n        channels: ["UCVooVnzQxPSTXTMzSi1s6uw"]\n'
+    )
+    monkeypatch.setattr(current_config, "users_file", users)
+    lines: list[str] = []
+    handler = logger.add(lambda message: lines.append(message.strip()), level="INFO", format="{message}")
+    try:
+        await warm_round()
+    finally:
+        logger.remove(handler)
+    # The round reaches the next page, the invalid names count as failed
+    (summary,) = [line for line in lines if line.startswith("Warm-up:")]
+    assert summary.startswith("Warm-up: 2 pages (0 skipped), 5 channels, 0 stale, 3 failed, ")
+
+
 def _feed_mtimes(folder: Path) -> dict[Path, int]:
     return {path: path.stat().st_mtime_ns for path in folder.glob("*.rss")}
 
