@@ -9,6 +9,7 @@ from httpx import ASGITransport, AsyncClient
 from pytest import Config, Item, MonkeyPatch, fixture, mark
 
 from tests.youtube_fake import FakeYoutube, Mode
+from yourss import security
 from yourss.main import app
 from yourss.settings import current_config
 from yourss.youtube import YoutubeApi
@@ -32,6 +33,12 @@ def pytest_collection_modifyitems(items: list[Item]) -> None:
 async def client() -> AsyncIterator[AsyncClient]:
     async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test", follow_redirects=False) as client:
         yield client
+
+
+@fixture(autouse=True)
+def no_wrong_password_delay(monkeypatch: MonkeyPatch) -> None:
+    """A wrong password answers at once in the suite, `test_login` measures the delay itself."""
+    monkeypatch.setattr(security, "WRONG_PASSWORD_DELAY", 0)
 
 
 @fixture(autouse=True, scope="session")

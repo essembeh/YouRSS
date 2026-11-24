@@ -150,7 +150,7 @@ async def user_login(
     back = request.url.path + (f"?{request.url.query}" if request.url.query else "")
     if user.password is None:
         return RedirectResponse(back, status_code=HTTP_303_SEE_OTHER)
-    if not verify_password(user, password):
+    if not await verify_password(user, password):
         logger.warning("Wrong login password for {} from {}", user.name, request.client and request.client.host)
         return login_page(request, user, error=True)
     out = RedirectResponse(back, status_code=HTTP_303_SEE_OTHER)

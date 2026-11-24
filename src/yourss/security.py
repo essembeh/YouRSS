@@ -6,6 +6,7 @@ from base64 import urlsafe_b64encode
 from secrets import compare_digest
 from time import time
 
+from anyio import CapacityLimiter, fail_after, sleep, to_thread
 from argon2 import PasswordHasher
 from fastapi import Depends, Request
 from fastapi.security import HTTPBasic
@@ -17,8 +18,26 @@ from .schema import Page, PasswordMethod, User, UsersConfig
 security = HTTPBasic(auto_error=False)
 argon2hasher = PasswordHasher()
 
+# An argon2 check holds 64 MiB and ~60 ms of CPU: two at most, off the event loop
+ARGON2_LIMITER = CapacityLimiter(2)
+# How long a check waits for the limiter before the request is refused with a 429, in seconds
+ARGON2_WAIT = 1.0
+# A wrong password answers after this delay, in seconds, to slow down guessing
+WRONG_PASSWORD_DELAY = 1.0
 
-def verify_password(user: User, value: str) -> bool:
+
+class TooManyLogins(Exception):
+    """Every argon2 slot stayed busy: the application answers a 429 (see `main.py`)."""
+
+
+def _argon2_verify(hashed: str, value: str) -> bool:
+    try:
+        return argon2hasher.verify(hashed, value)
+    except Exception:
+        return False
+
+
+async def _check_password(user: User, value: str) -> bool:
     if user.password is None:
         return False
     if user.password.method == PasswordMethod.CLEAR:
@@ -26,11 +45,23 @@ def verify_password(user: User, value: str) -> bool:
         return compare_digest(user.password.value.get_secret_value().encode(), value.encode())
     if user.password.method == PasswordMethod.ARGON2:
         try:
-            return argon2hasher.verify(user.password.value.get_secret_value(), value)
-        except Exception:
-            return False
+            with fail_after(ARGON2_WAIT):
+                await ARGON2_LIMITER.acquire()
+        except TimeoutError:
+            raise TooManyLogins() from None
+        try:
+            return await to_thread.run_sync(_argon2_verify, user.password.value.get_secret_value(), value)
+        finally:
+            ARGON2_LIMITER.release()
 
     raise ValueError("Invalid password method")
+
+
+async def verify_password(user: User, value: str) -> bool:
+    out = await _check_password(user, value)
+    if not out:
+        await sleep(WRONG_PASSWORD_DELAY)
+    return out
 
 
 def read_config() -> UsersConfig | None:
@@ -105,7 +136,7 @@ async def get_auth_user(request: Request, user: User | None = Depends(find_user)
         credentials = await security(request)
         if credentials is None:
             raise LoginRequired(user)
-        if not verify_password(user, credentials.password):
+        if not await verify_password(user, credentials.password):
             logger.warning("Wrong Basic password for {} from {}", user.name, request.client and request.client.host)
             raise LoginRequired(user)
 

@@ -1,10 +1,11 @@
-from time import time
+from time import perf_counter, time
 
 from bs4 import BeautifulSoup
 from httpx import AsyncClient, BasicAuth
 from pydantic import SecretStr
-from pytest import mark
+from pytest import MonkeyPatch, mark
 
+from yourss import security
 from yourss.schema import Password, PasswordMethod, User
 from yourss.security import LOGIN_COOKIE, check_login, login_token, read_config
 from yourss.settings import current_config
@@ -87,6 +88,43 @@ async def test_basic_still_accepted(client: AsyncClient) -> None:
     assert "set-cookie" not in resp.headers
     resp = await client.get("/u/bob", auth=BasicAuth("bob", "bar"))
     assert resp.status_code == 401
+
+
+async def test_wrong_password_delay(client: AsyncClient, monkeypatch: MonkeyPatch) -> None:
+    monkeypatch.setattr(security, "WRONG_PASSWORD_DELAY", 0.3)
+    start = perf_counter()
+    resp = await client.post("/u/bob", data={"password": "bar"})
+    assert resp.status_code == 401
+    assert perf_counter() - start >= 0.3
+    start = perf_counter()
+    resp = await client.post("/u/bob", data={"password": "foo"})
+    assert resp.status_code == 303
+    assert perf_counter() - start < 0.3
+
+
+async def test_argon2_slots_busy(client: AsyncClient, monkeypatch: MonkeyPatch) -> None:
+    monkeypatch.setattr(security, "ARGON2_WAIT", 0.05)
+    token = login_token(bob())
+    borrowers = [object() for _ in range(int(security.ARGON2_LIMITER.total_tokens))]
+    for borrower in borrowers:
+        await security.ARGON2_LIMITER.acquire_on_behalf_of(borrower)
+    try:
+        # The form and Basic need a slot: refused, the client retries later
+        resp = await client.post("/u/bob", data={"password": "foo"})
+        assert resp.status_code == 429
+        assert resp.headers["Retry-After"] == "1"
+        resp = await client.get("/u/bob", auth=BasicAuth("bob", "foo"))
+        assert resp.status_code == 429
+        # A logged in browser never checks the password
+        client.cookies.set(LOGIN_COOKIE, token, path="/u/bob")
+        resp = await client.get("/u/bob")
+        assert resp.status_code == 200
+    finally:
+        for borrower in borrowers:
+            security.ARGON2_LIMITER.release_on_behalf_of(borrower)
+    client.cookies.clear()
+    resp = await client.post("/u/bob", data={"password": "foo"})
+    assert resp.status_code == 303
 
 
 async def test_htmx_without_login_reloads(client: AsyncClient) -> None:

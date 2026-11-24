@@ -13,7 +13,7 @@ from . import __name__ as app_name
 from . import __version__ as app_version
 from .routers import api, htmx, web
 from .routers.jinja import template_page
-from .security import LoginRequired, UnknownUser
+from .security import LoginRequired, TooManyLogins, UnknownUser
 from .settings import current_config, iso_duration, static_folder
 from .warmup import warm_forever, warm_interval
 from .youtube import shared_client
@@ -67,6 +67,20 @@ async def login_required(request: Request, error: LoginRequired) -> Response:
     return web.login_page(request, error.user)
 
 
+async def too_many_logins(request: Request, error: TooManyLogins) -> Response:
+    """Every argon2 slot is busy: the client retries in a second."""
+    logger.warning("Too many password checks, {} refused", request.url.path)
+    out = template_page(
+        request,
+        "pages/error.jinja-html",
+        status_code=429,
+        title="Too many login attempts",
+        message="This instance is busy checking passwords, try again in a moment.",
+    )
+    out.headers["Retry-After"] = "1"
+    return out
+
+
 def create_app(*, api_docs: bool) -> FastAPI:
     """The application, with or without the generated API documentation."""
     out = FastAPI(
@@ -79,6 +93,7 @@ def create_app(*, api_docs: bool) -> FastAPI:
     )
     out.add_exception_handler(UnknownUser, unknown_user)  # type: ignore[arg-type]
     out.add_exception_handler(LoginRequired, login_required)  # type: ignore[arg-type]
+    out.add_exception_handler(TooManyLogins, too_many_logins)  # type: ignore[arg-type]
     # A folder of videos is a few hundred kB of HTML, twenty times less once compressed
     out.add_middleware(GZipMiddleware, minimum_size=1000)
     out.include_router(web.router)
