@@ -34,7 +34,7 @@
     <button type="button" class="yourss-toggle" data-action="toggle" data-flag="new-videos" aria-pressed="false">
       <svg><use href="#i-check-all" /></svg><span class="yourss-toggle-text"><strong>Show new videos</strong><small>Remember the videos you played: New markers, counters and the All / New filter</small></span><i class="yourss-switch"></i>
     </button>
-    <button type="button" class="yourss-toggle" data-action="toggle" data-flag="dock" aria-pressed="false">
+    <button type="button" class="yourss-toggle" data-action="toggle" data-flag="dock" aria-pressed="true">
       <svg><use href="#i-dock" /></svg><span class="yourss-toggle-text"><strong>Mini player</strong><small>Keep playing in a corner when the video leaves the screen, instead of closing the player</small></span><i class="yourss-switch"></i>
     </button>
     <button type="button" class="yourss-toggle" data-action="toggle" data-flag="no-captions" aria-pressed="false">

@@ -32,8 +32,9 @@ export const store = {
   },
 }
 
-// On / off settings, all off until the user turns them on
-export const flag = (name) => store.get(name) === "1"
+// On / off settings, off until the user turns them on, except those on by default; a toggle stores "1" or "0"
+const FLAG_DEFAULTS = { dock: "1" }
+export const flag = (name) => (store.get(name) ?? FLAG_DEFAULTS[name] ?? "0") === "1"
 
 // The listen mode (yourss-listen.js) is on: the player stays in its mini player, the cards are a queue
 export const listening = () => document.body.classList.contains("listening")

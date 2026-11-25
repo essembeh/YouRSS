@@ -71,7 +71,7 @@ Click a thumbnail to play: the player takes the whole row, or the whole screen o
 
 ### 📺 Keep watching while you browse
 
-Turn on the *Mini player* in the settings: when you scroll away, the video keeps playing in a corner of the screen, without a gap, while you browse the rest of the page. Its card shows where it comes from, a click (or ↩) brings you back to it and 🎧 turns it into the listen player. Without it, the player is closed as soon as its card leaves the screen. Opening another folder or channel closes it.
+With the *Mini player*, on by default in the settings: when you scroll away, the video keeps playing in a corner of the screen, without a gap, while you browse the rest of the page. Its card shows where it comes from, a click (or ↩) brings you back to it and 🎧 turns it into the listen player. Turned off, the player is closed as soon as its card leaves the screen. Opening another folder or channel closes it.
 
 ### 📂 Channels and playlists, inside the page
 
